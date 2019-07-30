@@ -25,7 +25,7 @@ module.exports.run = (bot, message, args) => {
             **https://discordapp.com/guidelines**
             **https://discordapp.com/privacy**`)
         .setColor("#7489DA")
-        .setThumbnail("https://cdn.discordapp.com/attachments/538075658069344276/605066481646174208/AsiiWumpus.png");
+        .setThumbnail("https://cdn.discordapp.com/attachments/538075658069344276/605075123908902921/wump.png");
 
     message.channel.send({embed: embed});
 }

@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 
+const functions = require('./functions.js');
+
 const fs = require('fs');
 const colors = require('colors/safe');
 
@@ -8,6 +10,7 @@ const CONFIG = require('./config.json');
 
 const prefix = CONFIG.Prefix;
 
+bot.owner = "333324517730680842";
 bot.commands = new Discord.Collection();
 var cmds = [];
 
@@ -16,7 +19,7 @@ loadCmds();
 bot.login(CONFIG.TOKEN).catch(console.error);
 
 bot.on('ready', () => {
-    console.log("bot is ready!");
+    console.log("Bot is ready!");
 });
 
 bot.on('message', message => {
@@ -26,15 +29,16 @@ bot.on('message', message => {
 
     var messageArray = message.content.split(/ +/g);
     var command = messageArray[0].toLowerCase().slice(prefix.length);
-    var args;
+    var args = [];
 
     if(!command && messageArray[1]) {
         command = messageArray[1].toLowerCase();
         args = messageArray.slice(2);
     } else args = messageArray.slice(1);
 
-    if(messageArray[0] === "eval" && bot.owner === message.author.id) {
+    if(command === "eval" && bot.owner === message.author.id) {
         try {
+            console.log(colors.red("WARN: eval being used by " + message.author.username));
             const code = args.join(" ");
             var evaled = eval(code);
       
@@ -44,9 +48,8 @@ bot.on('message', message => {
             message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
         }
     } else {
-    
         var cmd = bot.commands.get(command);
-        if(cmd) cmd.run(bot, message, args);
+        if(cmd) cmd.run(bot, message, args, functions);
     }
 });
 
