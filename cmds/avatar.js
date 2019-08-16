@@ -1,8 +1,10 @@
 const Discord = module.require("discord.js");
 
-module.exports.run = async (bot, message, args, functions) => {
+const functions = require('../functions.js');
+
+module.exports.run = async (bot, message, args) => {
     var msg = await message.channel.send("Generating avatar...");
-    var target = functions.GetTargetForEmbed(message, args);
+    var target = functions.GetTarget(message, args);
 
     if(!target.username) target = target.user;
 

@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 
 const functions = require('./functions.js');
+const database = require('./database.js');
 
 const fs = require('fs');
 const colors = require('colors/safe');
@@ -19,6 +20,7 @@ loadCmds();
 bot.login(CONFIG.TOKEN).catch(console.error);
 
 bot.on('ready', () => {
+    database.PrepareCurrencyTable();
     console.log("Bot is ready!");
 });
 
@@ -41,7 +43,7 @@ bot.on('message', message => {
             console.log(colors.red("WARN: eval being used by " + message.author.username));
             const code = args.join(" ");
             var evaled = eval(code);
-      
+
             if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
             message.channel.send(clean(evaled), {code:"xl", split: [{char: '\n'}] }).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
         } catch (err) {
@@ -49,31 +51,31 @@ bot.on('message', message => {
         }
     } else {
         var cmd = bot.commands.get(command);
-        if(cmd) cmd.run(bot, message, args, functions);
+        if(cmd) cmd.run(bot, message, args);
     }
 });
 
 function loadCmds() {
     fs.readdir("./cmds/",(err, files) => {
         if(err) console.error(`ERROR: ${err}`);
-    
+
         var jsfiles = files.filter(f => f.split(".").pop() === "js");
         if(jsfiles.length <= 0) {
             console.log(colors.red("ERROR: No commands to load!"));
             return;
-        } 
+        }
 
         console.log(colors.cyan(`Loading ${jsfiles.length} bot commands!`));
-    
+
         jsfiles.forEach((f, i) => {
             delete require.cache[require.resolve(`./cmds/${f}`)];
             var props = require(`./cmds/${f}`);
-            console.log(colors.white(`${i + 1}: ${f} loaded!`));    
+            console.log(colors.white(`${i + 1}: ${f} loaded!`));
             bot.commands.set(props.help.cmd, props);
             cmds.push(props.help.cmd);
         });
 
-        console.log(colors.cyan(`Succesfuly loaded ${jsfiles.length} commands!`));
+        console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!`));
     });
 }
 

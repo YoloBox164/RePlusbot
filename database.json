@@ -1,0 +1,15 @@
+{
+    "currency": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "points",
+            "type": "INTEGER DEFAULT(0)"
+        },
+        {
+            "name": "hasRole",
+            "type": "BOOLEAN"
+        }
+    ]
+}

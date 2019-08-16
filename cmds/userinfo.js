@@ -1,7 +1,9 @@
 const Discord = module.require('discord.js');
 
-module.exports.run = (bot, message, args, functions) => {
-    var target = functions.GetTargetForEmbed(message, args);
+const functions = require('../functions.js');
+
+module.exports.run = (bot, message, args) => {
+    var target = functions.GetTarget(message, args);
     var roles;
     if(!target.username) {
         roles = target.roles.array().slice(1).join(" | ");
