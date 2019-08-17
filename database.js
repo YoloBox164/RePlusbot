@@ -43,10 +43,16 @@ module.exports = {
     GetCurrencyObjectTemplate: function(id) {
         return currenyData = {
             id: `${id}`,
-            points: 0,
-            hasRole: 0
+            bits: 0,
+            hasRole: 0,
+            claimTime: 0
         }
 
     }
 }
 
+module.exports.config = {
+    DayBits: 250,
+    WumpusRoleCost: 5500,
+    DayInMilliSeconds: 86400000
+}

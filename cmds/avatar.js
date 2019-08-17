@@ -1,4 +1,4 @@
-const Discord = module.require("discord.js");
+const Discord = require("discord.js");
 
 const functions = require('../functions.js');
 

@@ -4,12 +4,16 @@
             "type": "VARCHAR(30) PRIMARY KEY"
         },
         {
-            "name": "points",
+            "name": "bits",
             "type": "INTEGER DEFAULT(0)"
         },
         {
             "name": "hasRole",
             "type": "BOOLEAN"
+        },
+        {
+            "name": "claimTime",
+            "type": "INTEGER"
         }
     ]
 }

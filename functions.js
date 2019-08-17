@@ -22,5 +22,12 @@ module.exports = {
             var x = a[key]; var y = b[key];
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
+    },
+
+    MemberHasRoles: function(member, roles) {
+        roles.forEach(role => {
+            if(member.roles.get(role)) return true;
+        });
+        return false;
     }
 }
