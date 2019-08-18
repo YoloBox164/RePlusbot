@@ -30,5 +30,6 @@ module.exports.run = (bot, message, args) => {
 
 module.exports.help = {
     cmd: "userinfo",
+    alias: [],
     name: "User information"
 }

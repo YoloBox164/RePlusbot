@@ -29,5 +29,6 @@ module.exports.run = (bot, message, args) => {
 
 module.exports.help = {
     cmd: "rules",
+    alias: ["szabályok", "szabalyok", "szabályzat", "szabalyzat", "szabály", "szabaly"],
     name: "Rules"
 }

@@ -13,8 +13,7 @@ module.exports = {
             || message.guild.members.find(member => joinedArgs.includes(member.displayName.toLowerCase()))
             || message.guild.members.get(args[0])
             || message.author;
-
-        return target;
+        return target; //give back a user
     },
 
     SortByKey: function(array, key) {
@@ -24,10 +23,9 @@ module.exports = {
         });
     },
 
-    MemberHasRoles: function(member, roles) {
-        roles.forEach(role => {
-            if(member.roles.get(role)) return true;
-        });
-        return false;
+    MemberHasRoles: function(member, roleIds) {
+        roleIds.forEach(roleId => {
+            if(member.roles.get(roleId)) return true;
+        }); return false;
     }
 }
