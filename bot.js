@@ -3,6 +3,7 @@ const bot = new Discord.Client();
 
 const functions = require('./functions.js');
 const database = require('./database.js');
+const daily = require('./daily.json');
 
 const fs = require('fs');
 const colors = require('colors/safe');
@@ -11,7 +12,8 @@ const CONFIG = require('./config.json');
 
 const prefix = CONFIG.Prefix;
 
-bot.owner = "333324517730680842";
+bot.devPrefix = '#>';
+bot.devId = "333324517730680842";
 bot.commands = new Discord.Collection();
 var cmds = [];
 
@@ -21,35 +23,57 @@ bot.login(CONFIG.TOKEN).catch(console.error);
 
 bot.on('ready', () => {
     database.PrepareCurrencyTable();
+    database.PrepareWumpusTable();
     console.log("Bot is ready!");
 });
 
-bot.on('message', message => {
+bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
-    if(!message.content.startsWith(prefix)) return;
 
-    var messageArray = message.content.split(/ +/g);
-    var command = messageArray[0].toLowerCase().slice(prefix.length);
-    var args = [];
+    CheckWumpus(message);
 
-    if(!command && messageArray[1]) {
-        command = messageArray[1].toLowerCase();
-        args = messageArray.slice(2);
-    } else args = messageArray.slice(1);
+    if(!message.content.startsWith(prefix) && !message.content.startsWith(bot.devPrefix)) return;
+    
+    if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
+        var messageArray = message.content.split(/ +/g);
+        var command = messageArray[0].toLowerCase().slice(bot.devPrefix.length);
+        var args = [];
+    
+        if(!command && messageArray[1]) {
+            command = messageArray[1].toLowerCase();
+            args = messageArray.slice(2);
+        } else args = messageArray.slice(1);
 
-    if(command === "eval" && bot.owner === message.author.id) {
-        try {
-            console.log(colors.red("WARN: eval being used by " + message.author.username));
-            const code = args.join(" ");
-            var evaled = eval(code);
-
-            if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
-            message.channel.send(clean(evaled), {code:"xl", split: [{char: '\n'}] }).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
-        } catch (err) {
-            message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
+        if(command === "eval") {
+            try {
+                console.log(colors.red("WARN: eval being used by " + message.author.username));
+                const code = args.join(" ");
+                var evaled = eval(code);
+    
+                if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
+                message.channel.send(clean(evaled), {code:"xl", split: [{char: '\n'}] }).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
+            } catch (err) {
+                message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
+            }
+        } else if(command === "reloadcmds") {
+            loadCmds();
+            message.channel.send("Commands successfully reloaded!");
+        } else if(command === "shutdown") {
+            bot.destroy().catch(console.error);
+            process.exit(0);
         }
+        
     } else {
+        var messageArray = message.content.split(/ +/g);
+        var command = messageArray[0].toLowerCase().slice(prefix.length);
+        var args = [];
+
+        if(!command && messageArray[1]) {
+            command = messageArray[1].toLowerCase();
+            args = messageArray.slice(2);
+        } else args = messageArray.slice(1);
+
         var cmd = bot.commands.get(command);
         if(cmd) cmd.run(bot, message, args);
     }
@@ -82,4 +106,39 @@ function loadCmds() {
 function clean(text) {
     if (typeof(text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
     else return text;
+}
+
+function CheckWumpus(message) {
+    var currencyData = database.GetCurrencyData(message.author.id);
+    var wumpusData = database.GetWumpusData(message.author.id);
+    if(!wumpusData.hasRole) {
+        database.DeleteWumpusData(message.author.id);
+        delete wumpusData;
+        return;
+    }
+
+    if(message.member.roles.has(database.config.WumpusRoleId) && !wumpusData.perma) {
+        var now = new Date(Date.now());
+        var year = now.getFullYear();
+        var month = now.getMonth();
+
+        var MonthDateRange = functions.GetMonthDateRange(year, month);
+        if(daily.EndOfTheMonthInMilliSeconds < MonthDateRange.end) {
+            daily.EndOfTheMonthInMilliSeconds = MonthDateRange.end;
+            fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
+        }
+        if(wumpusData.roleTime < daily.EndOfTheMonthInMilliSeconds) {
+            if(currencyData.bits >= database.config.WumpusRoleCost) {
+                currencyData.bits -= database.config.WumpusRoleCost;
+                database.SetCurrencyData(currencyData);
+                wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;
+                database.SetWumpusData(wumpusData);
+                if(!message.member.roles.has(database.config.WumpusRoleId)) message.member.addRole(database.config.WumpusRoleId);
+            } else {
+                database.DeleteWumpusData(message.author.id);
+                delete wumpusData;
+                message.member.removeRole(database.config.WumpusRoleId, "Did not have enough bits.");
+            }
+        } else if(!message.member.roles.has(database.config.WumpusRoleId)) message.member.addRole(database.config.WumpusRoleId);
+    } else if(!message.member.roles.has(database.config.WumpusRoleId)) message.member.addRole(database.config.WumpusRoleId);
 }

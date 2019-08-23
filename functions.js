@@ -27,5 +27,14 @@ module.exports = {
         roleIds.forEach(roleId => {
             if(member.roles.get(roleId)) return true;
         }); return false;
+    },
+
+    GetMonthDateRange: function(year, month) {
+        var moment = require('moment');
+        
+        var startDate = moment([year, month]);
+        var endDate = moment(startDate).endOf('month');
+    
+        return { start: Date.parse(startDate), end: Date.parse(endDate) };
     }
 }

@@ -27,6 +27,7 @@
     "fs": "0.0.1-security",
     "got": "^9.6.0",
     "mathjs": "^6.0.4",
+    "moment": "^2.24.0",
     "string-similarity": "^3.0.0"
   }
 }

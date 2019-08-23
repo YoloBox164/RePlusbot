@@ -8,11 +8,24 @@
             "type": "INTEGER DEFAULT(0)"
         },
         {
+            "name": "claimTime",
+            "type": "INTEGER"
+        }
+    ],
+    "wumpusRole": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "perma",
+            "type": "BOOLEAN"
+        },
+        {
             "name": "hasRole",
             "type": "BOOLEAN"
         },
         {
-            "name": "claimTime",
+            "name": "roleTime",
             "type": "INTEGER"
         }
     ]
