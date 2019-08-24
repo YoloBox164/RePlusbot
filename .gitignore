@@ -4,5 +4,5 @@ config.json
 .vscode/
 logs/
 NotUsedCmds/
-databbase/databbase.sqlite-shm
-databbase/databbase.sqlite-wal
+database/database.sqlite-shm
+database/database.sqlite-wal
