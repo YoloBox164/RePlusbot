@@ -74,9 +74,16 @@ bot.on('message', async message => {
             args = messageArray.slice(2);
         } else args = messageArray.slice(1);
 
+        var CustomRoles = require('./roles.js');
+        if(await CustomRoles.CheckModes(message, command)) return;
+
         var cmd = bot.commands.get(command);
         if(cmd) cmd.run(bot, message, args);
     }
+});
+
+bot.on("guildMemberAdd", member => {
+    member.addRole('611682388631617544');
 });
 
 function loadCmds() {
@@ -102,6 +109,8 @@ function loadCmds() {
         console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!`));
     });
 }
+
+
 
 function clean(text) {
     if (typeof(text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));

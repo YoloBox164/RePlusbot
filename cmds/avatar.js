@@ -10,6 +10,7 @@ module.exports.run = async (bot, message, args) => {
 
     var embed = new Discord.RichEmbed()
         .setTitle(`${message.guild.member(target).displayName}'s avatar`)
+        .setDescription(`[Avatar LINK](${target.displayAvatarURL})`)
         .setImage(target.displayAvatarURL)
         .setColor(message.guild.member(target).displayHexColor);
 
