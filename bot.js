@@ -34,11 +34,10 @@ bot.on('message', async message => {
     CheckWumpus(message);
 
     if(!message.content.startsWith(prefix) && !message.content.startsWith(bot.devPrefix)) return;
-    
+    var messageArray = message.content.split(/ +/g);
+    var args = [];
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
-        var messageArray = message.content.split(/ +/g);
         var command = messageArray[0].toLowerCase().slice(bot.devPrefix.length);
-        var args = [];
     
         if(!command && messageArray[1]) {
             command = messageArray[1].toLowerCase();
@@ -56,29 +55,31 @@ bot.on('message', async message => {
             } catch (err) {
                 message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
             }
-        } else if(command === "reloadcmds") {
+        } else if(command === "reloadcmds" || command === "reload" || command === "r") {
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        } else if(command === "shutdown") {
-            bot.destroy().catch(console.error);
+        } else if(command === "shutdown" || command === "shut" || command === "s") {
+            await bot.destroy().catch(console.error);
             process.exit(0);
         }
         
     } else {
-        var messageArray = message.content.split(/ +/g);
         var command = messageArray[0].toLowerCase().slice(prefix.length);
-        var args = [];
 
         if(!command && messageArray[1]) {
             command = messageArray[1].toLowerCase();
             args = messageArray.slice(2);
         } else args = messageArray.slice(1);
 
+        console.log(colors.green(`${message.member.displayName} is searching for the ${command} command.`));
+
         var CustomRoles = require('./roles.js');
         if(await CustomRoles.CheckModes(message, command)) return;
 
         var cmd = bot.commands.get(command);
         if(cmd) cmd.run(bot, message, args);
+
+        console.log(colors.green(`${message.member.displayName} used the ${command} command.`));
     }
 });
 
