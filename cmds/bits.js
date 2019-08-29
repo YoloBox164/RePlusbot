@@ -143,15 +143,17 @@ module.exports.run = (bot, message, args) => {
         }
 
         var targetCurrencyData = database.GetCurrencyData(target.id);
+
+        var bits = parseInt(args[2]);
         
-        if(Math.abs(args[2]) > currencyData.bits) args[2] = currencyData.bits;
-        targetCurrencyData.bits = parseInt(targetCurrencyData.bits) + parseInt(args[2]);
-        currencyData.bits = parseInt(currencyData) -  parseInt(args[2]);
+        if(Math.abs(bits) > parseInt(currencyData.bits)) bits = parseInt(currencyData.bits);
+        targetCurrencyData.bits = parseInt(targetCurrencyData.bits) + bits;
+        currencyData.bits = parseInt(currencyData.bits) - bits;
         database.SetCurrencyData(targetCurrencyData);
         database.SetCurrencyData(currencyData);
 
         embed.setDescription(`Bits: ${currencyData.bits}`);
-        message.channel.send("Transfer was successful.", {embed: embed})
+        message.channel.send(`Transfer was successful.\nSended ${bits} bits to ${target.displayName}`, {embed: embed})
 
     } else if(args[0] === "daily") {
         if(currencyData.claimTime == 0 || currencyData.claimTime <= daily.NextDayInMilliSeconds) {

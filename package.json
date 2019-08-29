@@ -24,6 +24,7 @@
     "convert-units": "^2.3.4",
     "dateformat": "^3.0.3",
     "discord.js": "^11.5.1",
+    "express": "^4.17.1",
     "fs": "0.0.1-security",
     "got": "^9.6.0",
     "mathjs": "^6.0.4",

@@ -3,6 +3,4 @@
 config.json
 .vscode/
 logs/
-NotUsedCmds/
-database/database.sqlite-shm
-database/database.sqlite-wal
+node_modules/

@@ -61,6 +61,10 @@ bot.on('message', async message => {
         } else if(command === "shutdown" || command === "shut" || command === "s") {
             await bot.destroy().catch(console.error);
             process.exit(0);
+        } else if(command === "t") {
+            delete require.cache[require.resolve('./twitch.js')];
+            const twitch = require('./twitch.js');
+            twitch.CheckSub();
         }
         
     } else {
