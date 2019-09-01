@@ -22,6 +22,6 @@ module.exports.help = {
     alias: ["clear"],
     name: "Purge messages",
     desc: "Delete messages between 1 and 100. You must have the Manage Messages Permission to use this command!",
-    usage: "%prefix%purge [1 - 100]",
+    usage: ">purge [1 - 100]",
     category: "moderator"
 }
