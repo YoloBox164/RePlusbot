@@ -1,7 +1,7 @@
 const colors = require('colors/safe');
 
 module.exports.run = async (bot, message, args) => {
-    if(message.member == message.guild.members.get("333324517730680842") || message.member.hasPermission("MANAGE_MESSAGES", {checkAdmin: true, checkOwner: true})) {
+    if(message.member == message.guild.members.get(bot.devId) || message.member.hasPermission("MANAGE_MESSAGES", {checkAdmin: true, checkOwner: true})) {
         var deleteCount = parseInt(args[0], 10);
         if(!deleteCount || (deleteCount < 1 || deleteCount > 101)) {
             message.reply("Please provide a number between 2 and 100 for the number of messages to delete");

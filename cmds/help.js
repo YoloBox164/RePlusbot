@@ -10,17 +10,17 @@ module.exports.run = (bot, message, args) => {
     bot.commands.forEach(prop => {
         pageSystem.pages.push(
             `**Name:** *${prop.help.name}*
-            **Aliases:** *${prop.help.alias.join(", ")}*
+            ${prop.help.alias !== [] ? "**Aliases:** *" + prop.help.alias.join(", ") + "*\n" : ""}
             **Description:** *${prop.help.desc}*
-            **Usage:** *${prop.help.usage}*
-            **Category:** *${prop.help.category}*`
+            **Usage:** \`${prop.help.usage}\`
+            **Category:** ${prop.help.category}*`
         );
         pageSystem.indexHelp.push(prop.help.cmd);
     });
 
     if(args[0] && isNaN(args[0])) {
         var command = bot.commands.get(args[0].toLowerCase()) || bot.commands.get(bot.aliasCmds.get(args[0].toLowerCase()));
-        pageSystem.currentPage = pageSystem.indexHelp.indexOf(command);
+        pageSystem.currentPage = pageSystem.indexHelp.indexOf(command.help.cmd) + 1;
         if(pageSystem.currentPage < 1 || pageSystem.currentPage > pageSystem.pages.length) {
             pageSystem.currentPage = 1;
         }

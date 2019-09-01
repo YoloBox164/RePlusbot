@@ -11,6 +11,7 @@ const colors = require('colors/safe');
 const dateFormat = require('dateformat');
 
 const CONFIG = require('./config.json');
+process.env.mode = CONFIG.mode;
 
 const prefix = CONFIG.Prefix;
 
@@ -40,8 +41,8 @@ bot.on('ready', () => {
 
     bot.loggingChannel = loggingChannel;
 
-    console.log(colors.bold("Revolt Bot READY!"));
-    loggingChannel.send("\`ONLINE\`");
+    console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode}`));
+    loggingChannel.send(`\`ONLINE\` \`MODE: ${CONFIG.mode}\``);
 });
 
 bot.on('message', async message => {
