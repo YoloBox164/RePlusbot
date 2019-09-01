@@ -12,7 +12,7 @@ module.exports.run = (bot, message, args) => {
             `**Name:** *${prop.help.name}* ${prop.help.alias[0] ? "\n**Aliases:** *" + prop.help.alias.join(", ") + "*" : ""}
             **Description:** *${prop.help.desc}*
             **Usage:** \`${prop.help.usage}\`
-            **Category:** ${prop.help.category}*`
+            **Category:** *${prop.help.category}*`
         );
         pageSystem.indexHelp.push(prop.help.cmd);
     });

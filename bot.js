@@ -64,7 +64,7 @@ bot.on('message', async message => {
 
         if(command === "eval") {
             try {
-                console.log(colors.red("WARN: eval being used by " + message.author.username));
+                console.log(colors.red("WARN: eval being used by " + message.member.displayName));
                 const code = args.join(" ");
                 var evaled = eval(code);
     
