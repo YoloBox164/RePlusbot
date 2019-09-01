@@ -21,5 +21,8 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     cmd: "avatar",
     alias: [],
-    name: "Avatar Icon"
+    name: "Avatar Icon",
+    desc: "",
+    usage: "",
+    category: ""
 }

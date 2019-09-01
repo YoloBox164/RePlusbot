@@ -171,5 +171,8 @@ module.exports.run = (bot, message, args) => {
 module.exports.help = {
     cmd: "bits",
     alias: ["bit", "bitek"],
-    name: "Bits"
+    name: "Bits",
+    desc: "",
+    usage: "",
+    category: ""
 }

@@ -23,8 +23,9 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     cmd: "dog",
-    name: "Dog Pictures",
-    desc: "A random dog jpeg",
+    alias: ["dogy", "kutyi"],
+    name: "Dog Gifs",
+    desc: "A random dogy gif",
     usage: "%prefix%dog",
     category: "user"
 }

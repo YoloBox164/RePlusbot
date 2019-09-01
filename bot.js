@@ -8,6 +8,8 @@ const daily = require('./daily.json');
 const fs = require('fs');
 const colors = require('colors/safe');
 
+const dateFormat = require('dateformat');
+
 const CONFIG = require('./config.json');
 
 const prefix = CONFIG.Prefix;
@@ -15,16 +17,29 @@ const prefix = CONFIG.Prefix;
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
 bot.commands = new Discord.Collection();
-var cmds = [];
+bot.aliasCmds = new Discord.Collection();
+
+var mainGuild, loggingChannel, welcomeChannel;
 
 loadCmds();
+
+bot.logDate = (timestamp) => {
+    if(!timestamp) timestamp = Date.now();
+    return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss");
+}
 
 bot.login(CONFIG.TOKEN).catch(console.error);
 
 bot.on('ready', () => {
     database.PrepareCurrencyTable();
     database.PrepareWumpusTable();
-    console.log("Bot is ready!");
+
+    mainGuild = bot.guilds.get('572873520732831754');
+    loggingChannel = mainGuild.channels.get(CONFIG.modLogChannnelId);
+    welcomeChannel = mainGuild.channels.get(CONFIG.newMemberRoleId);
+
+    console.log(colors.bold("Revolt Bot READY!"));
+    loggingChannel.send("\`ONLINE\`");
 });
 
 bot.on('message', async message => {
@@ -55,13 +70,18 @@ bot.on('message', async message => {
             } catch (err) {
                 message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
             }
-        } else if(command === "reloadcmds" || command === "reload" || command === "r") {
+        } else if(["reloadcmds", "reload", "r"].includes(command)) {
+            loggingChannel.send("\`Reloading commands\`");
+            console.log("Reloading commands");
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        } else if(command === "shutdown" || command === "shut" || command === "s") {
+        } else if(["shutdown", "shut", "s"].includes(command)) {
+            await loggingChannel.send("\`Shutting down\`");
+            await console.log("Shutting down");
             await bot.destroy().catch(console.error);
             process.exit(0);
-        } else if(command === "t") {
+        } else if(["twitch", "tw"].includes(command)) {
+            //console.log("Reloading twitch webhook");
             delete require.cache[require.resolve('./twitch.js')];
             const twitch = require('./twitch.js');
             twitch.CheckSub();
@@ -75,20 +95,61 @@ bot.on('message', async message => {
             args = messageArray.slice(2);
         } else args = messageArray.slice(1);
 
-        console.log(colors.green(`${message.member.displayName} is searching for the ${command} command.`));
-
         var CustomRoles = require('./roles.js');
-        if(await CustomRoles.CheckModes(message, command)) return;
+        if(await CustomRoles.CheckModes(message, command)) {
+            console.log(colors.cyan(`${message.member.displayName} used the ${command} in ${message.channel.name}.`));
+            return;
+        }
 
-        var cmd = bot.commands.get(command);
+        var cmd = bot.commands.get(command) || bot.commands.get(bot.aliasCmds.get(command));
         if(cmd) cmd.run(bot, message, args);
 
-        console.log(colors.green(`${message.member.displayName} used the ${command} command.`));
+        console.log(colors.cyan(`${message.member.displayName} used the ${command} command in ${message.channel.name}.`));
     }
 });
 
 bot.on("guildMemberAdd", member => {
-    member.addRole('611682388631617544');
+    member.addRole(CONFIG.newMemberRoleId);
+
+    loggingChannel.send(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``);
+
+    welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
+
+    console.log(colors.green(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``));
+});
+
+bot.on("guildMemberRemove", async member => {
+    var kickEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_KICK'}).then(audit => audit.entries.first());
+    var pruneEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_PRUNE'}).then(audit => audit.entries.first());
+
+    var text, reason;
+    if(kickEntry && kickEntry.target.id === member.id) {
+        text = "was kicked by " + member.guild.members.get(kickEntry.executor.id).displayName;
+        if(kickEntry.reason) reason = kickEntry.reason;
+        else reason = "Kicked";
+    } else if (pruneEntry && pruneEntry.target.id === member.id) {
+        text = "was pruned by" +  member.guild.members.get(pruneEntry.executor.id).displayName;
+        if(pruneEntry.reason) reason = pruneEntry.reason;
+        else reason = "Pruned";
+    } else {
+        text = "leaved the server";
+        reason = "Leaved";
+    }
+
+    loggingChannel.send(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`);
+    console.log(colors.red(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`));
+});
+
+process.on('uncaughtException', err => {
+    loggingChannel.send(`\`ERROR: Uncaught Exception\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    console.error(err);
+    bot.setTimeout(() => { bot.destroy() }, 20000);
+});
+
+process.on('unhandledRejection', err => {
+    loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    console.error(err);
+    bot.setTimeout(() => { bot.destroy() }, 20000);
 });
 
 function loadCmds() {
@@ -108,14 +169,15 @@ function loadCmds() {
             var props = require(`./cmds/${f}`);
             console.log(colors.white(`${i + 1}: ${f} loaded!`));
             bot.commands.set(props.help.cmd, props);
-            cmds.push(props.help.cmd);
+            props.help.alias.forEach((name) => {
+                bot.aliasCmds.set(name, props.help.cmd);
+            });
+
         });
 
         console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!`));
     });
 }
-
-
 
 function clean(text) {
     if (typeof(text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
