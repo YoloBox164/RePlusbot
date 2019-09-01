@@ -9,8 +9,7 @@ module.exports.run = (bot, message, args) => {
 
     bot.commands.forEach(prop => {
         pageSystem.pages.push(
-            `**Name:** *${prop.help.name}*
-            ${prop.help.alias !== [] ? "**Aliases:** *" + prop.help.alias.join(", ") + "*\n" : ""}
+            `**Name:** *${prop.help.name}* ${prop.help.alias[0] ? "\n**Aliases:** *" + prop.help.alias.join(", ") + "*" : ""}
             **Description:** *${prop.help.desc}*
             **Usage:** \`${prop.help.usage}\`
             **Category:** ${prop.help.category}*`
