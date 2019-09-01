@@ -40,7 +40,7 @@ module.exports.run = (bot, message, args) => {
 
     message.channel.send({embed: embed}).then(msg => {
         msg.react('⏪').then(r => {
-            msg.react('⏩');
+            msg.react('⏩').catch(console.error);
 
             const backwardsFilter = (reaction, user) => reaction.emoji.name === '⏪' && user.id === message.author.id;
             const forwardsFilter = (reaction, user) => reaction.emoji.name === '⏩' && user.id === message.author.id;
@@ -52,7 +52,7 @@ module.exports.run = (bot, message, args) => {
                 if(pageSystem.currentPage === 1) return;
                 pageSystem.currentPage--;
                 embed.setDescription(pageSystem.pages[pageSystem.currentPage - 1]);
-                embed.setFooter(`Page ${page} of ${pages.length}`); 
+                embed.setFooter(`Page ${pageSystem.currentPage} of ${pageSystem.pages.length}`); 
                 msg.edit({embed: embed}).catch(console.error);
             });
 
@@ -60,9 +60,9 @@ module.exports.run = (bot, message, args) => {
                 if(pageSystem.currentPage === pageSystem.pages.length) return;
                 pageSystem.currentPage++;
                 embed.setDescription(pageSystem.pages[pageSystem.currentPage - 1]);
-                embed.setFooter(`Page ${page} of ${pages.length}`); 
+                embed.setFooter(`Page ${pageSystem.currentPage} of ${pageSystem.pages.length}`); 
                 msg.edit({embed: embed}).catch(console.error);
-            }).catch(console.error);
+            });
         }).catch(console.error);
     }).catch(console.error);
 }
