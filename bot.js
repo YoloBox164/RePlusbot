@@ -31,6 +31,8 @@ bot.logDate = (timestamp) => {
 
 bot.login(CONFIG.TOKEN).catch(console.error);
 
+var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"]
+
 bot.on('ready', () => {
     database.PrepareCurrencyTable();
     database.PrepareWumpusTable();
@@ -43,6 +45,11 @@ bot.on('ready', () => {
 
     console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode})`));
     loggingChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
+    
+    bot.setInterval(() => {
+        var status = statuses[Math.floor(Math.random() * statuses.length)];
+        bot.user.setPresence({game : {name: status}, status: 'online'});
+    }, 10000);
 });
 
 bot.on('message', async message => {
