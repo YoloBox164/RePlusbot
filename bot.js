@@ -38,6 +38,8 @@ bot.on('ready', () => {
     loggingChannel = mainGuild.channels.get(CONFIG.modLogChannnelId);
     welcomeChannel = mainGuild.channels.get(CONFIG.newMemberRoleId);
 
+    bot.loggingChannel = loggingChannel;
+
     console.log(colors.bold("Revolt Bot READY!"));
     loggingChannel.send("\`ONLINE\`");
 });

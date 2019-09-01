@@ -6,7 +6,7 @@ module.exports.help = {
     cmd: "ping",
     alias: [],
     name: "Ping",
-    desc: "",
-    usage: "",
-    category: ""
+    desc: "Ping - Pong!",
+    usage: ">ping",
+    category: "user"
 }

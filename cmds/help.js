@@ -71,8 +71,8 @@ module.exports.help = {
     cmd: "help",
     alias: [],
     name: "Help",
-    desc: "",
-    usage: "",
-    category: ""
+    desc: "Some help amout the commands.",
+    usage: ">help <page / command>",
+    category: "user"
 
 }

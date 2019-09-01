@@ -31,7 +31,7 @@ module.exports.help = {
     cmd: "rules",
     alias: ["szabályok", "szabalyok", "szabályzat", "szabalyzat"],
     name: "Rules",
-    desc: "",
-    usage: "",
-    category: ""
+    desc: "The RULES in this server.",
+    usage: ">rules",
+    category: "user"
 }

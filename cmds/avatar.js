@@ -20,9 +20,9 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     cmd: "avatar",
-    alias: [],
+    alias: ["profile"],
     name: "Avatar Icon",
-    desc: "",
-    usage: "",
-    category: ""
+    desc: "View yours or others avatar.",
+    usage: ">avatar <user>",
+    category: "user"
 }

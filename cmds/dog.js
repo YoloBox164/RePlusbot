@@ -25,7 +25,7 @@ module.exports.help = {
     cmd: "dog",
     alias: ["dogy", "kutyi"],
     name: "Dog Gifs",
-    desc: "A random dogy gif",
+    desc: "A random dogy gif.",
     usage: ">dog",
     category: "user"
 }

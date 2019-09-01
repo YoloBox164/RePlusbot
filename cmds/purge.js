@@ -15,13 +15,15 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send("You don't have permission to use this command!");
         return; 
     }
+
+    bot.loggingChannel.send(`${message.member.displayName} deleted ${deleteCount} messages in ${message.channel}`);
     console.log(colors.yellow(`LOG: Deleted messages: ${deleteCount}`));
 }
 module.exports.help = {
     cmd: "purge",
     alias: ["clear"],
     name: "Purge messages",
-    desc: "Delete messages between 1 and 100. You must have the Manage Messages Permission to use this command!",
-    usage: ">purge [1 - 100]",
+    desc: "Delete messages between 2 and 100. You must have the Manage Messages Permission to use this command!",
+    usage: ">purge [2 - 100]",
     category: "moderator"
 }

@@ -32,7 +32,7 @@ module.exports.help = {
     cmd: "userinfo",
     alias: ["user"],
     name: "User information",
-    desc: "",
-    usage: "",
-    category: ""
+    desc: "Some information about your profile or others.",
+    usage: ">userinfo <user>",
+    category: "user"
 }

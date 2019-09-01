@@ -172,7 +172,7 @@ module.exports.help = {
     cmd: "bits",
     alias: ["bit", "bitek"],
     name: "Bits",
-    desc: "",
-    usage: "",
-    category: ""
+    desc: "This is a currnecy in the server.",
+    usage: ">bits",
+    category: "user / staff"
 }
