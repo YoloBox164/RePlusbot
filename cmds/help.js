@@ -9,9 +9,9 @@ module.exports.run = (bot, message, args) => {
 
     bot.commands.forEach(prop => {
         pageSystem.pages.push(
-            `**Name:** *${prop.help.name}* ${prop.help.alias[0] ? "\n**Aliases:** *" + prop.help.alias.join(", ") + "*" : ""}
+            `**Name:** *${prop.help.name}*
             **Description:** *${prop.help.desc}*
-            **Usage:** \`${prop.help.usage}\`
+            **Usage:** \`${prop.help.usage}\`${prop.help.alias[0] ? "\n**Aliases:** \`>" + prop.help.alias.join(" | >") + "\`" : ""}
             **Category:** *${prop.help.category}*`
         );
         pageSystem.indexHelp.push(prop.help.cmd);
