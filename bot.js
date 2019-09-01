@@ -41,8 +41,8 @@ bot.on('ready', () => {
 
     bot.loggingChannel = loggingChannel;
 
-    console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode}`));
-    loggingChannel.send(`\`ONLINE\` \`MODE: ${CONFIG.mode}\``);
+    console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode})`));
+    loggingChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
 });
 
 bot.on('message', async message => {
