@@ -81,6 +81,7 @@ bot.on('message', async message => {
             await bot.destroy().catch(console.error);
             process.exit(0);
         } else if(["twitch", "tw"].includes(command)) {
+            if(CONFIG.mode === "production") return;
             //console.log("Reloading twitch webhook");
             delete require.cache[require.resolve('./twitch.js')];
             const twitch = require('./twitch.js');
