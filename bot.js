@@ -49,7 +49,7 @@ bot.on('ready', () => {
     bot.setInterval(() => {
         var status = statuses[Math.floor(Math.random() * statuses.length)];
         bot.user.setPresence({game : {name: status}, status: 'online'});
-    }, 10000);
+    }, 30000);
 });
 
 bot.on('message', async message => {
