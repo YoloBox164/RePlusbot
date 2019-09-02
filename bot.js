@@ -39,7 +39,7 @@ bot.on('ready', () => {
 
     mainGuild = bot.guilds.get('572873520732831754');
     loggingChannel = mainGuild.channels.get(CONFIG.modLogChannelId);
-    welcomeChannel = mainGuild.channels.get(CONFIG.welcomeMsdChannelId);
+    welcomeChannel = mainGuild.channels.get(CONFIG.welcomeMsgChannelId);
 
     bot.loggingChannel = loggingChannel;
 
