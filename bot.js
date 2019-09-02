@@ -122,9 +122,9 @@ bot.on('message', async message => {
 bot.on("guildMemberAdd", member => {
     member.addRole(CONFIG.newMemberRoleId);
 
-    loggingChannel.send(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``);
+    if(loggingChannel) loggingChannel.send(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``);
 
-    welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
+    if(welcomeChannel) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
 
     console.log(colors.green(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``));
 });
@@ -147,18 +147,18 @@ bot.on("guildMemberRemove", async member => {
         reason = "Leaved";
     }
 
-    loggingChannel.send(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`);
+    if(loggingChannel) loggingChannel.send(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`);
     console.log(colors.red(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`));
 });
 
 process.on('uncaughtException', err => {
-    loggingChannel.send(`\`ERROR: Uncaught Exception\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    if(loggingChannel) loggingChannel.send(`\`ERROR: Uncaught Exception\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 20000);
 });
 
 process.on('unhandledRejection', err => {
-    loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    if(loggingChannel) loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 20000);
 });
