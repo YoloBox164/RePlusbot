@@ -38,7 +38,7 @@ bot.on('ready', () => {
     database.PrepareWumpusTable();
 
     mainGuild = bot.guilds.get('572873520732831754');
-    loggingChannel = mainGuild.channels.get(CONFIG.modLogChannnelId);
+    loggingChannel = mainGuild.channels.get(CONFIG.modLogChannelId);
     welcomeChannel = mainGuild.channels.get(CONFIG.newMemberRoleId);
 
     bot.loggingChannel = loggingChannel;
