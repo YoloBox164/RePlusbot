@@ -6,6 +6,7 @@ module.exports.CheckModes = (message, command) => {
         message.channel.send("Cleared all modes.");
     } else if(command === `nsfwmode`) {
         message.member.addRole(this.roles.nsfw);
+        message.member.addRole(this.roles.default)
         message.member.removeRole(this.roles.safe);
         message.channel.send("Switched to nsfw mode.");
     } else if(command === `safemode`) {
