@@ -147,8 +147,8 @@ bot.on("guildMemberRemove", async member => {
         reason = "Leaved";
     }
 
-    loggingChannel.send(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`);
-    console.log(colors.red(`${member.displayName} (${member.id}) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`));
+    loggingChannel.send(`${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`);
+    console.log(colors.red(`${member.displayName} (Id: \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`));
 });
 
 process.on('uncaughtException', err => {
