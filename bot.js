@@ -152,13 +152,13 @@ bot.on("guildMemberRemove", async member => {
 });
 
 process.on('uncaughtException', err => {
-    loggingChannel.send(`\`ERROR: Uncaught Exception\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    if(loggingChannel) loggingChannel.send(`\`ERROR: Uncaught Exception\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 20000);
 });
 
 process.on('unhandledRejection', err => {
-    loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    if(loggingChannel) loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 20000);
 });
