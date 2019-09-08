@@ -7,7 +7,7 @@ module.exports.run = async (bot, message, args) => {
         .setTitle("Server Icon")
         .setDescription(`[Icon LINK](${message.guild.iconUrl})`)
         .setImage(message.guild.iconUrl)
-        .setColor(message.guild.member(target).displayHexColor);
+        .setColor(message.member.displayHexColor);
 
     await message.channel.send({embed: embed});
     msg.delete();
