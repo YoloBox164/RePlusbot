@@ -87,7 +87,7 @@ bot.on('message', async message => {
             message.channel.send("Commands successfully reloaded!");
         } else if(["shutdown", "shut", "s"].includes(command)) {
             await loggingChannel.send("\`Shutting down\`");
-            await console.log("Shutting down");
+            console.log("Shutting down");
             await bot.destroy().catch(console.error);
             process.exit(0);
         } else if(["twitch", "tw"].includes(command)) {
@@ -107,7 +107,7 @@ bot.on('message', async message => {
         } else args = messageArray.slice(1);
 
         var CustomRoles = require('./roles.js');
-        if(await CustomRoles.CheckModes(message, command)) {
+        if(CustomRoles.CheckModes(message, command)) {
             console.log(colors.cyan(`${message.member.displayName} used the ${command} in ${message.channel.name}.`));
             return;
         }
