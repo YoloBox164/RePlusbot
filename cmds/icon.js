@@ -5,8 +5,8 @@ module.exports.run = async (bot, message, args) => {
 
     var embed = new Discord.RichEmbed()
         .setTitle("Server Icon")
-        .setDescription(`[Icon LINK](${message.guild.iconUrl})`)
-        .setImage(message.guild.iconUrl)
+        .setDescription(`[Icon LINK](${message.guild.iconURL})`)
+        .setImage(message.guild.iconURL)
         .setColor(message.member.displayHexColor);
 
     await message.channel.send({embed: embed});
