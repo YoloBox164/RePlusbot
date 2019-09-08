@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 
-module.exports.run = (bot, message, args) => {
+module.exports.run = async (bot, message, args) => {
     var msg = await message.channel.send("Getting server icon");
 
     var embed = new Discord.RichEmbed()
