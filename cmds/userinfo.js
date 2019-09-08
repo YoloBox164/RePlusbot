@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
 
-const functions = require('../functions.js');
+const Functions = require('../functions.js');
 
 module.exports.run = (bot, message, args) => {
-    var target = functions.GetTarget(message, args);
+    var target = Functions.GetTarget(message, args);
     var roles;
     if(!target.username) {
         roles = target.roles.array().slice(1).join(" | ");

@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 
-const functions = require('./functions.js');
+const Functions = require('./functions.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
 
@@ -209,7 +209,7 @@ function CheckWumpus(message) {
         var year = now.getFullYear();
         var month = now.getMonth();
 
-        var MonthDateRange = functions.GetMonthDateRange(year, month);
+        var MonthDateRange = Functions.GetMonthDateRange(year, month);
         if(daily.EndOfTheMonthInMilliSeconds < MonthDateRange.end) {
             daily.EndOfTheMonthInMilliSeconds = MonthDateRange.end;
             fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
