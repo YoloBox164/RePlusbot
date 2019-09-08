@@ -28,7 +28,7 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     cmd: "botinfo",
-    alais: ["bot"],
+    alias: ["bot"],
     name: "Bot Information",
     desc: "List of information of the bot.",
     usage: ">botinfo",
