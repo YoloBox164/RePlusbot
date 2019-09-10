@@ -8,7 +8,7 @@ module.exports.run = async (bot, message, args) => {
             return;
         }
         message.channel.bulkDelete(deleteCount + 1).catch(error => {
-            message.send(`Couldn't delete messages because of: ${error}`);
+            message.channel.send(`Couldn't delete messages because of: ${error}`);
             return;
         });
     } else {
