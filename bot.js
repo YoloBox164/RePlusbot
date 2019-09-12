@@ -130,11 +130,16 @@ bot.on("guildMemberAdd", member => {
 });
 
 bot.on("guildMemberRemove", async member => {
+    var banEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_BAN_ADD'}).then(audit => audit.entries.first());
     var kickEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_KICK'}).then(audit => audit.entries.first());
     var pruneEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_PRUNE'}).then(audit => audit.entries.first());
 
     var text, reason;
-    if(kickEntry && kickEntry.target.id === member.id) {
+    if(banEntry && banEntry.target.id === member.id) {
+        text = "was banned by " + member.guild.members.get(banEntry.executor.id).displayName;
+        if(banEntry.reason) reason = banEntry.reason;
+        else reason = "Banned";
+    } else if(kickEntry && kickEntry.target.id === member.id) {
         text = "was kicked by " + member.guild.members.get(kickEntry.executor.id).displayName;
         if(kickEntry.reason) reason = kickEntry.reason;
         else reason = "Kicked";
