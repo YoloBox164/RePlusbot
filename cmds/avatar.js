@@ -4,7 +4,7 @@ const Functions = require('../functions.js');
 
 module.exports.run = async (bot, message, args) => {
     var msg = await message.channel.send("Generating avatar...");
-    var target = Functions.GetTarget(message, args);
+    var target = Functions.GetMember(message, args);
 
     if(!target.username) target = target.user;
 

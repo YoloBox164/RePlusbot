@@ -13,7 +13,10 @@ const dateFormat = require('dateformat');
 const CONFIG = require('./config.json');
 process.env.mode = CONFIG.mode;
 
-const prefix = CONFIG.Prefix;
+const SETTINGS = require('./settings.json');
+const MUTES = require('./mute.json');
+
+const prefix = SETTINGS.Prefix;
 
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
@@ -38,8 +41,8 @@ bot.on('ready', () => {
     database.PrepareWumpusTable();
 
     mainGuild = bot.guilds.get('572873520732831754');
-    loggingChannel = mainGuild.channels.get(CONFIG.modLogChannelId);
-    welcomeChannel = mainGuild.channels.get(CONFIG.welcomeMsgChannelId);
+    loggingChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
+    welcomeChannel = mainGuild.channels.get(SETTINGS.welcomeMsgChannelId);
 
     bot.loggingChannel = loggingChannel;
 
@@ -50,6 +53,21 @@ bot.on('ready', () => {
         var status = statuses[Math.floor(Math.random() * statuses.length)];
         bot.user.setPresence({game : {name: status}, status: 'online'});
     }, 30000);
+    bot.setInterval(() => {
+        for(i in MUTES) {
+            var mutedMember = MUTES[i];
+            if(mutedMember.time < Date.now()) {
+                var member = mainGuild.members.get(mutedMember.id);
+                member.removeRole(SETTINGS.MuteRoleId);
+                delete MUTES[`${mutedMember.id}`];
+                fs.writeFile("./mute.json", JSON.stringify(MUTES, null, 4), err => {
+                    if(err) throw err;
+                    console.log(`Unmuted ${member.displayName}`);
+                    loggingChannel.send(`Unmuted ${member.displayName}`)
+                });
+            }
+        }
+    }, 1000)
 });
 
 bot.on('message', async message => {
@@ -76,9 +94,13 @@ bot.on('message', async message => {
                 var evaled = eval(code);
     
                 if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
-                message.channel.send(clean(evaled), {code:"xl", split: [{char: '\n'}] }).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
+                message.channel.send(clean(evaled), {code:"xl", split: [{char: '\n'}] }).catch(error => {
+                    console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
+                });
             } catch (err) {
-                message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`)});
+                message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {
+                    console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
+                });
             }
         } else if(["reloadcmds", "reload", "r"].includes(command)) {
             loggingChannel.send("\`Reloading commands\`");
@@ -120,13 +142,21 @@ bot.on('message', async message => {
 });
 
 bot.on("guildMemberAdd", member => {
-    member.addRole(CONFIG.newMemberRoleId);
+    if(member.user.bot) {
+        member.addRole(SETTINGS.AutoBotRoleId);
+    } else {
+        member.addRole(SETTINGS.AutoMemberRoleId);
+    }
 
-    loggingChannel.send(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``);
+    loggingChannel.send(
+        `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``
+    );
 
-    welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
+    if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
 
-    console.log(colors.green(`${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``));
+    console.log(colors.green(
+        `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``
+    ));
 });
 
 bot.on("guildMemberRemove", async member => {

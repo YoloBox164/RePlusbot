@@ -3,15 +3,15 @@ const fs = require('fs');
 const database = require('../database.js');
 const daily = require('../daily.json');
 const Functions = require('../functions.js');
+const SETTINGS = require('../setting.json');
 
 module.exports.run = (bot, message, args) => {
     if(process.env.mode === "development" && message.author.id !== bot.devId) return message.channel.send("This command is not avaiable in development mode.");
     var timeNow = Date.now();
 
     while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += database.config.DayInMilliSeconds;
-    fs.writeFile("../daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
+    fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
 
-    var staffIds = ["611682412161794081", "611682395078393936"]
     var currencyData = database.GetCurrencyData(message.author.id);
     var wumpusData = database.GetWumpusData(message.author.id);
 
@@ -81,8 +81,8 @@ module.exports.run = (bot, message, args) => {
             }).catch(console.error);
         }).catch(console.error);
     } else if(args[0] === "add") {
-        if(Functions.MemberHasRoles(message.member, staffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
-        var target = Functions.GetTarget(message, args.slice(1));
+        if(Functions.MemberHasRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
+        var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
             return message.channel.send({embed: errorEmbed});
@@ -104,9 +104,9 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`You added ${bits} bits to ${target} successfully.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "remove") {
-        if(Functions.MemberHasRoles(message.member, staffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
+        if(Functions.MemberHasRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
         
-        var target = Functions.GetTarget(message, args.slice(1));
+        var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits remove <user> [amount]\` (If user is not specified, it will be you then.)`);
             return message.channel.send({embed: errorEmbed});
@@ -128,7 +128,7 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`You removed ${bits} bits from ${target} successfully.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "send") {
-        var target = Functions.GetTarget(message, args.slice(1));
+        var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits send [user] [amount]\``);
             return message.channel.send({embed: errorEmbed});

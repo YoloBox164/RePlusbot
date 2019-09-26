@@ -7,13 +7,14 @@ module.exports = {
         return values;
     },
     
-    GetTarget: function(message, args) {
+    GetMember: function(message, args) {
+        if(!args[0]) return false;
         var joinedArgs = args.join(" ").toLowerCase();
-        var target = message.mentions.users.first()
+        var target = message.guild.member(message.mentions.users.first())
             || message.guild.members.find(member => joinedArgs.includes(member.displayName.toLowerCase()))
             || message.guild.members.get(args[0])
-            || message.author;
-        return target; //give back a user
+            || message.member;
+        return target; //give back a guildmember
     },
 
     SortByKey: function(array, key) {
@@ -55,5 +56,18 @@ module.exports = {
         var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds;
 
         return h + ':' + m + ':' + s;
+    },
+
+    RoundNumber: function(num, scale) {
+        if(!("" + num).includes("e")) {
+            return +(Math.round(num + "e+" + scale)  + "e-" + scale);
+        } else {
+            var arr = ("" + num).split("e");
+            var sig = ""
+            if(+arr[1] + scale > 0) {
+                sig = "+";
+            }
+            return +(Math.round(+arr[0] + "e" + sig + (+arr[1] + scale)) + "e-" + scale);
+        }
     }
 }
