@@ -3,7 +3,7 @@ const fs = require('fs');
 const database = require('../database.js');
 const daily = require('../daily.json');
 const Functions = require('../functions.js');
-const SETTINGS = require('../setting.json');
+const SETTINGS = require('../settings.json');
 
 module.exports.run = (bot, message, args) => {
     if(process.env.mode === "development" && message.author.id !== bot.devId) return message.channel.send("This command is not avaiable in development mode.");
