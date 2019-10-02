@@ -27,6 +27,7 @@ module.exports.run = async (bot, message, args) => {
     muteRole.setPosition(message.guild.members.get(bot.user.id).highestRole.position - 1);
 
     await target.removeRole(muteRole).catch(console.error);
+    target.setMute(false).catch(console.error);
 
     delete MUTES[`${target.id}`];
 

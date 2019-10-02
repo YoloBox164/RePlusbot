@@ -129,6 +129,7 @@ module.exports.run = async (bot, message, args) => {
     } else muteTime = Date.now() * 1000;
 
     await target.addRole(muteRole).catch(console.error);
+    await target.setMute(true).catch(console.error);
 
     MUTES[`${target.id}`] = {
         id:  `${target.id}`,

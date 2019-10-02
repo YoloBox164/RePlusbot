@@ -15,7 +15,7 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send("You don't have permission to use this command!");
         return; 
     }
-
+    
     bot.loggingChannel.send(`${message.member.displayName} deleted ${deleteCount} messages in ${message.channel}`);
     console.log(colors.yellow(`LOG: Deleted messages: ${deleteCount}`));
 }

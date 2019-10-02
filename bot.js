@@ -53,18 +53,23 @@ bot.on('ready', () => {
         var status = statuses[Math.floor(Math.random() * statuses.length)];
         bot.user.setPresence({game : {name: status}, status: 'online'});
     }, 30000);
+
     bot.setInterval(() => {
         for(i in MUTES) {
             var mutedMember = MUTES[i];
             if(mutedMember.time < Date.now()) {
                 var member = mainGuild.members.get(mutedMember.id);
                 member.removeRole(SETTINGS.MuteRoleId);
+                target.setMute(false).catch(console.error);
                 delete MUTES[`${mutedMember.id}`];
                 fs.writeFile("./mute.json", JSON.stringify(MUTES, null, 4), err => {
                     if(err) throw err;
                     console.log(`Unmuted ${member.displayName}`);
                     loggingChannel.send(`Unmuted ${member.displayName}`)
                 });
+            } else {
+                member.addRole(SETTINGS.MuteRoleId);
+                target.setMute(true).catch(console.error);
             }
         }
     }, 1000)
@@ -81,7 +86,9 @@ bot.on('message', async message => {
     var args = [];
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
         var command = messageArray[0].toLowerCase().slice(bot.devPrefix.length);
-    
+        var tomb = [];
+        if(tomb[0])
+
         if(!command && messageArray[1]) {
             command = messageArray[1].toLowerCase();
             args = messageArray.slice(2);
@@ -122,22 +129,23 @@ bot.on('message', async message => {
         
     } else {
         var command = messageArray[0].toLowerCase().slice(prefix.length);
-
         if(!command && messageArray[1]) {
             command = messageArray[1].toLowerCase();
             args = messageArray.slice(2);
         } else args = messageArray.slice(1);
 
+        var logMsg = `${message.member.displayName} used the ${command} in ${message.channel.name}.`;
+
         var CustomRoles = require('./roles.js');
         if(CustomRoles.CheckModes(message, command)) {
-            console.log(colors.cyan(`${message.member.displayName} used the ${command} in ${message.channel.name}.`));
+            console.log(colors.cyan(logMsg));
             return;
         }
 
         var cmd = bot.commands.get(command) || bot.commands.get(bot.aliasCmds.get(command));
         if(cmd) cmd.run(bot, message, args);
 
-        console.log(colors.cyan(`${message.member.displayName} used the ${command} command in ${message.channel.name}.`));
+        console.log(colors.cyan(logMsg));
     }
 });
 
@@ -148,15 +156,12 @@ bot.on("guildMemberAdd", member => {
         member.addRole(SETTINGS.AutoMemberRoleId);
     }
 
-    loggingChannel.send(
-        `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``
-    );
+    var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
 
     if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
 
-    console.log(colors.green(
-        `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``
-    ));
+    loggingChannel.send(logMsg);
+    console.log(colors.green(logMsg.replace("\`", "")));
 });
 
 bot.on("guildMemberRemove", async member => {
@@ -182,21 +187,21 @@ bot.on("guildMemberRemove", async member => {
         reason = "Leaved";
     }
 
-    loggingChannel.send(`${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`);
-    console.log(colors.red(`${member.displayName} (Id: \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`));
+    var logMsg = `${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`;
+
+    loggingChannel.send(logMsg);
+    console.log(colors.red(logMsg.replace("\`", "")));
 });
 
-process.on('uncaughtException', err => {
-    if(loggingChannel) loggingChannel.send(`\`ERROR: Uncaught Exception\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
-    console.error(err);
-    bot.setTimeout(() => { bot.destroy() }, 20000);
-});
+process.on('uncaughtException', err => { errorHandling(err) });
 
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', err => { errorHandling(err) });
+
+function errorHandling(err) {
     if(loggingChannel) loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 20000);
-});
+}
 
 function loadCmds() {
     fs.readdir("./cmds/",(err, files) => {
