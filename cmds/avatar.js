@@ -6,13 +6,11 @@ module.exports.run = async (bot, message, args) => {
     var msg = await message.channel.send("Generating avatar...");
     var target = Functions.GetMember(message, args);
 
-    if(!target.username) target = target.user;
-
     var embed = new Discord.RichEmbed()
-        .setTitle(`${message.guild.member(target).displayName}'s avatar`)
-        .setDescription(`[Avatar LINK](${target.displayAvatarURL})`)
-        .setImage(target.displayAvatarURL)
-        .setColor(message.guild.member(target).displayHexColor);
+        .setTitle(`${target.displayName}'s avatar`)
+        .setDescription(`[Avatar LINK](${target.user.displayAvatarURL})`)
+        .setImage(target.user.displayAvatarURL)
+        .setColor(target.displayHexColor);
 
     await message.channel.send({embed: embed});
     msg.delete();

@@ -8,10 +8,10 @@ module.exports = {
     },
     
     GetMember: function(message, args) {
-        if(!args[0]) return false;
+        if(!args[0]) args = [];
         var joinedArgs = args.join(" ").toLowerCase();
         var target = message.guild.member(message.mentions.users.first())
-            || message.guild.members.find(member => joinedArgs.includes(member.displayName.toLowerCase()))
+            || message.guild.members.find(member => joinedArgs.includes(member.displayName.toLowerCase()) || joinedArgs.includes(member.user.username))
             || message.guild.members.get(args[0])
             || message.member;
         return target; //give back a guildmember
