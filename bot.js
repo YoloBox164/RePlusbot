@@ -163,7 +163,7 @@ bot.on("guildMemberAdd", async member => {
     if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
 
     loggingChannel.send(logMsg);
-    console.log(colors.green(logMsg.replace("\`", "")));
+    console.log(colors.green(logMsg.replaceAll(/\`/g, "")));
 });
 
 bot.on("guildMemberRemove", async member => {
