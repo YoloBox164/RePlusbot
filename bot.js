@@ -36,9 +36,9 @@ bot.login(CONFIG.TOKEN).catch(console.error);
 
 var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"]
 
-bot.on('ready', () => {
-    database.PrepareCurrencyTable();
-    database.PrepareWumpusTable();
+bot.on('ready', async () => {
+    database.Prepare('currency');
+    database.Prepare('wumpus');
 
     mainGuild = bot.guilds.get('572873520732831754');
     loggingChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
@@ -75,11 +75,13 @@ bot.on('ready', () => {
     }, 1000)
 });
 
+bot.on('presenceUpdate', async (oldMember, newMember) => {
+    CheckWumpus(newMember);
+});
+
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
-
-    CheckWumpus(message);
 
     if(!message.content.startsWith(prefix) && !message.content.startsWith(bot.devPrefix)) return;
     var messageArray = message.content.split(/ +/g);
@@ -149,7 +151,7 @@ bot.on('message', async message => {
     }
 });
 
-bot.on("guildMemberAdd", member => {
+bot.on("guildMemberAdd", async member => {
     if(member.user.bot) {
         member.addRole(SETTINGS.AutoBotRoleId);
     } else {
@@ -187,18 +189,18 @@ bot.on("guildMemberRemove", async member => {
         reason = "Leaved";
     }
 
-    var logMsg = `${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`;
+    var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`;
 
     loggingChannel.send(logMsg);
     console.log(colors.red(logMsg.replace("\`", "")));
 });
 
-process.on('uncaughtException', err => { errorHandling(err) });
+process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception") });
 
-process.on('unhandledRejection', err => { errorHandling(err) });
+process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejection") });
 
-function errorHandling(err) {
-    if(loggingChannel) loggingChannel.send(`\`ERROR: Unhandled Rejection\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+function errorHandling(err, msg) {
+    if(loggingChannel) loggingChannel.send(`\`ERROR: ${msg}\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 20000);
 }
@@ -235,16 +237,16 @@ function clean(text) {
     else return text;
 }
 
-function CheckWumpus(message) {
-    var currencyData = database.GetCurrencyData(message.author.id);
-    var wumpusData = database.GetWumpusData(message.author.id);
+function CheckWumpus(member) {
+    var currencyData = database.GetData('currency', member.id);
+    var wumpusData = database.GetData('wumpus', member.id);
     if(!wumpusData.hasRole) {
-        database.DeleteWumpusData(message.author.id);
+        database.DeleteData('wumpus', member.id);
         delete wumpusData;
         return;
     }
 
-    if(message.member.roles.has(database.config.WumpusRoleId) && !wumpusData.perma) {
+    if(member.roles.has(database.config.WumpusRoleId) && !wumpusData.perma) {
         var now = new Date(Date.now());
         var year = now.getFullYear();
         var month = now.getMonth();
@@ -257,15 +259,15 @@ function CheckWumpus(message) {
         if(wumpusData.roleTime < daily.EndOfTheMonthInMilliSeconds) {
             if(currencyData.bits >= database.config.WumpusRoleCost) {
                 currencyData.bits -= database.config.WumpusRoleCost;
-                database.SetCurrencyData(currencyData);
+                database.SetData('currency', currencyData);
                 wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;
-                database.SetWumpusData(wumpusData);
-                if(!message.member.roles.has(database.config.WumpusRoleId)) message.member.addRole(database.config.WumpusRoleId);
+                database.SetData('wumpus', wumpusData);
+                if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
             } else {
-                database.DeleteWumpusData(message.author.id);
+                database.DeleteData('wumpus', member.id);
                 delete wumpusData;
-                message.member.removeRole(database.config.WumpusRoleId, "Did not have enough bits.");
+                member.removeRole(database.config.WumpusRoleId, "Did not have enough bits.");
             }
-        } else if(!message.member.roles.has(database.config.WumpusRoleId)) message.member.addRole(database.config.WumpusRoleId);
-    } else if(!message.member.roles.has(database.config.WumpusRoleId)) message.member.addRole(database.config.WumpusRoleId);
+        } else if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
+    } else if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
 }

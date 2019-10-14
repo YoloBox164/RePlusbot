@@ -10,9 +10,13 @@
         {
             "name": "claimTime",
             "type": "INTEGER"
+        },
+        {
+            "name": "streak",
+            "type": "INTEGER DEFAULT(0)"
         }
     ],
-    "wumpusRole": [{
+    "wumpus": [{
             "name": "id",
             "type": "VARCHAR(30) PRIMARY KEY"
         },

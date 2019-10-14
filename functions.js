@@ -69,5 +69,9 @@ module.exports = {
             }
             return +(Math.round(+arr[0] + "e" + sig + (+arr[1] + scale)) + "e-" + scale);
         }
+    },
+    
+    FirstCharUpperCase: function(string) {
+        return string[0].toUpperCase() + string.slice(1);
     }
 }

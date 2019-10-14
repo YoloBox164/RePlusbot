@@ -12,13 +12,13 @@ module.exports.run = (bot, message, args) => {
     while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += database.config.DayInMilliSeconds;
     fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
 
-    var currencyData = database.GetCurrencyData(message.author.id);
-    var wumpusData = database.GetWumpusData(message.author.id);
+    var currencyData = database.GetData('currency', message.author.id);
+    var wumpusData = database.GetData('wumpus', message.author.id);
 
     var embed = new Discord.RichEmbed()
         .setAuthor(message.member.displayName, message.author.displayAvatarURL)
         .setColor(message.member.displayHexColor)
-        .setDescription(`Bits: ${currencyData.bits}`);
+        .setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. day)`);
     
     var errorEmbed = new Discord.RichEmbed()
         .setColor(message.member.displayHexColor);
@@ -31,6 +31,7 @@ module.exports.run = (bot, message, args) => {
             (Staff) \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)
             (Staff) \`>bits remove <user> [amount]\` (If user is not specified, it will be you then.)`
         );
+        embed.addField("Bits Streak", `Claim your daily bits 5 days in a row and you get a bonus ${database.config.DayBitsStreakBonus} Bits!`);
         message.channel.send({embed: embed});
     } else if(args[0] === "buy") {
         embed.addField("Shop Menu", `🇦\tWumpus+ role \t${database.config.WumpusRoleCost} bits/month`);
@@ -54,8 +55,8 @@ module.exports.run = (bot, message, args) => {
                             currencyData.bits -= database.config.WumpusRoleCost;
                             wumpusData.hasRole = 1;
                             wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;
-                            database.SetCurrencyData(currencyData);
-                            database.SetWumpusData(wumpusData);
+                            database.SetData('currency', currencyData);
+                            database.SetWumpusData('wumpus', wumpusData);
                             embed.fields.pop();
                             message.channel.send("You've successfully bought the Wumpus+ role.", {embed: embed}).then(msg1 => {
                                 msg1.delete(5000).catch(console.error);
@@ -95,11 +96,11 @@ module.exports.run = (bot, message, args) => {
             errorEmbed.setDescription(`Amount not specified.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
             return message.channel.send({embed: errorEmbed});   
         }
-        var targetCurrencyData = database.GetCurrencyData(target.id);
+        var targetCurrencyData = database.GetData('currency', target.id);
 
         if(bits > 1000000000) targetCurrencyData.bits = 1000000000;
         else targetCurrencyData.bits =  parseInt(bits) + parseInt(targetCurrencyData.bits);
-        database.SetCurrencyData(targetCurrencyData);
+        database.SetData('currency', targetCurrencyData);
 
         embed.setDescription(`You added ${bits} bits to ${target} successfully.`);
         message.channel.send({embed: embed});
@@ -119,11 +120,11 @@ module.exports.run = (bot, message, args) => {
             errorEmbed.setDescription(`Amount not specified.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
             return message.channel.send({embed: errorEmbed});   
         }
-        var targetCurrencyData = database.GetCurrencyData(target.id);
+        var targetCurrencyData = database.GetData('currency', target.id);
 
         if(Math.abs(bits) > targetCurrencyData.bits) bits = parseInt(targetCurrencyData.bits)
         targetCurrencyData.bits = parseInt(targetCurrencyData.bits) - parseInt(bits);
-        database.SetCurrencyData(targetCurrencyData);
+        database.SetData('currency', targetCurrencyData);
 
         embed.setDescription(`You removed ${bits} bits from ${target} successfully.`);
         message.channel.send({embed: embed});
@@ -143,25 +144,31 @@ module.exports.run = (bot, message, args) => {
             return message.channel.send({embed: errorEmbed});
         }
 
-        var targetCurrencyData = database.GetCurrencyData(target.id);
+        var targetCurrencyData = database.GetData('currency', target.id);
 
         var bits = parseInt(args[2]);
         
         if(Math.abs(bits) > parseInt(currencyData.bits)) bits = parseInt(currencyData.bits);
         targetCurrencyData.bits = parseInt(targetCurrencyData.bits) + bits;
         currencyData.bits = parseInt(currencyData.bits) - bits;
-        database.SetCurrencyData(targetCurrencyData);
-        database.SetCurrencyData(currencyData);
+        database.SetData('currency', targetCurrencyData);
+        database.SetData('currency', currencyData);
 
         embed.setDescription(`Bits: ${currencyData.bits}`);
         message.channel.send(`Transfer was successful.\nSended ${bits} bits to ${target.displayName}`, {embed: embed})
 
     } else if(args[0] === "daily") {
-        if(currencyData.claimTime == 0 || currencyData.claimTime <= daily.NextDayInMilliSeconds) {
+        if(message.author.id === bot.devId || currencyData.claimTime == 0 || currencyData.claimTime <= daily.NextDayInMilliSeconds) {
             currencyData.claimTime = timeNow + database.config.DayInMilliSeconds;
             currencyData.bits += database.config.DayBits;
-            database.SetCurrencyData(currencyData);
-            embed.setDescription(`Bits: ${currencyData.bits}`);
+            if(currencyData.streak >= 5) currencyData.streak = 0;
+            if(currencyData.streak >= 4) {
+                currencyData.bits += database.config.DayBitsStreakBonus;
+                embed.addField("Bits Streak", `Yaay! You got a bonus ${database.config.DayBitsStreakBonus} Bits!`);
+            } 
+            currencyData.streak++
+            database.SetData('currency', currencyData);
+            embed.setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. day)`);
             message.channel.send("You've successfully claimed your daily bits.", {embed: embed})
         } else {
             message.channel.send("You've already claimed your daily bits. Try tomorrow.")
