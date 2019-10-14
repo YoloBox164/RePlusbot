@@ -192,7 +192,7 @@ bot.on("guildMemberRemove", async member => {
     var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`;
 
     loggingChannel.send(logMsg);
-    console.log(colors.red(logMsg.replace("\`", "")));
+    console.log(colors.red(logMsg.replaceAll(/\`/g, "")));
 });
 
 process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception") });
