@@ -31,7 +31,7 @@ module.exports.run = (bot, message, args) => {
             (Staff) \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)
             (Staff) \`>bits remove <user> [amount]\` (If user is not specified, it will be you then.)`
         );
-        embed.addField("Bits Streak", `Claim your daily bits 5 days in a row and you get a bonus ${database.config.DayBitsStreakBonus} Bits!`);
+        embed.addField("Bits Streak", `Claim your daily bits 5 days in a row and you'll get a bonus ${database.config.DayBitsStreakBonus} Bits!`);
         message.channel.send({embed: embed});
     } else if(args[0] === "buy") {
         embed.addField("Shop Menu", `🇦\tWumpus+ role \t${database.config.WumpusRoleCost} bits/month`);
