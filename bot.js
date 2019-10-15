@@ -163,7 +163,7 @@ bot.on("guildMemberAdd", async member => {
     if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
 
     loggingChannel.send(logMsg);
-    console.log(colors.green(logMsg.replaceAll(/\`/g, "")));
+    console.log(colors.green(logMsg.replace(/\`/g, "")));
 });
 
 bot.on("guildMemberRemove", async member => {
@@ -192,7 +192,7 @@ bot.on("guildMemberRemove", async member => {
     var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`;
 
     loggingChannel.send(logMsg);
-    console.log(colors.red(logMsg.replaceAll(/\`/g, "")));
+    console.log(colors.red(logMsg.replace(/\`/g, "")));
 });
 
 process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception") });
