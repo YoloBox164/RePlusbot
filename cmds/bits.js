@@ -5,6 +5,12 @@ const daily = require('../daily.json');
 const Functions = require('../functions.js');
 const SETTINGS = require('../settings.json');
 
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = (bot, message, args) => {
     if(process.env.mode === "development" && message.author.id !== bot.devId) return message.channel.send("This command is not avaiable in development mode.");
     var timeNow = Date.now();

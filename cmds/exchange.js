@@ -2,6 +2,12 @@ const Discord = require("discord.js");
 const got = require("got");
 const api = "06b26c42ff1b069252795e80";
 
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = async (bot, message, args) => {
     const isoCurrMap = await got("http://www.localeplanet.com/api/auto/currencymap.json", {json: true});
 

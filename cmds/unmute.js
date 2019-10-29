@@ -4,6 +4,13 @@ const Functions = require('../functions.js');
 const SETTINGS = require('../settings.json');
 const MUTES = require('../mute.json');
 
+const Discord = require('discord.js');
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = async (bot, message, args) => {
     if(Functions.MemberHasRoles(message.member, SETTINGS.StaffIds) && !message.member.hasPermission("MUTE_MEMBERS") && message.author.id !== bot.devId) {
         message.channel.send("You do not have the permission for this command!");

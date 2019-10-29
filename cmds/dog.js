@@ -3,6 +3,12 @@ const api = "11720920-63b2-4eee-b141-f3304d747772";
 
 const got = require('got');
 
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = async (bot, message, args) => {
     let msg = await message.channel.send("Fetching...");
     var link = `https://api.thedogapi.com/v1/images/search?mime_types=gif`;

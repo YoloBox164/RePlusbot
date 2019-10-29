@@ -1,6 +1,12 @@
 const Discord = require("discord.js");
 const math = require('mathjs');
 
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = async (bot, message, args) => {
     if(!args[0]) return message.channel.send("Invalid input");
 

@@ -1,5 +1,12 @@
 const colors = require('colors/safe');
 
+const Discord = require('discord.js');
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = async (bot, message, args) => {
     if(message.member == message.guild.members.get(bot.devId) || message.member.hasPermission("MANAGE_MESSAGES", {checkAdmin: true, checkOwner: true})) {
         var deleteCount = parseInt(args[0], 10);

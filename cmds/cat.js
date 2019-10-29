@@ -1,6 +1,12 @@
 const Discord = require("discord.js");
 const got = require('got');
 
+/**
+ * @param {Discord.Client} bot The bot itself.
+ * @param {Discord.Message} message Discord message.
+ * @param {Array<string>} args The message.content in an array without the command.
+ */
+
 module.exports.run = async (bot, message, args) => {
     var msg = await message.channel.send("Fetching...");
     var link = `https://api.thecatapi.com/v1/images/search?mime_types=gif`;
