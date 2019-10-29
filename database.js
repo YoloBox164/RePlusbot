@@ -30,13 +30,7 @@ module.exports = {
 
     GetData: function(tableName, id) {
         var tableData = Database.prepare(`SELECT * FROM ${tableName} WHERE id = ? ;`).get(id);
-        if(!tableData) {
-            if(tableName == 'wumpus') {
-                tableData = this.GetWumpusObjectTemplate(id);
-            } else if(tableName == 'currency') {
-                tableData = this.GetCurrencyObjectTemplate(id);
-            }
-        }
+        if(!tableData) tableData = this.GetObjectTemplate(tableName, id);
         this.SetData(tableName, tableData);
         return tableData;
     },
@@ -51,22 +45,13 @@ module.exports = {
         return Database.prepare(`delete FROM ${tableName} WHERE id = ? ;`).run(id);
     },
 
-    GetCurrencyObjectTemplate: function(id) {
-        return currenyData = {
-            id: `${id}`,
-            bits: 0,
-            claimTime: 0,
-            streak: 0
+    GetObjectTemplate: function(tableName, id) {
+        var tableArr = DatabaseTableSchema[`${tableName}`];
+        var obj = { id: `${id}` };
+        for(let i = 1; i < tableArr.length; i++) {
+            obj[tableArr[i].name] = null;
         }
-    },
-
-    GetWumpusObjectTemplate: function(id) {
-        return wumpusData = {
-            id: `${id}`,
-            perma: 0,
-            hasRole: 0,
-            roleTime: 0
-        }
+        return obj;
     }
 }
 
