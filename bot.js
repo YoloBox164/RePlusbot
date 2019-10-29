@@ -39,10 +39,10 @@ var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Bet
 bot.on('ready', async () => {
     database.Prepare('currency');
     database.Prepare('wumpus');
-    database.Prepare('inviters');
-    database.Prepare('activeInvites');
-    database.Prepare('warnedUsers');
-    database.Prepare('warnings');
+    //database.Prepare('inviters');
+    //database.Prepare('activeInvites');
+    //database.Prepare('warnedUsers');
+    //database.Prepare('warnings');
 
     mainGuild = bot.guilds.get('572873520732831754');
     loggingChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
