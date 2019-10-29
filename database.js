@@ -8,6 +8,11 @@ const colors = require('colors/safe');
 const Functions = require('./functions.js');
 
 module.exports = {
+
+    /**
+     * @param {string} tableName
+     * @returns {sqlite.Statement} The table
+     */
     Prepare: function(tableName) {
         var tableArrString = [];
         var tableArr = DatabaseTableSchema[`${tableName}`];
@@ -28,22 +33,46 @@ module.exports = {
         return Table;
     },
 
+    /**
+     * @param {string} tableName The name of the table.
+     * @param {string} id The searched id.
+     * @returns {{id}} Table Data.
+     */
+
     GetData: function(tableName, id) {
         var tableData = Database.prepare(`SELECT * FROM ${tableName} WHERE id = ? ;`).get(id);
         if(!tableData) tableData = this.GetObjectTemplate(tableName, id);
         this.SetData(tableName, tableData);
         return tableData;
     },
+
+    /**
+     * @param {string} tableName The name of the table.
+     * @param {{}} data Data that will be inserted into the table.
+     * @returns {sqlite.Statement}
+     */
     
     SetData: function(tableName, data) {
         var tableArr = DatabaseTableSchema[`${tableName}`];
         var names = Functions.GetObjectValueFromArray(tableArr, "name");
         return Database.prepare(`INSERT OR REPLACE INTO ${tableName} (${names.join(', ')}) VALUES (@${names.join(', @')});`).run(data);
     },
+
+    /**
+     * @param {string} tableName The name of the table.
+     * @param {string} id Based on this id, the database will delete that data.
+     * @returns {sqlite.Statement}
+     */
     
     DeleteData: function(tableName, id) {
         return Database.prepare(`delete FROM ${tableName} WHERE id = ? ;`).run(id);
     },
+    
+    /**
+     * @param {string} tableName The name of the table.
+     * @param {string} id The id which repsresent the primary key.
+     * @returns
+     */
 
     GetObjectTemplate: function(tableName, id) {
         var tableArr = DatabaseTableSchema[`${tableName}`];

@@ -39,6 +39,10 @@ var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Bet
 bot.on('ready', async () => {
     database.Prepare('currency');
     database.Prepare('wumpus');
+    database.Prepare('inviters');
+    database.Prepare('activeInvites');
+    database.Prepare('warnedUsers');
+    database.Prepare('warnings');
 
     mainGuild = bot.guilds.get('572873520732831754');
     loggingChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
@@ -199,6 +203,11 @@ process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception"
 
 process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejection") });
 
+/**
+ * @param {Error} err
+ * @param {string} msg
+ */
+
 function errorHandling(err, msg) {
     if(loggingChannel) loggingChannel.send(`\`ERROR: ${msg}\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
@@ -232,11 +241,18 @@ function loadCmds() {
     });
 }
 
+/**
+ * @param {string} text
+ */
+
 function clean(text) {
     if (typeof(text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
     else return text;
 }
 
+/**
+ * @param {Discord.GuildMember} member
+ */
 function CheckWumpus(member) {
     var currencyData = database.GetData('currency', member.id);
     var wumpusData = database.GetData('wumpus', member.id);

@@ -1,3 +1,11 @@
+const Discord = require('discord.js');
+
+/**
+ * @param {Discord.Message} message
+ * @param {string} command
+ * @returns True or false
+ */
+
 module.exports.CheckModes = (message, command) => {
     if(command === "clearmodes") {
         message.member.removeRole(this.roles.nsfw);

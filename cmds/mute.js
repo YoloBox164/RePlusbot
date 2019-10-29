@@ -51,7 +51,7 @@ timeHelpCollection.set('s', {
  */
 
 module.exports.run = async (bot, message, args) => {
-    if(Functions.MemberHasRoles(message.member, SETTINGS.StaffIds) && !message.member.hasPermission("MUTE_MEMBERS") && message.author.id !== bot.devId) {
+    if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) && !message.member.hasPermission("MUTE_MEMBERS") && message.author.id !== bot.devId) {
         message.channel.send("You do not have the permission for this command!");
         return;
     }

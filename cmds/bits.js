@@ -88,7 +88,7 @@ module.exports.run = (bot, message, args) => {
             }).catch(console.error);
         }).catch(console.error);
     } else if(args[0] === "add") {
-        if(Functions.MemberHasRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
+        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
         var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
@@ -111,7 +111,7 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`You added ${bits} bits to ${target} successfully.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "remove") {
-        if(Functions.MemberHasRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
+        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
         
         var target = Functions.GetMember(message, args.slice(1));
         if(!target) {

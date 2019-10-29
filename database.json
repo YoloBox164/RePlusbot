@@ -32,5 +32,49 @@
             "name": "roleTime",
             "type": "INTEGER"
         }
+    ],
+    "inviters": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "created",
+            "type": "INTEGER"
+        },
+        {
+            "name": "used",
+            "type": "INTEGER"
+        },
+        {
+            "name": "roleTime",
+            "type": "INTEGER"
+        }
+    ],
+    "activeInvites": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "invite",
+            "type": "TEXT"
+        },
+        {
+            "name": "uses",
+            "type": "INTEGER"
+        }
+    ],
+    "warnedUsers": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        }
+    ],
+    "warnings": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "warning",
+            "type": "TEXT"
+        }
     ]
 }

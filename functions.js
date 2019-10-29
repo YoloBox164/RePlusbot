@@ -1,12 +1,24 @@
+const Discord = require('discord.js');
+
 module.exports = {
-    GetObjectValueFromArray: function (array, value) {
+    /**
+     * @param {Array} array The array that will be used
+     * @param {any} valueName The name of the value that we are searching
+     * @returns The values that it found under the specified name
+     */
+    GetObjectValueFromArray: function (array, valueName) {
         var values = [];
         for(let i = 0; i < array.length; i++) {
-            values.push(array[i][`${value}`]);
+            values.push(array[i][`${valueName}`]);
         }
         return values;
     },
-    
+
+    /**
+     * @param {Discord.Message} message discord message
+     * @param {Array<string>} args message.content in an array without the command
+     * @returns {Discord.GuildMember} a discord guild member
+     */
     GetMember: function(message, args) {
         if(!args[0]) args = [];
         var joinedArgs = args.join(" ").toLowerCase();
@@ -16,7 +28,11 @@ module.exports = {
             || message.member;
         return target; //give back a guildmember
     },
-
+    /**
+     * @param {Array} array
+     * @param {any} key
+     * @returns The sorted array.
+     */
     SortByKey: function(array, key) {
         return array.sort(function(a, b) {
             var x = a[key]; var y = b[key];
@@ -24,11 +40,24 @@ module.exports = {
         });
     },
 
-    MemberHasRoles: function(member, roleIds) {
+    /**
+     * @description Checks if the member has at least one of the roles.
+     * @param {Discord.GuildMember} member Discord guild member.
+     * @param {Array<string>} roleIds Array field with role ids.
+     * @returns True or false
+     */
+
+    MemberHasOneOfTheRoles: function(member, roleIds) {
         roleIds.forEach(roleId => {
             if(member.roles.get(roleId)) return true;
         }); return false;
     },
+
+    /**
+     * @param {number} year
+     * @param {number} month
+     * @returns {{start:Date, end:Date}}
+     */
 
     GetMonthDateRange: function(year, month) {
         var moment = require('moment');
@@ -38,6 +67,11 @@ module.exports = {
     
         return { start: Date.parse(startDate), end: Date.parse(endDate) };
     },
+
+    /**
+     * @param {number} milliseconds
+     * @returns {string}
+     */
 
     ParseMillisecondsIntoReadableTime: function(milliseconds){
         //Get hours from milliseconds
@@ -58,6 +92,12 @@ module.exports = {
         return h + ':' + m + ':' + s;
     },
 
+    /**
+     * @param {number} num Number to be rounded
+     * @param {number} scale 
+     * @returns {number} Rouned number
+     */
+
     RoundNumber: function(num, scale) {
         if(!("" + num).includes("e")) {
             return +(Math.round(num + "e+" + scale)  + "e-" + scale);
@@ -70,6 +110,11 @@ module.exports = {
             return +(Math.round(+arr[0] + "e" + sig + (+arr[1] + scale)) + "e-" + scale);
         }
     },
+
+    /**
+     * @param {string} string
+     * @returns {string}
+     */
     
     FirstCharUpperCase: function(string) {
         return string[0].toUpperCase() + string.slice(1);
