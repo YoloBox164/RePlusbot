@@ -56,7 +56,7 @@ module.exports.run = (bot, message, args) => {
                             wumpusData.hasRole = 1;
                             wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;
                             database.SetData('currency', currencyData);
-                            database.SetWumpusData('wumpus', wumpusData);
+                            database.SetData('wumpus', wumpusData);
                             embed.fields.pop();
                             message.channel.send("You've successfully bought the Wumpus+ role.", {embed: embed}).then(msg1 => {
                                 msg1.delete(5000).catch(console.error);
