@@ -9,6 +9,8 @@ const Functions = require('./functions.js');
 
 module.exports = {
 
+    Database: Database,
+
     /**
      * @param {string} tableName
      * @returns {sqlite.Statement} The table
@@ -76,10 +78,19 @@ module.exports = {
 
     GetObjectTemplate: function(tableName, id) {
         var tableArr = DatabaseTableSchema[`${tableName}`];
-        var obj = { id: `${id}` };
-        for(let i = 1; i < tableArr.length; i++) {
-            obj[tableArr[i].name] = null;
+
+        if(tableName == "warnings") {
+            var obj = { userid: `${id}` };
+            for(let i = 2; i < tableArr.length; i++) {
+                obj[tableArr[i].name] = null;
+            }
+        } else {
+            var obj = { id: `${id}` };
+            for(let i = 1; i < tableArr.length; i++) {
+                obj[tableArr[i].name] = null;
+            }
         }
+        
         return obj;
     }
 }

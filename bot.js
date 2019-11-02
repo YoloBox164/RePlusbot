@@ -27,9 +27,11 @@ var mainGuild, loggingChannel, welcomeChannel;
 
 loadCmds();
 
+/** @param {number} timestamp */
+
 bot.logDate = (timestamp) => {
     if(!timestamp) timestamp = Date.now();
-    return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss");
+    return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
 }
 
 bot.login(CONFIG.TOKEN).catch(console.error);
@@ -41,8 +43,8 @@ bot.on('ready', async () => {
     database.Prepare('wumpus');
     //database.Prepare('inviters');
     //database.Prepare('activeInvites');
-    //database.Prepare('warnedUsers');
-    //database.Prepare('warnings');
+    database.Prepare('warnedUsers');
+    database.Prepare('warnings');
 
     mainGuild = bot.guilds.get('572873520732831754');
     loggingChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
@@ -122,7 +124,14 @@ bot.on('message', async message => {
             message.channel.send("Commands successfully reloaded!");
         } else if(["shutdown", "shut", "s"].includes(command)) {
             await loggingChannel.send("\`Shutting down\`");
+            await message.channel.send("\`Shutting down\`");
             console.log("Shutting down");
+            await bot.destroy().catch(console.error);
+            process.exit(0);
+        } else if(["restart", "res", "rs"].includes(command)) {
+            await loggingChannel.send("\`Restarting\`");
+            await message.channel.send("\`Restarting\`");
+            console.log("Restarting");
             await bot.destroy().catch(console.error);
             process.exit(0);
         } else if(["twitch", "tw"].includes(command)) {
@@ -132,7 +141,6 @@ bot.on('message', async message => {
             const twitch = require('./twitch.js');
             twitch.CheckSub();
         }
-        
     } else {
         var command = messageArray[0].toLowerCase().slice(prefix.length);
         if(!command && messageArray[1]) {
@@ -211,7 +219,7 @@ process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejectio
 function errorHandling(err, msg) {
     if(loggingChannel) loggingChannel.send(`\`ERROR: ${msg}\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
-    bot.setTimeout(() => { bot.destroy() }, 20000);
+    bot.setTimeout(() => { bot.destroy() }, 2000);
 }
 
 function loadCmds() {

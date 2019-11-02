@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-
+const database = require('../database.js');
 const Functions = require('../functions.js');
 
 /**
@@ -9,27 +9,33 @@ const Functions = require('../functions.js');
  */
 
 module.exports.run = (bot, message, args) => {
-    var target = Functions.GetMember(message, args);
-    var roles;
-    if(!target.username) {
-        roles = target.roles.array().slice(1).join(" | ");
-        target = target.user;
-    } else roles = message.guild.member(target.id).roles.array().slice(1).join(" | ");
+    var targetMember = Functions.GetMember(message, args);
+    var roles = targetMember.roles.array().slice(1).join(" | ");
     if(!roles) roles = "This user don't have any roles."
 
+    var warnings = database.Database.prepare("SELECT * FROM warnings WHERE userid = ?;").all(targetMember.id);
+    var warningStringArr = [];
+    for(const {warning, time} of warnings) {
+        warningStringArr.push(`'${warning}' (${bot.logDate(time)})`)
+    }
+
+    if(!warningStringArr[0]) warningStringArr[0] = "None";
+
     var embed = new Discord.RichEmbed()
-        .setAuthor(target.tag, target.displayAvatarURL)
+        .setAuthor(targetMember.user.tag, targetMember.user.displayAvatarURL)
+        .setThumbnail(targetMember.user.displayAvatarURL)
         .setTitle("User information:")
-        .setThumbnail(target.displayAvatarURL)
-        .setColor(message.guild.member(target).displayHexColor)
+        .setColor(targetMember.displayHexColor)
         .setDescription(
-            `**Name:** *${message.guild.member(target)}*
-            **Status:** *${target.presence.status}*
-            **Full Username:** *${target.username}#${target.discriminator}*
-            **ID:** *${target.id}*\n
-            **Joined to the Server At:** *${message.guild.members.get(target.id).joinedAt}*
-            **User Created At:** *${target.createdAt}*
-            **Roles:** *${roles}*`
+            `**Name:** *${targetMember}*
+            **Status:** \`${targetMember.presence.status.toUpperCase()}\`
+            **Full Username:** *${targetMember.user.username}#${targetMember.user.discriminator}*
+            **ID:** *${targetMember.id}*\n
+            **Joined to the Server At:** *${bot.logDate(targetMember.joinedTimestamp)}*
+            **User Created At:** *${bot.logDate(targetMember.user.createdTimestamp)}*
+            **Roles:** *${roles}*\n
+            **Warnings:**
+            ${warningStringArr.join('\n')}`
         );
     message.channel.send({embed: embed})
 }

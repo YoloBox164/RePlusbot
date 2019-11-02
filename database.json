@@ -44,10 +44,6 @@
         {
             "name": "used",
             "type": "INTEGER"
-        },
-        {
-            "name": "roleTime",
-            "type": "INTEGER"
         }
     ],
     "activeInvites": [{
@@ -66,15 +62,27 @@
     "warnedUsers": [{
             "name": "id",
             "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "count",
+            "type": "INTEGER"
         }
     ],
     "warnings": [{
             "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
+            "type":"INTEGER PRIMARY KEY"
+        },
+        {
+            "name": "userid",
+            "type": "VARCHAR(30)"
         },
         {
             "name": "warning",
             "type": "TEXT"
+        },
+        {
+            "name": "time",
+            "type":"INTEGER"
         }
     ]
 }
