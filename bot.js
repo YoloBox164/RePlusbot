@@ -127,9 +127,9 @@ bot.on('message', async message => {
             console.log("Reloading commands");
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        } else if(["shutdown", "shut", "s"].includes(command)) await shutdown("Shutting down");
-        else if(["restart", "res", "rs"].includes(command)) await shutdown("Restarting");
-        else if(["switchmode", "switch", "sw"].includes(command)) await shutdown(`Switching to ${CONFIG.mode == 'development' ? 'production' : 'development'} mode.`);
+        } else if(["shutdown", "shut", "s"].includes(command)) await shutdown(message, "Shutting down");
+        else if(["restart", "res", "rs"].includes(command)) await shutdown(message, "Restarting");
+        else if(["switchmode", "switch", "sw"].includes(command)) await shutdown(message, `Switching to ${CONFIG.mode == 'development' ? 'production' : 'development'} mode.`);
         else if(["twitch", "tw"].includes(command)) {
             if(CONFIG.mode === "production") return;
             //console.log("Reloading twitch webhook");
@@ -159,9 +159,12 @@ bot.on('message', async message => {
     }
 });
 
-/** @param {string} text */
+/** 
+ * @param {Discord.Message} message
+ * @param {string} text 
+ */
 
-async function shutdown(text) {
+async function shutdown(message, text) {
     await loggingChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
     console.log(text);
