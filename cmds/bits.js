@@ -165,14 +165,19 @@ module.exports.run = (bot, message, args) => {
 
     } else if(args[0] === "daily") {
         if(message.author.id === bot.devId || currencyData.claimTime == 0 || currencyData.claimTime <= daily.NextDayInMilliSeconds) {
-            currencyData.claimTime = timeNow + database.config.DayInMilliSeconds;
-            currencyData.bits += database.config.DayBits;
             if(currencyData.streak >= 5) currencyData.streak = 0;
             if(currencyData.streak >= 4) {
                 currencyData.bits += database.config.DayBitsStreakBonus;
                 embed.addField("Bits Streak", `Yaay! You got a bonus ${database.config.DayBitsStreakBonus} Bits!`);
             } 
-            currencyData.streak++
+            if(currencyData.claimTime >= daily.NextDayInMilliSeconds - (database.config.DayInMilliSeconds * 2)) {
+                currencyData.streak = 0
+            }
+            currencyData.streak++;
+
+            currencyData.claimTime = timeNow + database.config.DayInMilliSeconds;
+            currencyData.bits += database.config.DayBits;
+
             database.SetData('currency', currencyData);
             embed.setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. day)`);
             message.channel.send("You've successfully claimed your daily bits.", {embed: embed})

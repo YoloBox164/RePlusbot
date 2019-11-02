@@ -23,7 +23,12 @@ bot.devId = "333324517730680842";
 bot.commands = new Discord.Collection();
 bot.aliasCmds = new Discord.Collection();
 
-var mainGuild, loggingChannel, welcomeChannel;
+/** @type {Discord.Guild} */
+var mainGuild;
+/** @type {Discord.TextChannel} */
+var loggingChannel;
+/** @type {Discord.TextChannel} */
+var welcomeChannel;
 
 loadCmds();
 
@@ -122,19 +127,10 @@ bot.on('message', async message => {
             console.log("Reloading commands");
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        } else if(["shutdown", "shut", "s"].includes(command)) {
-            await loggingChannel.send("\`Shutting down\`");
-            await message.channel.send("\`Shutting down\`");
-            console.log("Shutting down");
-            await bot.destroy().catch(console.error);
-            process.exit(0);
-        } else if(["restart", "res", "rs"].includes(command)) {
-            await loggingChannel.send("\`Restarting\`");
-            await message.channel.send("\`Restarting\`");
-            console.log("Restarting");
-            await bot.destroy().catch(console.error);
-            process.exit(0);
-        } else if(["twitch", "tw"].includes(command)) {
+        } else if(["shutdown", "shut", "s"].includes(command)) shutdown("Shutting down");
+        else if(["restart", "res", "rs"].includes(command)) shutdown("Restarting");
+        else if(["switchmode", "switch", "sw"].includes(command)) shutdown(`Switching to ${CONFIG.mode == 'development' ? 'production' : 'development'} mode.`);
+        else if(["twitch", "tw"].includes(command)) {
             if(CONFIG.mode === "production") return;
             //console.log("Reloading twitch webhook");
             delete require.cache[require.resolve('./twitch.js')];
@@ -162,6 +158,16 @@ bot.on('message', async message => {
         console.log(colors.cyan(logMsg));
     }
 });
+
+/** @param {string} text */
+
+function shutdown(text) {
+    await loggingChannel.send(`\`${text}\``);
+    await message.channel.send(`\`${text}\``);
+    console.log(text);
+    await bot.destroy().catch(console.error);
+    process.exit(0);
+}
 
 bot.on("guildMemberAdd", async member => {
     if(member.user.bot) {
@@ -201,7 +207,7 @@ bot.on("guildMemberRemove", async member => {
         reason = "Leaved";
     }
 
-    var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate(member.joinedTimestamp)}\` | Reason: ${reason}`;
+    var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate()}\` | Reason: ${reason}`;
 
     loggingChannel.send(logMsg);
     console.log(colors.red(logMsg.replace(/\`/g, "")));
