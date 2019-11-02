@@ -1,6 +1,6 @@
 {
   "name": "arevoltbot",
-  "version": "1.0.4a",
+  "version": "1.0.5",
   "description": "A Discord bot",
   "main": "bot.js",
   "scripts": {
