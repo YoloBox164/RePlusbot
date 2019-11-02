@@ -72,39 +72,71 @@ module.exports = {
     
     /**
      * @param {string} tableName The name of the table.
-     * @param {string} id The id which repsresent the primary key.
-     * @returns
+     * @param {string | number}  id The id which repsresent the primary key.
      */
 
     GetObjectTemplate: function(tableName, id) {
-        var tableArr = DatabaseTableSchema[`${tableName}`];
-
-        if(tableName == "warnings") {
-            var obj = { userid: `${id}` };
-            for(let i = 2; i < tableArr.length; i++) {
-                if(tableArr[i].type == "BOOLEAN" || tableArr[i].type == "INTEGER") {
-                    obj[tableArr[i].name] = 0;
-                } else if(tableArr[i].type == "TEXT") {
-                    obj[tableArr[i].name] = "None";
-                } else {
-                    obj[tableArr[i].name] = null;
+        var obj;
+        switch(tableName) {
+            case 'currency':
+                obj = {
+                    id: `${id}`,
+                    bits: 0,
+                    claimTime: 0,
+                    streak: 0
                 }
-            }
-        } else {
-            var obj = { id: `${id}` };
-            for(let i = 1; i < tableArr.length; i++) {
-                if(tableArr[i].type == "BOOLEAN" || tableArr[i].type == "INTEGER") {
-                    obj[tableArr[i].name] = 0;
-                } else if(tableArr[i].type == "TEXT") {
-                    obj[tableArr[i].name] = "None";
-                } else {
-                    obj[tableArr[i].name] = null;
+                break;
+            case 'wumpus':
+                obj = {
+                    id: `${id}`,
+                    perma: 0,
+                    hasRole: 0,
+                    roleTime: 0
                 }
-            }
+                break;
+            case 'inviters':
+                obj = {
+                    id: `${id}`,
+                    created: 0,
+                    used: 0
+                }
+                break;
+            case 'activeInvites':
+                obj = {
+                    id: `${id}`,
+                    invite: "",
+                    uses: 0
+                }
+                break;
+            case 'warnedUsers':
+                obj = {
+                    id: `${id}`,
+                    count: 0
+                }
+                break;
+            case 'warnings':
+                obj = {
+                    id: GetLastAvaiableId(),
+                    userid: `${id}`,
+                    warning: "Not given.",
+                    time: 0
+                }
+                break;
+            default: 
+                obj = {
+                    id: `${id}`
+                }
+                break;
         }
-        
         return obj;
     }
+}
+
+/** @returns {number} */
+
+function GetLastAvaiableId() {
+    var statement = database.Database.prepare("SELECT count(*) FROM warnings;").get();
+    return statement['count(*)'] + 1;
 }
 
 module.exports.config = {

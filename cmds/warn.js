@@ -28,7 +28,6 @@ module.exports.run = (bot, message, args) => {
         database.SetData('warnedUsers', memberWarning);
 
         var warning = database.GetObjectTemplate('warnings', member.id);
-        warning.id = GetLastAvaiableId()['count(*)'] + 1;
         warning.warning = reason ? reason : "Not given.";
         warning.time = Date.now();
         database.SetData('warnings', warning);
@@ -38,12 +37,6 @@ module.exports.run = (bot, message, args) => {
         logChannel.send(`\`Warn\`:\n**Name:** ${member.displayName} (${member.user.username})\n**Id:** ${member.id}\n**Reason:** ${reason}\n**Issued by:** ${issuer.displayName} (${issuer.user.username} | ${issuer.id})`);
         console.log(`Warn: ${member.displayName} (Id: ${member.id}) | by ${issuer.displayName} (Id: ${issuer.id})`);
     } else return message.channel.send(`User was not specified.\n\n\`HELP\` => \`${this.help.usage}\``);
-}
-
-/** @returns {{'count(*)': number}} */
-
-function GetLastAvaiableId() {
-    return database.Database.prepare("SELECT count(*) FROM warnings;").get();
 }
 
 module.exports.help = {
