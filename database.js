@@ -82,12 +82,24 @@ module.exports = {
         if(tableName == "warnings") {
             var obj = { userid: `${id}` };
             for(let i = 2; i < tableArr.length; i++) {
-                obj[tableArr[i].name] = null;
+                if(tableArr[i].type == "BOOLEAN" || tableArr[i].type == "INTEGER") {
+                    obj[tableArr[i].name] = 0;
+                } else if(tableArr[i].type == "TEXT") {
+                    obj[tableArr[i].name] = "None";
+                } else {
+                    obj[tableArr[i].name] = null;
+                }
             }
         } else {
             var obj = { id: `${id}` };
             for(let i = 1; i < tableArr.length; i++) {
-                obj[tableArr[i].name] = null;
+                if(tableArr[i].type == "BOOLEAN" || tableArr[i].type == "INTEGER") {
+                    obj[tableArr[i].name] = 0;
+                } else if(tableArr[i].type == "TEXT") {
+                    obj[tableArr[i].name] = "None";
+                } else {
+                    obj[tableArr[i].name] = null;
+                }
             }
         }
         
