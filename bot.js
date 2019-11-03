@@ -127,7 +127,9 @@ bot.on('message', async message => {
             console.log("Reloading commands");
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        } else if(["shutdown", "shut", "s"].includes(command)) await shutdown(message, "Shutting down");
+        }
+        else if(["shutdown", "shut", "s"].includes(command)) await shutdown(message, "Shutting down");
+        else if(["update", "upd", "up"].includes(command)) await shutdown(message, "Updating");
         else if(["restart", "res", "rs"].includes(command)) await shutdown(message, "Restarting");
         else if(["switchmode", "switch", "sw"].includes(command)) await shutdown(message, `Switching to ${CONFIG.mode == 'development' ? 'production' : 'development'} mode.`);
         else if(["twitch", "tw"].includes(command)) {
