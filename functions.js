@@ -54,9 +54,15 @@ module.exports = {
     },
 
     /**
-     * @param {number} year
-     * @param {number} month
-     * @returns {{start:Date, end:Date}}
+     * @typedef {Object} MonthDateRange
+     * @property {number} start first day of the month in milliseconds
+     * @property {number} end last day of the month in milliseconds
+     */
+
+    /**
+     * @param {number} year which year is it
+     * @param {number} month which month is it
+     * @returns {MonthDateRange} The first and last day of the month in milliseconds
      */
 
     GetMonthDateRange: function(year, month) {
@@ -70,7 +76,7 @@ module.exports = {
 
     /**
      * @param {number} milliseconds
-     * @returns {string}
+     * @returns {string} hours:minutes:seconds - e.g.: 01:14:54
      */
 
     ParseMillisecondsIntoReadableTime: function(milliseconds){

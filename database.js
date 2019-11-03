@@ -7,6 +7,26 @@ const colors = require('colors/safe');
 
 const Functions = require('./functions.js');
 
+/** 
+ * @typedef {Object} databaseObject
+ * @property {string|number} id
+ * @property {number} [bits]
+ * @property {number} [claimTime]
+ * @property {number} [streak]
+ * @property {boolean} [perma]
+ * @property {boolean} [hasRole]
+ * @property {number} [roleTime]
+ * @property {number} [created]
+ * @property {number} [used]
+ * @property {string} [invite]
+ * @property {number} [uses]
+ * @property {number} [count]
+ * @property {string} [userid]
+ * @property {string} [warning]
+ * @property {number} [time]
+*/
+
+
 module.exports = {
 
     Database: Database,
@@ -18,7 +38,6 @@ module.exports = {
     Prepare: function(tableName) {
         var tableArrString = [];
         var tableArr = DatabaseTableSchema[`${tableName}`];
-
         for(var i = 0; i < tableArr.length; i++) {
             tableArrString.push(`${tableArr[i].name} ${tableArr[i].type}`);
         }
@@ -38,7 +57,7 @@ module.exports = {
     /**
      * @param {string} tableName The name of the table.
      * @param {string} id The searched id.
-     * @returns {{id}} Table Data.
+     * @returns {databaseObject} Table Data.
      */
 
     GetData: function(tableName, id) {
@@ -50,7 +69,7 @@ module.exports = {
 
     /**
      * @param {string} tableName The name of the table.
-     * @param {{}} data Data that will be inserted into the table.
+     * @param {databaseObject} data Data that will be inserted into the table.
      * @returns {sqlite.Statement}
      */
     
@@ -73,61 +92,30 @@ module.exports = {
     /**
      * @param {string} tableName The name of the table.
      * @param {string | number}  id The id which repsresent the primary key.
+     * @returns {databaseObject}
      */
 
     GetObjectTemplate: function(tableName, id) {
-        var obj;
-        switch(tableName) {
-            case 'currency':
-                obj = {
-                    id: `${id}`,
-                    bits: 0,
-                    claimTime: 0,
-                    streak: 0
-                }
-                break;
-            case 'wumpus':
-                obj = {
-                    id: `${id}`,
-                    perma: 0,
-                    hasRole: 0,
-                    roleTime: 0
-                }
-                break;
-            case 'inviters':
-                obj = {
-                    id: `${id}`,
-                    created: 0,
-                    used: 0
-                }
-                break;
-            case 'activeInvites':
-                obj = {
-                    id: `${id}`,
-                    invite: "",
-                    uses: 0
-                }
-                break;
-            case 'warnedUsers':
-                obj = {
-                    id: `${id}`,
-                    count: 0
-                }
-                break;
-            case 'warnings':
-                obj = {
-                    id: GetLastAvaiableId(),
-                    userid: `${id}`,
-                    warning: "Not given.",
-                    time: 0
-                }
-                break;
-            default: 
-                obj = {
-                    id: `${id}`
-                }
-                break;
+        var tableArr = DatabaseTableSchema[`${tableName}`];
+        var obj = {};
+        var start = 0;
+        if(tableName == 'warnings') {
+            obj = {id: GetLastAvaiableId(), userid: `${id}`};
+            start = 2;
+        } else {
+            obj = {id: `${id}`};
+            start = 1;
         }
+        for(let i = start; i < tableArr.length; i++) {
+            if(tableArr[i].type.includes("BOOLEAN") || tableArr[i].type.includes("INTEGER")) {
+                obj[tableArr[i].name] = 0;
+            } else if(tableArr[i].type.includes("TEXT")) {
+                obj[tableArr[i].name] = "None";
+            } else {
+                obj[tableArr[i].name] = null;
+            }
+        }
+
         return obj;
     }
 }
