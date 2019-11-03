@@ -127,7 +127,9 @@ bot.on('message', async message => {
             console.log("Reloading commands");
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        } else if(["shutdown", "shut", "s"].includes(command)) await shutdown(message, "Shutting down");
+        }
+        else if(["shutdown", "shut", "s"].includes(command)) await shutdown(message, "Shutting down");
+        else if(["update", "upd", "up"].includes(command)) await shutdown(message, "Updating");
         else if(["restart", "res", "rs"].includes(command)) await shutdown(message, "Restarting");
         else if(["switchmode", "switch", "sw"].includes(command)) await shutdown(message, `Switching to ${CONFIG.mode == 'development' ? 'production' : 'development'} mode.`);
         else if(["twitch", "tw"].includes(command)) {
@@ -258,20 +260,16 @@ function loadCmds() {
     });
 }
 
-/**
- * @param {string} text
- */
+/** @param {string} text */
 
 function clean(text) {
     if (typeof(text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
     else return text;
 }
 
-/**
- * @param {Discord.GuildMember} member
- */
+/** @param {Discord.GuildMember} member Discord guild member */
+
 function CheckWumpus(member) {
-    var currencyData = database.GetData('currency', member.id);
     var wumpusData = database.GetData('wumpus', member.id);
     if(!wumpusData.hasRole) {
         database.DeleteData('wumpus', member.id);
@@ -279,21 +277,23 @@ function CheckWumpus(member) {
         return;
     }
 
+    var currencyData = database.GetData('currency', member.id);
+    
     if(member.roles.has(database.config.WumpusRoleId) && !wumpusData.perma) {
         var now = new Date(Date.now());
         var year = now.getFullYear();
         var month = now.getMonth();
 
         var MonthDateRange = Functions.GetMonthDateRange(year, month);
-        if(daily.EndOfTheMonthInMilliSeconds < MonthDateRange.end) {
+        if(parseInt(daily.EndOfTheMonthInMilliSeconds) < MonthDateRange.end) {
             daily.EndOfTheMonthInMilliSeconds = MonthDateRange.end;
             fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
         }
-        if(wumpusData.roleTime < daily.EndOfTheMonthInMilliSeconds) {
+        if(wumpusData.roleTime < MonthDateRange.start + (database.config.DayInMilliSeconds * 2)) {
             if(currencyData.bits >= database.config.WumpusRoleCost) {
                 currencyData.bits -= database.config.WumpusRoleCost;
                 database.SetData('currency', currencyData);
-                wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;
+                wumpusData.roleTime = MonthDateRange.end + database.config.DayInMilliSeconds;
                 database.SetData('wumpus', wumpusData);
                 if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
             } else {
