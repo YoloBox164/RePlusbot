@@ -170,7 +170,7 @@ module.exports.run = (bot, message, args) => {
                 currencyData.bits += database.config.DayBitsStreakBonus;
                 embed.addField("Bits Streak", `Yaay! You got a bonus ${database.config.DayBitsStreakBonus} Bits!`);
             } 
-            if(currencyData.claimTime >= daily.NextDayInMilliSeconds - (database.config.DayInMilliSeconds * 2)) {
+            if(currencyData.claimTime <= daily.NextDayInMilliSeconds - (database.config.DayInMilliSeconds * 2)) {
                 currencyData.streak = 0
             }
             currencyData.streak++;
