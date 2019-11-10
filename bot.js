@@ -99,8 +99,6 @@ bot.on('message', async message => {
     var args = [];
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
         var command = messageArray[0].toLowerCase().slice(bot.devPrefix.length);
-        var tomb = [];
-        if(tomb[0])
 
         if(!command && messageArray[1]) {
             command = messageArray[1].toLowerCase();
