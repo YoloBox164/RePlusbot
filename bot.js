@@ -96,6 +96,7 @@ bot.on('message', async message => {
     if(message.channel.type === 'dm') return;
 
     if(!message.content.startsWith(prefix) && !message.content.startsWith(bot.devPrefix)) return;
+    if(message.content.startsWith(`${prefix}:`)) return;
     var messageArray = message.content.split(/ +/g);
     var args = [];
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
