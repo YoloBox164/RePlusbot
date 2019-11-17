@@ -20,8 +20,9 @@ const prefix = SETTINGS.Prefix;
 
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
-bot.commands = new Discord.Collection();
-bot.aliasCmds = new Discord.Collection();
+
+var commands = new Discord.Collection();
+var aliasCmds = new Discord.Collection();
 
 /** @type {Discord.Guild} */
 var mainGuild;
@@ -152,7 +153,7 @@ bot.on('message', async message => {
             return;
         }
 
-        var cmd = bot.commands.get(command) || bot.commands.get(bot.aliasCmds.get(command));
+        var cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
         if(cmd) cmd.run(bot, message, args);
 
         console.log(colors.cyan(logMsg));
@@ -247,13 +248,16 @@ function loadCmds() {
             delete require.cache[require.resolve(`./cmds/${f}`)];
             var props = require(`./cmds/${f}`);
             console.log(colors.white(`${i + 1}: ${f} loaded!`));
-            bot.commands.set(props.help.cmd, props);
+            commands.set(props.help.cmd, props);
             props.help.alias.forEach((name) => {
-                bot.aliasCmds.set(name, props.help.cmd);
+                aliasCmds.set(name, props.help.cmd);
             });
 
         });
 
+        bot.commands = commands;
+        bot.aliasCmds = aliasCmds;
+        
         console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!`));
     });
 }

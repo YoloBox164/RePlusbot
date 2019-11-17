@@ -34,9 +34,18 @@ module.exports.run = (bot, message, args) => {
 
         message.channel.send(`Warning successfuly issued for ${member}.\n**Reason**: '${reason}'.`);
         var logChannel = message.guild.channels.get(SETTINGS.modLogChannelId);
-        logChannel.send(`\`Warn\`:\n**Name:** ${member.displayName} (${member.user.username})\n**Id:** ${member.id}\n**Reason:** ${reason}\n**Issued by:** ${issuer.displayName} (${issuer.user.username} | ${issuer.id})`);
-        console.log(`Warn: ${member.displayName} (Id: ${member.id}) | by ${issuer.displayName} (Id: ${issuer.id})`);
-    } else return message.channel.send(`User was not specified.\n\n\`HELP\` => \`${this.help.usage}\``);
+
+        var logMsg = `\`Warn\`:
+            **Name:** ${member.displayName} (${member.user.username})
+            **Id:** ${member.id}
+            **Reason:** ${reason}
+            **Issued by:** ${issuer.displayName} (${issuer.user.username} | ${issuer.id})`;
+
+        var conLogMsg = `Warn: ${member.displayName} (Id: ${member.id}) | by ${issuer.displayName} (Id: ${issuer.id})`;
+
+        logChannel.send(logMsg.replace('\t', ''));
+        console.log(conLogMsg);
+    } else return message.channel.send(`User was not specified.\n\n\`HELP => ${this.help.usage}\``);
 }
 
 module.exports.help = {

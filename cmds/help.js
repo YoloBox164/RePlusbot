@@ -74,7 +74,7 @@ module.exports.run = (bot, message, args) => {
 
 module.exports.help = {
     cmd: "help",
-    alias: [],
+    alias: ["segitseg", "segítség"],
     name: "Help",
     desc: "Some help amout the commands.",
     usage: ">help <page / command>",

@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const database = require('../database.js');
+const { Database } = require('../database.js');
 const Functions = require('../functions.js');
 
 /**
@@ -13,7 +13,7 @@ module.exports.run = (bot, message, args) => {
     var roles = targetMember.roles.array().slice(1).join(" | ");
     if(!roles) roles = "This user don't have any roles."
 
-    var warnings = database.Database.prepare("SELECT * FROM warnings WHERE userid = ?;").all(targetMember.id);
+    var warnings = Database.prepare("SELECT * FROM warnings WHERE userid = ?;").all(targetMember.id);
     var warningStringArr = [];
     for(const {warning, time} of warnings) {
         warningStringArr.push(`'${warning}' (${bot.logDate(time)})`)

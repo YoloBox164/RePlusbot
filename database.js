@@ -26,13 +26,14 @@ const Functions = require('./functions.js');
  * @property {number} [time]
 */
 
+/** @typedef {('currency'|'wumpus'|'inviters'|'activeInvites'|'warnedUsers'|'warnings')} tableName */
 
 module.exports = {
 
     Database: Database,
 
     /**
-     * @param {string} tableName
+     * @param {tableName} tableName
      * @returns {sqlite.Statement} The table
      */
     Prepare: function(tableName) {
@@ -55,7 +56,7 @@ module.exports = {
     },
 
     /**
-     * @param {string} tableName The name of the table.
+     * @param {tableName} tableName The name of the table.
      * @param {string} id The searched id.
      * @returns {databaseObject} Table Data.
      */
@@ -68,7 +69,7 @@ module.exports = {
     },
 
     /**
-     * @param {string} tableName The name of the table.
+     * @param {tableName} tableName The name of the table.
      * @param {databaseObject} data Data that will be inserted into the table.
      * @returns {sqlite.Statement}
      */
@@ -80,7 +81,7 @@ module.exports = {
     },
 
     /**
-     * @param {string} tableName The name of the table.
+     * @param {tableName} tableName The name of the table.
      * @param {string} id Based on this id, the database will delete that data.
      * @returns {sqlite.Statement}
      */
@@ -90,7 +91,7 @@ module.exports = {
     },
     
     /**
-     * @param {string} tableName The name of the table.
+     * @param {tableName} tableName The name of the table.
      * @param {string | number}  id The id which repsresent the primary key.
      * @returns {databaseObject}
      */
@@ -123,7 +124,7 @@ module.exports = {
 /** @returns {number} */
 
 function GetLastAvaiableId() {
-    var statement = database.Database.prepare("SELECT count(*) FROM warnings;").get();
+    var statement = Database.prepare("SELECT count(*) FROM warnings;").get();
     return statement['count(*)'] + 1;
 }
 
