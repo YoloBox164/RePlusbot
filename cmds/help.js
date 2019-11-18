@@ -25,7 +25,7 @@ module.exports.run = (bot, message, args) => {
 
     if(args[0] && isNaN(args[0])) {
         var command = bot.commands.get(args[0].toLowerCase()) || bot.commands.get(bot.aliasCmds.get(args[0].toLowerCase()));
-        pageSystem.currentPage = pageSystem.indexHelp.indexOf(command.help.cmd) + 1;
+        pageSystem.currentPage = pageSystem.indexHelp.indexOf(command.help.cmd) + 1 || 1;
         if(pageSystem.currentPage < 1 || pageSystem.currentPage > pageSystem.pages.length) {
             pageSystem.currentPage = 1;
         }
