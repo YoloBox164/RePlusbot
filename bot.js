@@ -27,11 +27,14 @@ var aliasCmds = new Discord.Collection();
 /** @type {Discord.Guild} */
 var mainGuild;
 /** @type {Discord.TextChannel} */
-var loggingChannel;
+var logChannel;
 /** @type {Discord.TextChannel} */
 var welcomeChannel;
+/** @type {Discord.TextChannel} */
+var devLogChannel;
 
 loadCmds();
+bot.login(CONFIG.TOKEN).catch(console.error);
 
 /** @param {number} timestamp */
 
@@ -39,8 +42,6 @@ bot.logDate = (timestamp) => {
     if(!timestamp) timestamp = Date.now();
     return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
 }
-
-bot.login(CONFIG.TOKEN).catch(console.error);
 
 var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"]
 
@@ -53,13 +54,16 @@ bot.on('ready', async () => {
     database.Prepare('warnings');
 
     mainGuild = bot.guilds.get('572873520732831754');
-    loggingChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
+    logChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
     welcomeChannel = mainGuild.channels.get(SETTINGS.welcomeMsgChannelId);
+    devLogChannel = bot.guilds.get('427567526935920655').channels.get('647420812722307082');
 
-    bot.loggingChannel = loggingChannel;
+    bot.mainGuild = mainGuild;
+    bot.logChannel = logChannel;
+    bot.devLogChannel = devLogChannel;
 
     console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode})`));
-    loggingChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
+    logChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
     
     bot.setInterval(() => {
         var status = statuses[Math.floor(Math.random() * statuses.length)];
@@ -77,7 +81,7 @@ bot.on('ready', async () => {
                 fs.writeFile("./mute.json", JSON.stringify(MUTES, null, 4), err => {
                     if(err) throw err;
                     console.log(`Unmuted ${member.displayName}`);
-                    loggingChannel.send(`Unmuted ${member.displayName}`)
+                    logChannel.send(`Unmuted ${member.displayName}`)
                 });
             } else {
                 member.addRole(SETTINGS.MuteRoleId);
@@ -87,25 +91,22 @@ bot.on('ready', async () => {
     }, 1000)
 });
 
-bot.on('presenceUpdate', async (oldMember, newMember) => {
-    CheckWumpus(newMember);
-});
+bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
 
-    if(!message.content.startsWith(prefix) && !message.content.startsWith(bot.devPrefix)) return;
     if(message.content.startsWith(`${prefix}:`)) return;
-    var messageArray = message.content.split(/ +/g);
-    var args = [];
-    if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
-        var command = messageArray[0].toLowerCase().slice(bot.devPrefix.length);
 
-        if(!command && messageArray[1]) {
-            command = messageArray[1].toLowerCase();
-            args = messageArray.slice(2);
-        } else args = messageArray.slice(1);
+    if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
+        const { command, args } = makeArgs(message, bot.devPrefix);
+
+        var reloads = ["reloadcmds", "reload", "r"];
+        var shutdowns = ["shutdown", "shut", "s"];
+        var updates = ["update", "upd", "up"];
+        var restarts = ["restart", "res", "rs"];
+        var switchmodes = ["switchmode", "switch", "sw"];
 
         if(command === "eval") {
             try {
@@ -122,16 +123,16 @@ bot.on('message', async message => {
                     console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
                 });
             }
-        } else if(["reloadcmds", "reload", "r"].includes(command)) {
-            loggingChannel.send("\`Reloading commands\`");
+        } else if(reloads.includes(command)) {
+            logChannel.send("\`Reloading commands\`");
             console.log("Reloading commands");
             loadCmds();
             message.channel.send("Commands successfully reloaded!");
-        }
-        else if(["shutdown", "shut", "s"].includes(command)) await shutdown(message, "Shutting down");
-        else if(["update", "upd", "up"].includes(command)) await shutdown(message, "Updating");
-        else if(["restart", "res", "rs"].includes(command)) await shutdown(message, "Restarting");
-        else if(["switchmode", "switch", "sw"].includes(command)) await shutdown(message, `Switching to ${CONFIG.mode == 'development' ? 'production' : 'development'} mode.`);
+        } 
+        else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
+        else if(updates.includes(command)) await shutdown(message, "Updating");
+        else if(restarts.includes(command)) await shutdown(message, "Restarting");
+        else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode " + (CONFIG.mode == "development" ? "production." : "development."));
         else if(["twitch", "tw"].includes(command)) {
             if(CONFIG.mode === "production") return;
             //console.log("Reloading twitch webhook");
@@ -139,12 +140,8 @@ bot.on('message', async message => {
             const twitch = require('./twitch.js');
             twitch.CheckSub();
         }
-    } else {
-        var command = messageArray[0].toLowerCase().slice(prefix.length);
-        if(!command && messageArray[1]) {
-            command = messageArray[1].toLowerCase();
-            args = messageArray.slice(2);
-        } else args = messageArray.slice(1);
+    } else if(!message.content.startsWith(prefix)) {
+        const { command, args } = makeArgs(message, prefix);
 
         var logMsg = `${message.member.displayName} used the ${command} in ${message.channel.name}.`;
 
@@ -154,6 +151,26 @@ bot.on('message', async message => {
             return;
         }
 
+        bot.commands = commands;
+        bot.aliasCmds = aliasCmds;
+
+        /**
+         * @typedef {(bot: Discord.Client, message: Discord.Message, args: Array<string>)} run
+         * 
+         * @typedef {Object} help
+         * @property {string} cmd
+         * @property {Array<string>} alias
+         * @property {string} name
+         * @property {string} desc
+         * @property {string} usage
+         * @property {string} category
+         * 
+         * @typedef {Object} cmd
+         * @property {run} run
+         * @property {help} help
+         */
+
+        /** @type {cmd} */
         var cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
         if(cmd) cmd.run(bot, message, args);
 
@@ -161,13 +178,31 @@ bot.on('message', async message => {
     }
 });
 
+/**
+ * @param {Discord.Message} message 
+ * @param {string} prefix
+ * @returns {{command:string, args: Array<string>}}
+ */
+
+function makeArgs(message, prefix) {
+    var messageArray = message.content.split(/ +/g);
+    var args = [];
+    var command = messageArray[0].toLowerCase().slice(prefix.length);
+    if(!command && messageArray[1]) {
+        command = messageArray[1].toLowerCase();
+        args = messageArray.slice(2);
+    } else args = messageArray.slice(1);
+
+    return { command: command, args: args}
+}
+
 /** 
  * @param {Discord.Message} message
  * @param {string} text 
  */
 
 async function shutdown(message, text) {
-    await loggingChannel.send(`\`${text}\``);
+    await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
     console.log(text);
     await bot.destroy().catch(console.error);
@@ -185,7 +220,8 @@ bot.on("guildMemberAdd", async member => {
 
     if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
 
-    loggingChannel.send(logMsg);
+    if(member.guild == mainGuild) logChannel.send(logMsg);
+    else devLogChannel.send(logMsg);
     console.log(colors.green(logMsg.replace(/\`/g, "")));
 });
 
@@ -214,7 +250,8 @@ bot.on("guildMemberRemove", async member => {
 
     var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate()}\` | Reason: ${reason}`;
 
-    loggingChannel.send(logMsg);
+    if(member.guild == mainGuild) logChannel.send(logMsg);
+    else devLogChannel.send(logMsg);
     console.log(colors.red(logMsg.replace(/\`/g, "")));
 });
 
@@ -228,7 +265,7 @@ process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejectio
  */
 
 function errorHandling(err, msg) {
-    if(loggingChannel) loggingChannel.send(`\`ERROR: ${msg}\`\n\`\`\`js\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    if(logChannel) logChannel.send(`\`ERROR: ${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
     bot.setTimeout(() => { bot.destroy() }, 2000);
 }

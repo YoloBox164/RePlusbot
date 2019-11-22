@@ -22,8 +22,11 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send("You don't have permission to use this command!");
         return; 
     }
+
+    var logMsg = `${message.member.displayName} deleted ${deleteCount} messages in ${message.channel}`;
     
-    bot.loggingChannel.send(`${message.member.displayName} deleted ${deleteCount} messages in ${message.channel}`);
+    if(message.guild == bot.mainGuild) bot.logChannel.send(logMsg);
+    else bot.devLogChannel.send(logMsg);
     console.log(colors.yellow(`LOG: Deleted messages: ${deleteCount}`));
 }
 module.exports.help = {
