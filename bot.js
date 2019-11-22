@@ -140,7 +140,7 @@ bot.on('message', async message => {
             const twitch = require('./twitch.js');
             twitch.CheckSub();
         }
-    } else if(!message.content.startsWith(prefix)) {
+    } else if(message.content.startsWith(prefix)) {
         const { command, args } = makeArgs(message, prefix);
 
         var logMsg = `${message.member.displayName} used the ${command} in ${message.channel.name}.`;
