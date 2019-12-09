@@ -132,7 +132,7 @@ bot.on('message', async message => {
         else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
         else if(updates.includes(command)) await shutdown(message, "Updating");
         else if(restarts.includes(command)) await shutdown(message, "Restarting");
-        else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode " + (CONFIG.mode == "development" ? "production." : "development."));
+        else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode: " + (CONFIG.mode == "development" ? "production." : "development."));
         else if(["twitch", "tw"].includes(command)) {
             if(CONFIG.mode === "production") return;
             //console.log("Reloading twitch webhook");
@@ -193,7 +193,7 @@ function makeArgs(message, prefix) {
         args = messageArray.slice(2);
     } else args = messageArray.slice(1);
 
-    return { command: command, args: args}
+    return { command: command, args: args };
 }
 
 /** 
