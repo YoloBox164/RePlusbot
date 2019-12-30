@@ -210,18 +210,16 @@ async function shutdown(message, text) {
 }
 
 bot.on("guildMemberAdd", async member => {
-    if(member.user.bot) {
-        member.addRole(SETTINGS.AutoBotRoleId);
+    if(member.guild == mainGuild) {
+        if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
+    
+        var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
+    
+         logChannel.send(logMsg);
     } else {
-        member.addRole(SETTINGS.AutoMemberRoleId);
+        devLogChannel.send(logMsg);
     }
-
-    var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
-
-    if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
-
-    if(member.guild == mainGuild) logChannel.send(logMsg);
-    else devLogChannel.send(logMsg);
+    
     console.log(colors.green(logMsg.replace(/\`/g, "")));
 });
 
