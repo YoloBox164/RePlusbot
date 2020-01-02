@@ -38,26 +38,44 @@
             "type": "VARCHAR(30) PRIMARY KEY"
         },
         {
-            "name": "created",
-            "type": "INTEGER"
-        },
-        {
-            "name": "used",
+            "name": "invitedNumber",
             "type": "INTEGER"
         }
     ],
-    "activeInvites": [{
+    "invitedMembers": [{
             "name": "id",
             "type": "VARCHAR(30) PRIMARY KEY"
         },
         {
-            "name": "invite",
-            "type": "TEXT"
+            "name": "inviter",
+            "type": "VARCHAR(30)"
         },
         {
-            "name": "uses",
-            "type": "INTEGER"
+            "name": "banned",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "kicked",
+            "type": "BOOLEAN"
+        },
+        {
+            "name": "left",
+            "type": "BOOLEAN"
         }
+    ],
+    "invites": [{
+            "name": "id",
+            "type": "TEXT PRIMARY KEY"
+        },
+        {
+            "name": "inviter",
+            "type": "VARCHAR(30)"
+        },
+        {
+            "name": "code",
+            "type": "TEXT"
+        }
+
     ],
     "warnedUsers": [{
             "name": "id",

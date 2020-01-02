@@ -7,33 +7,89 @@ const colors = require('colors/safe');
 
 const Functions = require('./functions.js');
 
-/** 
- * @typedef {Object} databaseObject
- * @property {string|number} id
- * @property {number} [bits]
- * @property {number} [claimTime]
- * @property {number} [streak]
- * @property {boolean} [perma]
- * @property {boolean} [hasRole]
- * @property {number} [roleTime]
- * @property {number} [created]
- * @property {number} [used]
- * @property {string} [invite]
- * @property {number} [uses]
- * @property {number} [count]
- * @property {string} [userid]
- * @property {string} [warning]
- * @property {number} [time]
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+/**
+ * @typedef {Object} currency
+ * @property {string} id
+ * @property {number} bits
+ * @property {number} claimTime
+ * @property {number} streak
 */
 
-/** @typedef {('currency'|'wumpus'|'inviters'|'activeInvites'|'warnedUsers'|'warnings')} tableName */
+///////////////////////////////////
+
+/**
+ * @typedef {Object} wumpus
+ * @property {string} id
+ * @property {boolean} perma
+ * @property {boolean} hasRole
+ * @property {number} roleTime
+*/
+
+///////////////////////////////////
+
+/**
+ * @typedef {Object} inviters
+ * @property {string} id (Inviters) Member's id |
+ * @property {number} invitedNumber How many users has this user invited
+*/
+
+///////////////////////////////////
+
+/**
+ * @typedef {Object} invitedMembers
+ * @property {string} id (InvitedMembers) Member's id |
+ * @property {string} inviter Inviter's id
+ * @property {boolean} banned
+ * @property {boolean} kicked
+ * @property {boolean} left
+*/
+
+///////////////////////////////////
+
+/**
+ * @typedef {Object} invites
+ * @property {string} id (Invites) this is the invite code |
+ * @property {string} inviter
+ * @property {string} code 
+*/
+
+///////////////////////////////////
+
+/**
+ * @typedef {Object} warnedUsers
+ * @property {string} id
+ * @property {number} count
+*/
+
+///////////////////////////////////
+
+/**
+ * @typedef {Object} warnings
+ * @property {number} id
+ * @property {string} userid
+ * @property {string} warning
+ * @property {number} time
+*/
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+/** @typedef {(currency|wumpus|inviters|invitedMembers|invites|warnedUsers|warnings)} databaseObject */
+
+/** @typedef {('currency'|'wumpus'|'inviters'|'invitedMembers'|'invites'|'warnedUsers'|'warnings')} tableName */
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 module.exports = {
 
     Database: Database,
 
     /**
-     * @param {tableName} tableName
+     * @param {tableName} tableName The name of the table to Prepare for use
      * @returns {sqlite.Statement} The table
      */
     Prepare: function(tableName) {
@@ -100,7 +156,7 @@ module.exports = {
         var tableArr = DatabaseTableSchema[`${tableName}`];
         var obj = {};
         var start = 0;
-        if(tableName == 'warnings') {
+        if(tableName == "warnings") {
             obj = {id: GetLastAvaiableId(), userid: `${id}`};
             start = 2;
         } else {
@@ -121,7 +177,10 @@ module.exports = {
     }
 }
 
-/** @returns {number} */
+/** 
+ * @param {tableName} tableName
+ * @returns {number}
+*/
 
 function GetLastAvaiableId() {
     var statement = Database.prepare("SELECT count(*) FROM warnings;").get();

@@ -33,7 +33,8 @@ var welcomeChannel;
 /** @type {Discord.TextChannel} */
 var devLogChannel;
 
-loadCmds();
+loadCmds("cmds");
+loadCmds("sec-sys");
 bot.login(CONFIG.TOKEN).catch(console.error);
 
 /** @param {number} timestamp */
@@ -48,10 +49,11 @@ var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Bet
 bot.on('ready', async () => {
     database.Prepare('currency');
     database.Prepare('wumpus');
-    //database.Prepare('inviters');
-    //database.Prepare('activeInvites');
     database.Prepare('warnedUsers');
     database.Prepare('warnings');
+    database.Prepare('invitedMembers')
+    database.Prepare('inviters')
+    database.Prepare('invites')
 
     mainGuild = bot.guilds.get('572873520732831754');
     logChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
@@ -126,7 +128,14 @@ bot.on('message', async message => {
         } else if(reloads.includes(command)) {
             logChannel.send("\`Reloading commands\`");
             console.log("Reloading commands");
-            loadCmds();
+            var dirs = ["cmds", "sec-sys"];
+            if(args[0] && dirs.includes(args[0])) {
+                loadCmds(args[0]);
+            } else {
+                loadCmds("cmds");
+                loadCmds("sec-sys");
+            }
+
             message.channel.send("Commands successfully reloaded!");
         } 
         else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
@@ -210,18 +219,16 @@ async function shutdown(message, text) {
 }
 
 bot.on("guildMemberAdd", async member => {
-    if(member.user.bot) {
-        member.addRole(SETTINGS.AutoBotRoleId);
+    if(member.guild == mainGuild) {
+        if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
+    
+        var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
+    
+         logChannel.send(logMsg);
     } else {
-        member.addRole(SETTINGS.AutoMemberRoleId);
+        devLogChannel.send(logMsg);
     }
-
-    var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
-
-    if(!member.user.bot) welcomeChannel.send(`Üdv a szerveren ${member}, érezd jól magad!`);
-
-    if(member.guild == mainGuild) logChannel.send(logMsg);
-    else devLogChannel.send(logMsg);
+    
     console.log(colors.green(logMsg.replace(/\`/g, "")));
 });
 
@@ -270,8 +277,8 @@ function errorHandling(err, msg) {
     bot.setTimeout(() => { bot.destroy() }, 2000);
 }
 
-function loadCmds() {
-    fs.readdir("./cmds/",(err, files) => {
+function loadCmds(dir) {
+    fs.readdir(`./${dir}/`, (err, files) => {
         if(err) console.error(`ERROR: ${err}`);
 
         var jsfiles = files.filter(f => f.split(".").pop() === "js");
@@ -280,11 +287,11 @@ function loadCmds() {
             return;
         }
 
-        console.log(colors.cyan(`Loading ${jsfiles.length} bot commands!`));
+        console.log(colors.cyan(`Loading ${jsfiles.length} bot commands! (${dir})`));
 
         jsfiles.forEach((f, i) => {
-            delete require.cache[require.resolve(`./cmds/${f}`)];
-            var props = require(`./cmds/${f}`);
+            delete require.cache[require.resolve(`./${dir}/${f}`)];
+            var props = require(`./${dir}/${f}`);
             console.log(colors.white(`${i + 1}: ${f} loaded!`));
             commands.set(props.help.cmd, props);
             props.help.alias.forEach((name) => {
