@@ -59,6 +59,10 @@
             "type": "BOOLEAN"
         },
         {
+            "name": "pruned",
+            "type": "BOOLEAN"
+        },
+        {
             "name": "left",
             "type": "BOOLEAN"
         }

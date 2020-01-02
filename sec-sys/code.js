@@ -16,10 +16,10 @@ module.exports.run = (bot, message, args) => {
     if(code) {
         var inviteData = Database.GetData("invites", code);
 
-        if(!inviteData && inviteData.code == code) {
+        if(inviteData && inviteData.code == code) {
             var inviterDb = Database.GetData("inviters", inviteData.inviter);
             inviterDb.invitedNumber += 1;
-            Database.SetData(inviterDb);
+            Database.SetData("inviters", inviterDb);
 
             var invitedMember = Database.GetData("invitedMembers", message.author.id);
             invitedMember.inviter = inviteData.inviter;
@@ -27,7 +27,7 @@ module.exports.run = (bot, message, args) => {
 
             /** @type {Discord.TextChannel} */
             var logChannel = message.guild.channels.get(SETTINGS.modLogChannelId);
-            var logMsg = `${message.member.displayName} (${message.member.id}) was invited by ${message.guild.members.get(inviteData.inviter).displayName} (${inviteData.inviter}) | \`${bot.logDate(member.joinedTimestamp)}\`.`;
+            var logMsg = `${message.member.displayName} (${message.member.id}) was invited by ${message.guild.members.get(inviteData.inviter).displayName} (${inviteData.inviter}) | \`${bot.logDate()}\`.`;
 
             logChannel.send(logMsg);
             console.log(colors.yellow(logMsg.replace(/\`/g, "")));

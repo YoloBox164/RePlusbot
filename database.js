@@ -44,6 +44,7 @@ const Functions = require('./functions.js');
  * @property {string} inviter Inviter's id
  * @property {boolean} banned
  * @property {boolean} kicked
+ * @property {boolean} pruned
  * @property {boolean} left
 */
 

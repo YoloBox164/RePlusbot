@@ -237,23 +237,31 @@ bot.on("guildMemberRemove", async member => {
     var kickEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_KICK'}).then(audit => audit.entries.first());
     var pruneEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_PRUNE'}).then(audit => audit.entries.first());
 
+    var invData = database.GetData("invitedMembers", member.id);
+
     var text, reason;
     if(banEntry && banEntry.target.id === member.id) {
         text = "was banned by " + member.guild.members.get(banEntry.executor.id).displayName;
         if(banEntry.reason) reason = banEntry.reason;
         else reason = "Banned";
+        invData.banned = 1;
     } else if(kickEntry && kickEntry.target.id === member.id) {
         text = "was kicked by " + member.guild.members.get(kickEntry.executor.id).displayName;
         if(kickEntry.reason) reason = kickEntry.reason;
         else reason = "Kicked";
+        invData.kicked = 1;
     } else if (pruneEntry && pruneEntry.target.id === member.id) {
         text = "was pruned by" +  member.guild.members.get(pruneEntry.executor.id).displayName;
         if(pruneEntry.reason) reason = pruneEntry.reason;
         else reason = "Pruned";
+        invData.pruned = 1;
     } else {
         text = "leaved the server";
         reason = "Leaved";
+        invData.left = 1;
     }
+
+    database.SetData("invitedMembers", invData);
 
     var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate()}\` | Reason: ${reason}`;
 

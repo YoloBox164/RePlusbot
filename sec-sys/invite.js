@@ -9,9 +9,9 @@ const Discord = require('discord.js');
  */
 
 module.exports.run = (bot, message, args) => {
-    var welcomeMsgChannel = message.guild.channels.get(SETTINGS.welcomeMsgChannelId);
+    var inviteChannel = message.guild.channels.get(SETTINGS.inviteChannelId);
 
-    welcomeMsgChannel.createInvite({ temporary: true, maxUses: 1 }, "Bot created invite.").then(invite => {
+    inviteChannel.createInvite({ temporary: true, maxUses: 1 }, "Bot created invite.").then(invite => {
         var invites = Database.GetData("invites", invite.code);
         invites.inviter = message.author.id;
         invites.code = invite.code;
