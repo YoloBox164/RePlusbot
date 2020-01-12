@@ -109,6 +109,7 @@ bot.on('message', async message => {
         var updates = ["update", "upd", "up"];
         var restarts = ["restart", "res", "rs"];
         var switchmodes = ["switchmode", "switch", "sw"];
+        var manualDBUpdate = ["manualdbupdate", "mdbup", "mdbu"]
 
         if(command === "eval") {
             try {
@@ -141,6 +142,7 @@ bot.on('message', async message => {
         else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
         else if(updates.includes(command)) await shutdown(message, "Updating");
         else if(restarts.includes(command)) await shutdown(message, "Restarting");
+        else if(manualDBUpdate.includes(command)) await shutdown(message, "Shutting down, Manualy Updating the Database");
         else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode: " + (CONFIG.mode == "development" ? "production." : "development."));
         else if(["twitch", "tw"].includes(command)) {
             if(CONFIG.mode === "production") return;
