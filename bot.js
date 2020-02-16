@@ -225,13 +225,13 @@ async function shutdown(message, text) {
 bot.on("guildMemberAdd", async member => {
     if(member.guild == mainGuild) {
         if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
-        else message.member.addRole(SETTINGS.AutoMemberRoleId);
+        else member.addRole(SETTINGS.AutoMemberRoleId);
 
         const embed = new Discord.RichEmbed()
             .setAuthor(member.guild.owner.displayName, member.guild.owner.user.avatarURL)
             .setTitle("Üdv a szerveren!")
             .setThumbnail(member.guild.iconURL)
-            .setDescription(`${message.member} érezd jól magad!`);
+            .setDescription(`${member} érezd jól magad!`);
 
         if(!member.user.bot) welcomeChannel.send({embed: embed});
     

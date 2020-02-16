@@ -3,6 +3,7 @@ const Discord = require("discord.js");
 const colors = require('colors/safe');
 const SETTINGS = require('../settings.json');
 const Database = require('../database');
+const { MemberHasOneOfTheRoles } = require('../functions');
 
 /**
  * @param {Discord.Client} bot The bot itself.
@@ -32,12 +33,25 @@ module.exports.run = (bot, message, args) => {
             logChannel.send(logMsg);
             console.log(colors.yellow(logMsg.replace(/\`/g, "")));
 
-            Database.DeleteData("invites", inviteData.id);
+            var usedStaffInvite = true;
+            bot.fetchInvite(code).then(invite => {
+                if(invite.uses >= 20) usedStaffInvite = false
+            });
+
+            if(!MemberHasOneOfTheRoles(message.guild.members.get(inviteData.inviter), SETTINGS.StaffIds) && usedStaffInvite) {
+                Database.DeleteData("invites", inviteData.id);
+            }
 
             message.member.addRole(SETTINGS.AutoMemberRoleId);
 
             var welcomeChannel = message.guild.channels.get(SETTINGS.welcomeMsgChannelId);
-            welcomeChannel.send(`Üdv a szerveren ${message.member}, érezd jól magad!`);
+            const embed = new Discord.RichEmbed()
+                .setAuthor(message.member.guild.owner.displayName, message.member.guild.owner.user.avatarURL)
+                .setTitle("Üdv a szerveren!")
+                .setThumbnail(message.member.guild.iconURL)
+                .setDescription(`${message.member} érezd jól magad!`);
+
+            welcomeChannel.send({embed: embed});
         }
     }
 
