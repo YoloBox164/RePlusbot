@@ -48,9 +48,11 @@ module.exports = {
      */
 
     MemberHasOneOfTheRoles: function(member, roleIds) {
+        var bool = false;
         roleIds.forEach(roleId => {
-            if(member.roles.get(roleId)) return true;
-        }); return false;
+            if(member.roles.get(roleId)) bool = true;
+        });
+        return bool;
     },
 
     /**

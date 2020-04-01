@@ -4,6 +4,7 @@ const bot = new Discord.Client();
 const Functions = require('./functions.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
+const secSys = require('./sec-sys/regist');
 
 const fs = require('fs');
 const colors = require('colors/safe');
@@ -34,7 +35,7 @@ var welcomeChannel;
 var devLogChannel;
 
 loadCmds("cmds");
-loadCmds("sec-sys");
+
 bot.login(CONFIG.TOKEN).catch(console.error);
 
 /** @param {number} timestamp */
@@ -95,9 +96,13 @@ bot.on('ready', async () => {
 
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
+bot.on('messageReactionAdd', (messageReaction, user) => secSys.CheckReaction(messageReaction, user));
+
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
+
+    secSys.CheckMsg(message);
 
     if(message.content.startsWith(`${prefix}:`)) return;
 
@@ -130,12 +135,11 @@ bot.on('message', async message => {
         } else if(reloads.includes(command)) {
             logChannel.send("\`Reloading commands\`");
             console.log("Reloading commands");
-            var dirs = ["cmds", "sec-sys"];
+            var dirs = ["cmds"];
             if(args[0] && dirs.includes(args[0])) {
                 loadCmds(args[0]);
             } else {
                 loadCmds("cmds");
-                loadCmds("sec-sys");
             }
 
             message.channel.send("Commands successfully reloaded!");
@@ -225,15 +229,15 @@ async function shutdown(message, text) {
 bot.on("guildMemberAdd", async member => {
     if(member.guild == mainGuild) {
         if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
-        else member.addRole(SETTINGS.AutoMemberRoleId);
+        //else member.addRole(SETTINGS.AutoMemberRoleId);
 
-        const embed = new Discord.RichEmbed()
+        /*const embed = new Discord.RichEmbed()
             .setAuthor(member.guild.owner.displayName, member.guild.owner.user.avatarURL)
             .setTitle("Üdv a szerveren!")
             .setThumbnail(member.guild.iconURL)
             .setDescription(`${member} érezd jól magad!`);
-
-        if(!member.user.bot) welcomeChannel.send({embed: embed});
+        */
+        //if(!member.user.bot) welcomeChannel.send({embed: embed});
     
         var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
     
