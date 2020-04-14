@@ -330,7 +330,7 @@ function CheckWumpus(member) {
  * @param {Array<string>} args 
  */
 
-function ShutdownCmds(message, args) {
+async function ShutdownCmds(message, args) {
     var reloads = ["reloadcmds", "reload", "r"];
     var shutdowns = ["shutdown", "shut", "s"];
     var updates = ["update", "upd", "up"];
