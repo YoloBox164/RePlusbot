@@ -13,14 +13,14 @@ module.exports.run = (bot, message, args) => {
         indexHelp: []
     }
 
-    bot.commands.forEach(prop => {
+    bot.commands.forEach(cmd => {
         pageSystem.pages.push(
-            `**Name:** *${prop.help.name}*
-            **Description:** *${prop.help.desc}*
-            **Usage:** \`${prop.help.usage}\`${prop.help.alias[0] ? "\n**Aliases:** \`>" + prop.help.alias.join(" | >") + "\`" : ""}
-            **Category:** *${prop.help.category}*`
+            `**Name:** *${cmd.help.name}*
+            **Description:** *${cmd.help.desc}*
+            **Usage:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Aliases:** \`>" + cmd.help.alias.join(" | >") + "\`" : ""}
+            **Category:** *${cmd.help.category}*`
         );
-        pageSystem.indexHelp.push(prop.help.cmd);
+        pageSystem.indexHelp.push(cmd.help.cmd);
     });
 
     if(args[0] && isNaN(args[0])) {
