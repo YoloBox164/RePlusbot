@@ -116,7 +116,7 @@ bot.on('message', async message => {
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
         const { command, args } = makeArgs(message, bot.devPrefix);
         if(command == "sh") {
-            ShutdownCmds(message, command, args);
+            ShutdownCmds(message, args);
             return;
         }
         /**
@@ -327,7 +327,6 @@ function CheckWumpus(member) {
 
 /** 
  * @param {Discord.Message} message
- * @param {string} command 
  * @param {Array<string>} args 
  */
 
