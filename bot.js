@@ -5,6 +5,7 @@ const Functions = require('./functions.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
 const secSys = require('./sec-sys/regist');
+const reactRoles = require('./reactroles');
 
 const fs = require('fs');
 const colors = require('colors/safe');
@@ -21,6 +22,8 @@ const prefix = SETTINGS.Prefix;
 
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
+var devCommands = new Discord.Collection();
+
 
 var commands = new Discord.Collection();
 var aliasCmds = new Discord.Collection();
@@ -96,7 +99,10 @@ bot.on('ready', async () => {
 
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
-bot.on('messageReactionAdd', (messageReaction, user) => secSys.CheckReaction(messageReaction, user));
+bot.on('messageReactionAdd', (messageReaction, user) => {
+    secSys.CheckReaction(messageReaction, user);
+    reactRoles.CheckNSFW(messageReaction, user);
+});
 
 bot.on('message', async message => {
     if(message.author.bot) return;
@@ -108,65 +114,29 @@ bot.on('message', async message => {
 
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
         const { command, args } = makeArgs(message, bot.devPrefix);
-
-        var reloads = ["reloadcmds", "reload", "r"];
-        var shutdowns = ["shutdown", "shut", "s"];
-        var updates = ["update", "upd", "up"];
-        var restarts = ["restart", "res", "rs"];
-        var switchmodes = ["switchmode", "switch", "sw"];
-        var manualDBUpdate = ["manualDbUpdate", "mdbup", "mdbu"]
-        var secManDBUpdate = ["secManDbUpdate", "smdbup", "smdbu"]
-
-        if(command === "eval") {
-            try {
-                console.log(colors.red("WARN: eval being used by " + message.member.displayName));
-                const code = args.join(" ");
-                var evaled = eval(code);
-    
-                if (typeof evaled !== "string") evaled = require("util").inspect(evaled);
-                message.channel.send(clean(evaled), {code:"xl", split: [{char: '\n'}] }).catch(error => {
-                    console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
-                });
-            } catch (err) {
-                message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``).catch(error => {
-                    console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
-                });
-            }
-        } else if(reloads.includes(command)) {
-            logChannel.send("\`Reloading commands\`");
-            console.log("Reloading commands");
-            var dirs = ["cmds"];
-            if(args[0] && dirs.includes(args[0])) {
-                loadCmds(args[0]);
-            } else {
-                loadCmds("cmds");
-            }
-
-            message.channel.send("Commands successfully reloaded!");
-        } 
-        else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
-        else if(updates.includes(command)) await shutdown(message, "Updating");
-        else if(restarts.includes(command)) await shutdown(message, "Restarting");
-        else if(manualDBUpdate.includes(command)) await shutdown(message, "Shutting down, Manualy Updating the Database");
-        else if(secManDBUpdate.includes(command)) await shutdown(message, "Shutting down, Maunaly Updating security Database");
-        else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode: " + (CONFIG.mode == "development" ? "production." : "development."));
-        else if(["twitch", "tw"].includes(command)) {
-            if(CONFIG.mode === "production") return;
-            //console.log("Reloading twitch webhook");
-            delete require.cache[require.resolve('./twitch.js')];
-            const twitch = require('./twitch.js');
-            twitch.CheckSub();
+        if(command == "sh") {
+            ShutdownCmds(message, command, args);
+            return;
         }
+        /**
+         * @typedef {(bot: Discord.Client, message: Discord.Message, args: Array<string>)} run
+         * 
+         * @typedef {Object} help
+         * @property {string} cmd
+         * 
+         * @typedef {Object} cmd
+         * @property {run} run
+         * @property {help} help
+         */
+
+        /** @type {cmd} */
+        var cmd = devCommands.get(command);
+        if(cmd) cmd.run(bot, message, args);
+
     } else if(message.content.startsWith(prefix)) {
         const { command, args } = makeArgs(message, prefix);
 
         var logMsg = `${message.member.displayName} used the ${command} in ${message.channel.name}.`;
-
-        var CustomRoles = require('./roles.js');
-        if(CustomRoles.CheckModes(message, command)) {
-            console.log(colors.cyan(logMsg));
-            return;
-        }
 
         bot.commands = commands;
         bot.aliasCmds = aliasCmds;
@@ -213,38 +183,14 @@ function makeArgs(message, prefix) {
     return { command: command, args: args };
 }
 
-/** 
- * @param {Discord.Message} message
- * @param {string} text 
- */
-
-async function shutdown(message, text) {
-    await logChannel.send(`\`${text}\``);
-    await message.channel.send(`\`${text}\``);
-    console.log(text);
-    await bot.destroy().catch(console.error);
-    process.exit(0);
-}
-
 bot.on("guildMemberAdd", async member => {
     if(member.guild == mainGuild) {
         if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
-        //else member.addRole(SETTINGS.AutoMemberRoleId);
-
-        /*const embed = new Discord.RichEmbed()
-            .setAuthor(member.guild.owner.displayName, member.guild.owner.user.avatarURL)
-            .setTitle("Üdv a szerveren!")
-            .setThumbnail(member.guild.iconURL)
-            .setDescription(`${member} érezd jól magad!`);
-        */
-        //if(!member.user.bot) welcomeChannel.send({embed: embed});
     
         var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
     
-         logChannel.send(logMsg);
-    } else {
-        devLogChannel.send(logMsg);
-    }
+        logChannel.send(logMsg);
+    } else devLogChannel.send(logMsg);
     
     console.log(colors.green(logMsg.replace(/\`/g, "")));
 });
@@ -256,25 +202,21 @@ bot.on("guildMemberRemove", async member => {
 
     var invData = database.GetData("invitedMembers", member.id);
 
-    var text, reason;
+    var text, reason = "N/A";
     if(banEntry && banEntry.target.id === member.id) {
         text = "was banned by " + member.guild.members.get(banEntry.executor.id).displayName;
         if(banEntry.reason) reason = banEntry.reason;
-        else reason = "Banned";
         invData.banned = 1;
     } else if(kickEntry && kickEntry.target.id === member.id) {
         text = "was kicked by " + member.guild.members.get(kickEntry.executor.id).displayName;
         if(kickEntry.reason) reason = kickEntry.reason;
-        else reason = "Kicked";
         invData.kicked = 1;
     } else if (pruneEntry && pruneEntry.target.id === member.id) {
         text = "was pruned by" +  member.guild.members.get(pruneEntry.executor.id).displayName;
         if(pruneEntry.reason) reason = pruneEntry.reason;
-        else reason = "Pruned";
         invData.pruned = 1;
     } else {
         text = "leaved the server";
-        reason = "Leaved";
         invData.left = 1;
     }
 
@@ -318,16 +260,21 @@ function loadCmds(dir) {
             delete require.cache[require.resolve(`./${dir}/${f}`)];
             var props = require(`./${dir}/${f}`);
             console.log(colors.white(`${i + 1}: ${f} loaded!`));
-            commands.set(props.help.cmd, props);
-            props.help.alias.forEach((name) => {
-                aliasCmds.set(name, props.help.cmd);
-            });
-
+            if(dir == "dev-cmds") {
+                devCommands.set(props.help.cmd, props);
+            } else {
+                commands.set(props.help.cmd, props);
+                props.help.alias.forEach((name) => {
+                    aliasCmds.set(name, props.help.cmd);
+                });
+            }
         });
 
-        bot.commands = commands;
-        bot.aliasCmds = aliasCmds;
-        
+        if(dir != "dev-cmds") {
+            bot.commands = commands;
+            bot.aliasCmds = aliasCmds;
+        }
+
         console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!`));
     });
 }
@@ -375,4 +322,59 @@ function CheckWumpus(member) {
             }
         } else if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
     } else if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
+}
+
+/** 
+ * @param {Discord.Message} message
+ * @param {string} command 
+ * @param {Array<string>} args 
+ */
+
+function ShutdownCmds(message, args) {
+    var reloads = ["reloadcmds", "reload", "r"];
+    var shutdowns = ["shutdown", "shut", "s"];
+    var updates = ["update", "upd", "up"];
+    var restarts = ["restart", "res", "rs"];
+    var switchmodes = ["switchmode", "switch", "sw"];
+
+    var command = args[0];
+    if(!command) return;
+    var dir = args[1];
+
+    if(reloads.includes(command)) {
+        logChannel.send("\`Reloading commands\`");
+        console.log("Reloading commands");
+        var dirs = ["cmds", "dev-cmds"];
+        if(dir && dirs.includes(dir)) {
+            loadCmds(dir);
+        } else {
+            loadCmds("cmds");
+        }
+
+        message.channel.send("Commands successfully reloaded!");
+    } 
+    else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
+    else if(updates.includes(command)) await shutdown(message, "Updating");
+    else if(restarts.includes(command)) await shutdown(message, "Restarting");
+    else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode: " + (CONFIG.mode == "development" ? "production." : "development."));
+    else if(["twitch", "tw"].includes(command)) {
+        if(CONFIG.mode === "production") return;
+        //console.log("Reloading twitch webhook");
+        delete require.cache[require.resolve('./twitch.js')];
+        const twitch = require('./twitch.js');
+        twitch.CheckSub();
+    }
+}
+
+/** 
+ * @param {Discord.Message} message
+ * @param {string} text 
+ */
+
+async function shutdown(message, text) {
+    await logChannel.send(`\`${text}\``);
+    await message.channel.send(`\`${text}\``);
+    console.log(text);
+    await bot.destroy().catch(console.error);
+    process.exit(0);
 }
