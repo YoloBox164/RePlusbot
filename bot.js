@@ -38,6 +38,7 @@ var welcomeChannel;
 var devLogChannel;
 
 loadCmds("cmds");
+loadCmds("dev-cmds");
 
 bot.login(CONFIG.TOKEN).catch(console.error);
 
@@ -349,6 +350,7 @@ async function ShutdownCmds(message, args) {
             loadCmds(dir);
         } else {
             loadCmds("cmds");
+            loadCmds("dev-cmds");
         }
 
         message.channel.send("Commands successfully reloaded!");
