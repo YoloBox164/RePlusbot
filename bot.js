@@ -16,8 +16,6 @@ const CONFIG = require('./config.json');
 process.env.mode = CONFIG.mode;
 
 const SETTINGS = require('./settings.json');
-const MUTES = require('./mute.json');
-
 const prefix = SETTINGS.Prefix;
 
 bot.devPrefix = '#>';
@@ -78,6 +76,7 @@ bot.on('ready', async () => {
     }, 30000);
 
     bot.setInterval(() => {
+        const MUTES = JSON.parse(fs.readFileSync("./mute.json"));
         for(i in MUTES) {
             var mutedMember = MUTES[i];
             if(mutedMember.time < Date.now()) {
@@ -95,7 +94,40 @@ bot.on('ready', async () => {
                 target.setMute(true).catch(console.error);
             }
         }
-    }, 1000)
+    }, 10000);
+    bot.setInterval(async () => {
+        const Giveaways = JSON.parse(fs.readFileSync("./giveaways.json"));
+        for(i in Giveaways) {
+            /** @type {number} */
+            var date = Giveaways[i].date;
+            /** @type {string} */
+            var channelId = Giveaways[i].channelId;
+            var now = Date.now();
+            if(date <= now) {
+                /** @type {Discord.TextChannel} */
+                var giveawayChannel = mainGuild.channels.get(channelId);
+                var msg = await giveawayChannel.fetchMessage(i)
+                var users = await msg.reactions.first().fetchUsers();
+                users.delete(bot.user.id);
+                var winner = users.random();
+                while(winner.bot) winner = users.random();
+                var text = `Gratulálunk ${winner}! Megnyerted a nyereményjátékot!`;
+
+                var embed = new Discord.RichEmbed()
+                    .setColor(msg.member.displayHexColor)
+                    .setDescription(text);
+                giveawayChannel.send({embed: embed});
+
+                msg.clearReactions().catch(console.error);
+                delete Giveaways[i];
+                fs.writeFile("./giveaways.json", JSON.stringify(Giveaways, null, 4), err => {
+                    if(err) throw err;
+                    console.log(`Deleted giveaway ${i}`);
+                    logChannel.send(`Deleted giveaway ${i}`);
+                });
+            }
+        }
+    }, 60000);
 });
 
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
@@ -111,7 +143,7 @@ bot.on('message', async message => {
 
     secSys.CheckMsg(message);
 
-    if(message.content.startsWith(`${prefix}:`)) return;
+    if(message.content.startsWith(">:")) return;
 
     if(message.content.startsWith(bot.devPrefix) && message.author.id === bot.devId) {
         const { command, args } = makeArgs(message, bot.devPrefix);
@@ -160,8 +192,9 @@ bot.on('message', async message => {
 
         /** @type {cmd} */
         var cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
+        if(!commands.has(command) && message.content.startsWith("> ")) return;
         if(cmd) cmd.run(bot, message, args);
-
+        
         console.log(colors.cyan(logMsg));
     }
 });
