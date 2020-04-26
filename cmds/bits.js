@@ -12,7 +12,7 @@ const SETTINGS = require('../settings.json');
  */
 
 module.exports.run = (bot, message, args) => {
-    if(process.env.mode === "development" && message.author.id !== bot.devId) return message.channel.send("This command is not avaiable in development mode.");
+    if(process.env.mode === "development" && message.author.id !== bot.devId) return message.channel.send("Ez a parancs nem elérhető fejlesztői módban neked.");
     var timeNow = Date.now();
 
     while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += database.config.DayInMilliSeconds;
@@ -21,26 +21,26 @@ module.exports.run = (bot, message, args) => {
     var currencyData = database.GetData('currency', message.author.id);
     var wumpusData = database.GetData('wumpus', message.author.id);
 
-    var embed = new Discord.RichEmbed()
-        .setAuthor(message.member.displayName, message.author.displayAvatarURL)
+    var embed = new Discord.MessageEmbed()
+        .setAuthor(message.member.displayName, message.author.displayAvatarURL())
         .setColor(message.member.displayHexColor)
-        .setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. day)`);
+        .setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. nap)`);
     
-    var errorEmbed = new Discord.RichEmbed()
+    var errorEmbed = new Discord.MessageEmbed()
         .setColor(message.member.displayHexColor);
 
     if(!args[0]) {
-        embed.addField("Commands",
-            `\`>bits buy\` => Opens the shop menu.
-            \`>bits send [user] [amount]\` => Send bits to another user.
-            \`>bits daily\` => Claim your daily bits.
-            (Staff) \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)
-            (Staff) \`>bits remove <user> [amount]\` (If user is not specified, it will be you then.)`
+        embed.addField("Parancsok",
+            `${this.helpForInterCmds.buy}
+            ${this.helpForInterCmds.send}
+            ${this.helpForInterCmds.daily}
+            ${this.helpForInterCmds.add}
+            ${this.helpForInterCmds.remove}`
         );
-        embed.addField("Bits Streak", `Claim your daily bits 5 days in a row and you'll get a bonus ${database.config.DayBitsStreakBonus} Bits!`);
+        embed.addField("Bits Streak", `Szerezd meg a napi biteidet 5 napon keresztűl és kapni fogsz bónusz ${database.config.DayBitsStreakBonus} Bitet!`);
         message.channel.send({embed: embed});
     } else if(args[0] === "buy") {
-        embed.addField("Shop Menu", `🇦\tWumpus+ role \t${database.config.WumpusRoleCost} bits/month`);
+        embed.addField("Shop Menü", `🇦\tWumpus+ rang \t${database.config.WumpusRoleCost} bits/hó`);
         message.channel.send({embed: embed}).then(msg => {
             msg.react('🇦').then(r => {
                 const emojies = ['🇦']
@@ -50,7 +50,7 @@ module.exports.run = (bot, message, args) => {
                 collector.on('collect', r => {
                     if(r.emoji.name === '🇦') {
                         if(wumpusData.hasRole) {
-                            message.channel.send("You already have that role.", {embed: embed}).then(msg1 => {
+                            message.channel.send("Már van ilyen rangod.", {embed: embed}).then(msg1 => {
                                 msg1.delete(5000).catch(console.error);
                             }).catch(console.error);
                             collector.stop();
@@ -64,13 +64,13 @@ module.exports.run = (bot, message, args) => {
                             database.SetData('currency', currencyData);
                             database.SetData('wumpus', wumpusData);
                             embed.fields.pop();
-                            message.channel.send("You've successfully bought the Wumpus+ role.", {embed: embed}).then(msg1 => {
+                            message.channel.send("Sikeresen megvetted a Wumpus+ rangot.", {embed: embed}).then(msg1 => {
                                 msg1.delete(5000).catch(console.error);
                             }).catch(console.error);
                             collector.stop();
                         } else {
                             embed.fields.pop();
-                            message.channel.send("You don't have enough bits for that item.", {embed: embed}).then(msg1 => {
+                            message.channel.send("Nincs elég bited.", {embed: embed}).then(msg1 => {
                                 msg1.delete(5000).catch(console.error);
                             }).catch(console.error);
                             collector.stop();
@@ -88,10 +88,10 @@ module.exports.run = (bot, message, args) => {
             }).catch(console.error);
         }).catch(console.error);
     } else if(args[0] === "add") {
-        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
+        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
         var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
-            errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
+            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítsgég\` => ${this.helpForInterCmds.add}`);
             return message.channel.send({embed: errorEmbed});
         }
 
@@ -99,7 +99,7 @@ module.exports.run = (bot, message, args) => {
         if(!isNaN(args[1])) bits = parseInt(args[1]);
         else if(!isNaN(args[2])) bits = parseInt(args[2]);
         else {
-            errorEmbed.setDescription(`Amount not specified.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
+            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.helpForInterCmds.add}`);
             return message.channel.send({embed: errorEmbed});   
         }
         var targetCurrencyData = database.GetData('currency', target.id);
@@ -108,14 +108,14 @@ module.exports.run = (bot, message, args) => {
         else targetCurrencyData.bits =  parseInt(bits) + parseInt(targetCurrencyData.bits);
         database.SetData('currency', targetCurrencyData);
 
-        embed.setDescription(`You added ${bits} bits to ${target} successfully.`);
+        embed.setDescription(`Hozzáadtál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "remove") {
-        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("You don't have permission for this command.");
+        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
         
         var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
-            errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits remove <user> [amount]\` (If user is not specified, it will be you then.)`);
+            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.helpForInterCmds.remove}`);
             return message.channel.send({embed: errorEmbed});
         }
 
@@ -123,7 +123,7 @@ module.exports.run = (bot, message, args) => {
         if(!isNaN(args[1])) bits = parseInt(args[1]);
         else if(!isNaN(args[2])) bits = parseInt(args[2]);
         else {
-            errorEmbed.setDescription(`Amount not specified.\n\n\`HELP\` => \`>bits add <user> [amount]\` (If user is not specified, it will be you then.)`);
+            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.helpForInterCmds.remove}`);
             return message.channel.send({embed: errorEmbed});   
         }
         var targetCurrencyData = database.GetData('currency', target.id);
@@ -132,21 +132,21 @@ module.exports.run = (bot, message, args) => {
         targetCurrencyData.bits = parseInt(targetCurrencyData.bits) - parseInt(bits);
         database.SetData('currency', targetCurrencyData);
 
-        embed.setDescription(`You removed ${bits} bits from ${target} successfully.`);
+        embed.setDescription(`Eltávolítottál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "send") {
         var target = Functions.GetMember(message, args.slice(1));
         if(!target) {
-            errorEmbed.setDescription(`Target not found.\n\n\`HELP\` => \`>bits send [user] [amount]\``);
+            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.helpForInterCmds.send}`);
             return message.channel.send({embed: errorEmbed});
         }
 
         if(!args[2] || isNaN(args[2])) {
-            errorEmbed.setDescription(`Amount not specified.\n\n\`HELP\` => \`>bits send [user] [amount]\``);
+            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.helpForInterCmds.send}`);
             return message.channel.send({embed: errorEmbed});
         }
         if(currencyData.bits == 0) {
-            errorEmbed.setDescription(`Your balance is zero. You cannot send any bits to other users.`);
+            errorEmbed.setDescription(`Jelenleg 0 bited van ezért jelenleg nem tudsz küldeni másnak.`);
             return message.channel.send({embed: errorEmbed});
         }
 
@@ -161,14 +161,14 @@ module.exports.run = (bot, message, args) => {
         database.SetData('currency', currencyData);
 
         embed.setDescription(`Bits: ${currencyData.bits}`);
-        message.channel.send(`Transfer was successful.\nSended ${bits} bits to ${target.displayName}`, {embed: embed})
+        message.channel.send(`Utalás sikeres.\n${bits} bit átkerült ${target.displayName} számlájára`, {embed: embed})
 
     } else if(args[0] === "daily") {
         if(message.author.id === bot.devId || currencyData.claimTime == 0 || currencyData.claimTime <= daily.NextDayInMilliSeconds) {
             if(currencyData.streak >= 5) currencyData.streak = 0;
             if(currencyData.streak >= 4) {
                 currencyData.bits += database.config.DayBitsStreakBonus;
-                embed.addField("Bits Streak", `Yaay! You got a bonus ${database.config.DayBitsStreakBonus} Bits!`);
+                embed.addField("Bits Streak", `Jééj! ${database.config.DayBitsStreakBonus} bónusz bitet kaptál!`);
             } 
             if(currencyData.claimTime <= daily.NextDayInMilliSeconds - (database.config.DayInMilliSeconds * 2)) {
                 currencyData.streak = 0
@@ -179,10 +179,10 @@ module.exports.run = (bot, message, args) => {
             currencyData.bits += database.config.DayBits;
 
             database.SetData('currency', currencyData);
-            embed.setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. day)`);
-            message.channel.send("You've successfully claimed your daily bits.", {embed: embed})
+            embed.setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. nap)`);
+            message.channel.send("Sikeresen megszerezted a napi biteidet.", {embed: embed})
         } else {
-            message.channel.send("You've already claimed your daily bits. Try tomorrow.")
+            message.channel.send("Ma már megkaptad a napi biteidet, próbáld holnap.")
         }
     }
 }
@@ -191,7 +191,15 @@ module.exports.help = {
     cmd: "bits",
     alias: ["bit", "bitek"],
     name: "Bits",
-    desc: "This is a currnecy in the server.",
+    desc: "Ez a szerver pénz típusa. Itt találhatod meg a napi biteidet, küldhetsz másoknak vagy vásárolhatsz ezekkel különbféle dolgokat.",
     usage: ">bits",
-    category: "user / staff"
+    category: "felhasználói / staff"
+}
+
+module.exports.helpForInterCmds = {
+    buy: "\`>bits buy\` => Vásárlói menüt megnyitja",
+    send: "\`>bits send [felhasználó] [mennyiség]\` => Küldj más felhasználónak bitet.",
+    daily: "\`>bits daily\` => Szerezd meg a napi biteidet.",
+    add: "(Staff) \`>bits add <felhasználó> [mennyiség]\` (Ha nincsen felhasználó megadva akkor te leszel.)",
+    remove: "(Staff) \`>bits remove <felhasználó> [mennyiség]\` (Ha nincsen felhasználó megadva akkor te leszel.)",
 }

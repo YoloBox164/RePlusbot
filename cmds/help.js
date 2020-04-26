@@ -15,10 +15,10 @@ module.exports.run = (bot, message, args) => {
 
     bot.commands.forEach(cmd => {
         pageSystem.pages.push(
-            `**Name:** *${cmd.help.name}*
-            **Description:** *${cmd.help.desc}*
-            **Usage:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Aliases:** \`>" + cmd.help.alias.join(" | >") + "\`" : ""}
-            **Category:** *${cmd.help.category}*`
+            `**Név:** *${cmd.help.name}*
+            **Leírás:** *${cmd.help.desc}*
+            **Használat:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Álnevek:** \`>" + cmd.help.alias.join(" | >") + "\`" : ""}
+            **Kategória:** *${cmd.help.category}*`
         );
         pageSystem.indexHelp.push(cmd.help.cmd);
     });
@@ -37,12 +37,12 @@ module.exports.run = (bot, message, args) => {
         }
     }
 
-    const embed = new Discord.RichEmbed()
-        .setTitle("Command List")
+    const embed = new Discord.MessageEmbed()
+        .setTitle("Parancs Lista")
         .setColor(message.guild.member(bot.user).displayHexColor)
-        .addField("Symbol meanings:", "<optional> | [must provide]")
+        .addField("Szímbólumok jelentése:", "<opcionális> | [kötelező]")
         .setDescription(pageSystem.pages[pageSystem.currentPage - 1])
-        .setFooter(`Page ${pageSystem.currentPage} of ${pageSystem.pages.length}`);
+        .setFooter(`${pageSystem.currentPage}. oldal a ${pageSystem.pages.length} oldalból.`);
 
     message.channel.send({embed: embed}).then(msg => {
         msg.react('⏪').then(r => {
@@ -58,7 +58,7 @@ module.exports.run = (bot, message, args) => {
                 if(pageSystem.currentPage === 1) return;
                 pageSystem.currentPage--;
                 embed.setDescription(pageSystem.pages[pageSystem.currentPage - 1]);
-                embed.setFooter(`Page ${pageSystem.currentPage} of ${pageSystem.pages.length}`); 
+                embed.setFooter(`${pageSystem.currentPage}. oldal a ${pageSystem.pages.length} oldalból.`); 
                 msg.edit({embed: embed}).catch(console.error);
             });
 
@@ -66,7 +66,7 @@ module.exports.run = (bot, message, args) => {
                 if(pageSystem.currentPage === pageSystem.pages.length) return;
                 pageSystem.currentPage++;
                 embed.setDescription(pageSystem.pages[pageSystem.currentPage - 1]);
-                embed.setFooter(`Page ${pageSystem.currentPage} of ${pageSystem.pages.length}`); 
+                embed.setFooter(`${pageSystem.currentPage}. oldal a ${pageSystem.pages.length} oldalból.`); 
                 msg.edit({embed: embed}).catch(console.error);
             });
         }).catch(console.error);
@@ -76,9 +76,9 @@ module.exports.run = (bot, message, args) => {
 module.exports.help = {
     cmd: "help",
     alias: ["segitseg", "segítség"],
-    name: "Help",
-    desc: "Some help amout the commands.",
-    usage: ">help <page / command>",
-    category: "user"
+    name: "Segítség",
+    desc: "Leírások a parancsokról",
+    usage: ">help <oldal / parancs>",
+    category: "felhasználói"
 
 }

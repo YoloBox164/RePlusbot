@@ -29,22 +29,22 @@ module.exports.run = async (bot, message, args) => {
 
     const res = await got(`https://v3.exchangerate-api.com/pair/${api}/${fr}/${to}`, {json: true});
     if(res.body.result == "failed") return message.channel.send(res.body.error);
-    var msg = await message.channel.send("Exchanging...");
-    const embed = new Discord.RichEmbed()
+    var msg = await message.channel.send("Átváltás...");
+    const embed = new Discord.MessageEmbed()
         .setThumbnail("https://www.exchangerate-api.com/img/logo-square.png")
-        .setTitle(`${fr} to ${to}`)
-        .setAuthor(message.author.tag, message.author.displayAvatarURL)
+        .setTitle(`${fr} => ${to}`)
+        .setAuthor(message.author.tag, message.author.displayAvatarURL())
         .setColor(message.guild.member(bot.user).displayHexColor)
-        .addField("Result:", `${res.body.rate * val} ${symbol}`);
+        .addField("Eredmény", `${res.body.rate * val} ${symbol}`);
     await message.channel.send({embed: embed});
     msg.delete();
 }
 
 module.exports.help = {
     cmd: "exchange",
-    alias: ["change", "currency"],
-    name: "Currency exchange",
-    desc: "Currency exchange | using ISO 4217 currency codes (Like: HUF, EUR, USD, etc.)",
-    usage: ">exchange <value> <from> <to>",
-    category: "user"
+    alias: ["change", "currency", "ex"],
+    name: "Valuta átváltó",
+    desc: "Valuta átváltó | használd ISO 4217 valuta kódokat (pl.: HUF, EUR, USD, stb.)",
+    usage: ">exchange <érték> <valutaból> <másik valutába>",
+    category: "felhasználói"
 }

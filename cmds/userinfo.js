@@ -10,8 +10,10 @@ const Functions = require('../functions.js');
 
 module.exports.run = (bot, message, args) => {
     var targetMember = Functions.GetMember(message, args);
-    var roles = targetMember.roles.array().slice(1).join(" | ");
-    if(!roles) roles = "This user don't have any roles."
+    var roleArr = targetMember.roles.cache.array();
+    roleArr.pop();
+    var roles = roleArr.join(" | ");
+    if(!roles) roles = "Nincsen rangja."
 
     var warnings = Database.prepare("SELECT * FROM warnings WHERE userid = ?;").all(targetMember.id);
     var warningStringArr = [];
@@ -19,22 +21,22 @@ module.exports.run = (bot, message, args) => {
         warningStringArr.push(`'${warning}' (${bot.logDate(time)})`)
     }
 
-    if(!warningStringArr[0]) warningStringArr[0] = "None";
+    if(!warningStringArr[0]) warningStringArr[0] = "Nincs";
 
-    var embed = new Discord.RichEmbed()
-        .setAuthor(targetMember.user.tag, targetMember.user.displayAvatarURL)
-        .setThumbnail(targetMember.user.displayAvatarURL)
-        .setTitle("User information:")
+    var embed = new Discord.MessageEmbed()
+        .setAuthor(targetMember.user.tag, targetMember.user.displayAvatarURL({format: "png", size: 4096}))
+        .setThumbnail(targetMember.user.displayAvatarURL({format: "png", size: 4096}))
+        .setTitle("Felhasználói információ:")
         .setColor(targetMember.displayHexColor)
         .setDescription(
-            `**Name:** *${targetMember}*
-            **Status:** \`${targetMember.presence.status.toUpperCase()}\`
-            **Full Username:** *${targetMember.user.username}#${targetMember.user.discriminator}*
+            `**Név:** *${targetMember}*
+            **Státusz:** \`${targetMember.presence.status.toUpperCase()}\`
+            **Teljsen Felhasználói név:** *${targetMember.user.username}#${targetMember.user.discriminator}*
             **ID:** *${targetMember.id}*\n
-            **Joined to the Server At:** *${bot.logDate(targetMember.joinedTimestamp)}*
-            **User Created At:** *${bot.logDate(targetMember.user.createdTimestamp)}*
-            **Roles:** *${roles}*\n
-            **Warnings:**
+            **Szerverre Csatlakozott:** *${bot.logDate(targetMember.joinedTimestamp)}*
+            **Felhasználó létrehozva:** *${bot.logDate(targetMember.user.createdTimestamp)}*
+            **Rangok:** *${roles}*\n
+            **Figyelmeztetések:**
             ${warningStringArr.join('\n')}`
         );
     message.channel.send({embed: embed})
@@ -43,8 +45,8 @@ module.exports.run = (bot, message, args) => {
 module.exports.help = {
     cmd: "userinfo",
     alias: ["user"],
-    name: "User information",
-    desc: "Some information about your profile or others.",
-    usage: ">userinfo <user>",
-    category: "user"
+    name: "Felhasználói információ",
+    desc: "Iformáció a te profilodról vagy máséról.",
+    usage: ">userinfo <felhasználó>",
+    category: "felhasználói"
 }

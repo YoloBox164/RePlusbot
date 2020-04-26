@@ -7,12 +7,12 @@ const Discord = require("discord.js");
  */
 
 module.exports.run = async (bot, message, args) => {
-    var msg = await message.channel.send("Getting server icon");
+    var msg = await message.channel.send("Szerver ikon lehívása...");
 
-    var embed = new Discord.RichEmbed()
-        .setTitle("Server Icon")
-        .setDescription(`[Icon LINK](${message.guild.iconURL})`)
-        .setImage(message.guild.iconURL)
+    var embed = new Discord.MessageEmbed()
+        .setTitle("Szerver Ikon")
+        .setDescription(`[Ikon LINK](${message.guild.iconURL({format: "png", size: 4096})})`)
+        .setImage(message.guild.iconURL({format: "png", size: 4096}))
         .setColor(message.member.displayHexColor);
 
     await message.channel.send({embed: embed});
@@ -22,8 +22,8 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     cmd: "icon",
     alias: ["servericon", "ico"],
-    name: "Server Icon",
-    desc: "Shows the server's icon",
+    name: "Szerver Ikon",
+    desc: "Megjeleníti a szerver ikont.",
     usage: ">icon",
-    category: "user"
+    category: "felhasználói"
 }

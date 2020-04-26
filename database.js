@@ -31,35 +31,6 @@ const Functions = require('./functions.js');
 ///////////////////////////////////
 
 /**
- * @typedef {Object} inviters
- * @property {string} id (Inviters) Member's id |
- * @property {number} invitedNumber How many users has this user invited
-*/
-
-///////////////////////////////////
-
-/**
- * @typedef {Object} invitedMembers
- * @property {string} id (InvitedMembers) Member's id |
- * @property {string} inviter Inviter's id
- * @property {boolean} banned
- * @property {boolean} kicked
- * @property {boolean} pruned
- * @property {boolean} left
-*/
-
-///////////////////////////////////
-
-/**
- * @typedef {Object} invites
- * @property {string} id (Invites) this is the invite code |
- * @property {string} inviter
- * @property {string} code 
-*/
-
-///////////////////////////////////
-
-/**
  * @typedef {Object} warnedUsers
  * @property {string} id
  * @property {number} count
@@ -78,9 +49,9 @@ const Functions = require('./functions.js');
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
-/** @typedef {(currency|wumpus|inviters|invitedMembers|invites|warnedUsers|warnings)} databaseObject */
+/** @typedef {(currency|wumpus|warnedUsers|warnings)} databaseObject */
 
-/** @typedef {('currency'|'wumpus'|'inviters'|'invitedMembers'|'invites'|'warnedUsers'|'warnings')} tableName */
+/** @typedef {('currency'|'wumpus'|'warnedUsers'|'warnings')} tableName */
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////

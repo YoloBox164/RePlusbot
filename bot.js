@@ -41,7 +41,6 @@ loadCmds("dev-cmds");
 bot.login(CONFIG.TOKEN).catch(console.error);
 
 /** @param {number} timestamp */
-
 bot.logDate = (timestamp) => {
     if(!timestamp) timestamp = Date.now();
     return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
@@ -54,14 +53,11 @@ bot.on('ready', async () => {
     database.Prepare('wumpus');
     database.Prepare('warnedUsers');
     database.Prepare('warnings');
-    database.Prepare('invitedMembers')
-    database.Prepare('inviters')
-    database.Prepare('invites')
 
-    mainGuild = bot.guilds.get('572873520732831754');
-    logChannel = mainGuild.channels.get(SETTINGS.modLogChannelId);
-    welcomeChannel = mainGuild.channels.get(SETTINGS.welcomeMsgChannelId);
-    devLogChannel = bot.guilds.get('427567526935920655').channels.get('647420812722307082');
+    mainGuild = bot.guilds.resolve('572873520732831754');
+    logChannel = mainGuild.channels.resolve(SETTINGS.modLogChannelId);
+    welcomeChannel = mainGuild.channels.resolve(SETTINGS.welcomeMsgChannelId);
+    devLogChannel = bot.guilds.resolve('427567526935920655').channels.resolve('647420812722307082');
 
     bot.mainGuild = mainGuild;
     bot.logChannel = logChannel;
@@ -75,12 +71,12 @@ bot.on('ready', async () => {
         bot.user.setPresence({game : {name: status}, status: 'online'});
     }, 30000);
 
-    bot.setInterval(() => {
+    /*bot.setInterval(() => {
         const MUTES = JSON.parse(fs.readFileSync("./mute.json"));
         for(i in MUTES) {
             var mutedMember = MUTES[i];
             if(mutedMember.time < Date.now()) {
-                var member = mainGuild.members.get(mutedMember.id);
+                var member = mainGuild.members.resolve(mutedMember.id);
                 member.removeRole(SETTINGS.MuteRoleId);
                 target.setMute(false).catch(console.error);
                 delete MUTES[`${mutedMember.id}`];
@@ -94,7 +90,7 @@ bot.on('ready', async () => {
                 target.setMute(true).catch(console.error);
             }
         }
-    }, 10000);
+    }, 10000);*/
     bot.setInterval(async () => {
         const Giveaways = JSON.parse(fs.readFileSync("./giveaways.json"));
         for(i in Giveaways) {
@@ -105,20 +101,22 @@ bot.on('ready', async () => {
             var now = Date.now();
             if(date <= now) {
                 /** @type {Discord.TextChannel} */
-                var giveawayChannel = mainGuild.channels.get(channelId);
-                var msg = await giveawayChannel.fetchMessage(i)
-                var users = await msg.reactions.first().fetchUsers();
-                users.delete(bot.user.id);
+                var giveawayChannel = mainGuild.channels.resolve(channelId);
+                /** @type {Discord.Message} */
+                var msg = await giveawayChannel.messages.fetch(i).catch(console.error);
+                if(!msg) return console.log("Message not found.");
+                var users = await msg.reactions.cache.first().users.fetch().catch(console.error);
+                await users.delete(bot.user.id);
                 var winner = users.random();
                 while(winner.bot) winner = users.random();
                 var text = `Gratulálunk ${winner}! Megnyerted a nyereményjátékot!`;
 
-                var embed = new Discord.RichEmbed()
+                var embed = new Discord.MessageEmbed()
                     .setColor(msg.member.displayHexColor)
                     .setDescription(text);
                 giveawayChannel.send({embed: embed});
 
-                msg.clearReactions().catch(console.error);
+                msg.reactions.removeAll().catch(console.error);
                 delete Giveaways[i];
                 fs.writeFile("./giveaways.json", JSON.stringify(Giveaways, null, 4), err => {
                     if(err) throw err;
@@ -169,14 +167,12 @@ bot.on('message', async message => {
     } else if(message.content.startsWith(prefix)) {
         const { command, args } = makeArgs(message, prefix);
 
-        var logMsg = `${message.member.displayName} used the ${command} in ${message.channel.name}.`;
-
         bot.commands = commands;
         bot.aliasCmds = aliasCmds;
 
         /**
          * @typedef {(bot: Discord.Client, message: Discord.Message, args: Array<string>)} run
-         * 
+         *
          * @typedef {Object} help
          * @property {string} cmd
          * @property {Array<string>} alias
@@ -184,7 +180,7 @@ bot.on('message', async message => {
          * @property {string} desc
          * @property {string} usage
          * @property {string} category
-         * 
+         *
          * @typedef {Object} cmd
          * @property {run} run
          * @property {help} help
@@ -193,6 +189,7 @@ bot.on('message', async message => {
         /** @type {cmd} */
         var cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
         if(!commands.has(command) && message.content.startsWith("> ")) return;
+        var logMsg = `${message.member.displayName} used the ${cmd.help.cmd} in ${message.channel.name}.`;
         if(cmd) cmd.run(bot, message, args);
         
         console.log(colors.cyan(logMsg));
@@ -204,7 +201,6 @@ bot.on('message', async message => {
  * @param {string} prefix
  * @returns {{command:string, args: Array<string>}}
  */
-
 function makeArgs(message, prefix) {
     var messageArray = message.content.split(/ +/g);
     var args = [];
@@ -217,7 +213,40 @@ function makeArgs(message, prefix) {
     return { command: command, args: args };
 }
 
-bot.on("guildMemberAdd", async member => {
+bot.on('inviteCreate', invite => inviteLogHandler(invite, "Created"));
+bot.on('inviteDelete', invite => inviteLogHandler(invite, "Deleted"));
+
+/**
+ *  @param {Discord.Invite} invite
+ *  @param {string} text
+ */
+function inviteLogHandler(invite, text) {
+    /** @type {Discord.Guild} */
+    var guild = invite.guild;
+    var botMember = guild.member(bot.user);
+    var inviterMember = guild.member(invite.inviter);
+
+    const embed = new Discord.MessageEmbed()
+        .setColor(botMember.displayHexColor)
+        .setTitle(`Invite ${text}`)
+        .setDescription(
+            `**Inviter:** ${inviterMember} Id: ${inviterMember ? inviterMember.id : null}
+            **Code:** ${invite.code}
+            **URL:** ${invite.url}
+            **Channel:** ${invite.channel}\n
+            **Created At:** ${bot.logDate(invite.createdTimestamp)}
+            **Expires At:** ${bot.logDate(invite.expiresTimestamp)}\n
+            **Max Age:** ${invite.maxAge}
+            **Uses:** ${invite.uses}
+            **Max Uses:** ${invite.maxUses}
+            **Target User:** ${invite.targetUser} | Is From Stream: ${invite.targetUserType == 1 ? "True" : "False"}
+            **Temporary:** ${invite.temporary}`
+        );
+    
+    logChannel.send({embed: embed});
+}
+
+bot.on('guildMemberAdd', async member => {
     if(member.guild == mainGuild) {
         if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
     
@@ -229,32 +258,24 @@ bot.on("guildMemberAdd", async member => {
     console.log(colors.green(logMsg.replace(/\`/g, "")));
 });
 
-bot.on("guildMemberRemove", async member => {
+bot.on('guildMemberRemove', async member => {
     var banEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_BAN_ADD'}).then(audit => audit.entries.first());
     var kickEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_KICK'}).then(audit => audit.entries.first());
     var pruneEntry = await member.guild.fetchAuditLogs({type: 'MEMBER_PRUNE'}).then(audit => audit.entries.first());
-
-    var invData = database.GetData("invitedMembers", member.id);
 
     var text, reason = "N/A";
     if(banEntry && banEntry.target.id === member.id) {
         text = "was banned by " + member.guild.members.get(banEntry.executor.id).displayName;
         if(banEntry.reason) reason = banEntry.reason;
-        invData.banned = 1;
     } else if(kickEntry && kickEntry.target.id === member.id) {
         text = "was kicked by " + member.guild.members.get(kickEntry.executor.id).displayName;
         if(kickEntry.reason) reason = kickEntry.reason;
-        invData.kicked = 1;
     } else if (pruneEntry && pruneEntry.target.id === member.id) {
         text = "was pruned by" +  member.guild.members.get(pruneEntry.executor.id).displayName;
         if(pruneEntry.reason) reason = pruneEntry.reason;
-        invData.pruned = 1;
     } else {
         text = "leaved the server";
-        invData.left = 1;
     }
-
-    database.SetData("invitedMembers", invData);
 
     var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${bot.logDate()}\` | Reason: ${reason}`;
 
@@ -271,7 +292,6 @@ process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejectio
  * @param {Error} err
  * @param {string} msg
  */
-
 function errorHandling(err, msg) {
     if(logChannel) logChannel.send(`\`ERROR: ${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
@@ -314,14 +334,12 @@ function loadCmds(dir) {
 }
 
 /** @param {string} text */
-
 function clean(text) {
     if (typeof(text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
     else return text;
 }
 
 /** @param {Discord.GuildMember} member Discord guild member */
-
 function CheckWumpus(member) {
     var wumpusData = database.GetData('wumpus', member.id);
     if(!wumpusData.hasRole) {
@@ -362,7 +380,6 @@ function CheckWumpus(member) {
  * @param {Discord.Message} message
  * @param {Array<string>} args 
  */
-
 async function ShutdownCmds(message, args) {
     var reloads = ["reloadcmds", "reload", "r"];
     var shutdowns = ["shutdown", "shut", "s"];
@@ -404,11 +421,10 @@ async function ShutdownCmds(message, args) {
  * @param {Discord.Message} message
  * @param {string} text 
  */
-
 async function shutdown(message, text) {
     await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
     console.log(text);
-    await bot.destroy().catch(console.error);
+    bot.destroy();
     process.exit(0);
 }

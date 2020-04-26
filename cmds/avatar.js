@@ -9,13 +9,13 @@ const Functions = require('../functions.js');
  */
 
 module.exports.run = async (bot, message, args) => {
-    var msg = await message.channel.send("Generating avatar...");
+    var msg = await message.channel.send("Avatár lehívása folyamatban...");
     var target = Functions.GetMember(message, args);
 
-    var embed = new Discord.RichEmbed()
-        .setTitle(`${target.displayName}'s avatar`)
-        .setDescription(`[Avatar LINK](${target.user.displayAvatarURL})`)
-        .setImage(target.user.displayAvatarURL)
+    var embed = new Discord.MessageEmbed()
+        .setTitle(`${target.displayName} avatárja`)
+        .setDescription(`[Avatar LINK](${target.user.displayAvatarURL({format: "png", size: 4096})})`)
+        .setImage(target.user.displayAvatarURL({format: "png", size: 4096}))
         .setColor(target.displayHexColor);
 
     await message.channel.send({embed: embed});
@@ -25,8 +25,8 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     cmd: "avatar",
     alias: ["profile"],
-    name: "Avatar Icon",
-    desc: "View yours or others avatar.",
-    usage: ">avatar <user>",
-    category: "user"
+    name: "Avatár Ikon",
+    desc: "Nézd meg sajátod vagy más avatárját.",
+    usage: ">avatar <felhasználó>",
+    category: "felhasználói"
 }

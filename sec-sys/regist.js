@@ -38,7 +38,7 @@ module.exports = {
 
         var welcomeChannel = guild.channels.get(Settings.welcomeMsgChannelId);
 
-        const embed = new Discord.RichEmbed()
+        const embed = new Discord.MessageEmbed()
             .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL)
             .setTitle("Üdv a szerveren!")
             .setThumbnail(guild.iconURL)

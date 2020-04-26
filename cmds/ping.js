@@ -15,5 +15,5 @@ module.exports.help = {
     name: "Ping",
     desc: "Ping - Pong!",
     usage: ">ping",
-    category: "user"
+    category: "felhasználói"
 }

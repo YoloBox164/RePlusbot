@@ -33,54 +33,6 @@
             "type": "INTEGER"
         }
     ],
-    "inviters": [{
-            "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
-        },
-        {
-            "name": "invitedNumber",
-            "type": "INTEGER"
-        }
-    ],
-    "invitedMembers": [{
-            "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
-        },
-        {
-            "name": "inviter",
-            "type": "VARCHAR(30)"
-        },
-        {
-            "name": "banned",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "kicked",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "pruned",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "left",
-            "type": "BOOLEAN"
-        }
-    ],
-    "invites": [{
-            "name": "id",
-            "type": "TEXT PRIMARY KEY"
-        },
-        {
-            "name": "inviter",
-            "type": "VARCHAR(30)"
-        },
-        {
-            "name": "code",
-            "type": "TEXT"
-        }
-
-    ],
     "warnedUsers": [{
             "name": "id",
             "type": "VARCHAR(30) PRIMARY KEY"

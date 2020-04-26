@@ -8,15 +8,15 @@ const got = require('got');
  */
 
 module.exports.run = async (bot, message, args) => {
-    var msg = await message.channel.send("Fetching...");
+    var msg = await message.channel.send("Lekérés...");
     var link = `https://api.thecatapi.com/v1/images/search?mime_types=gif`;
 
     const response = await got(link);
     var data = JSON.parse(response.body);
 
-    var embed = new Discord.RichEmbed()
-        .setAuthor(message.author.tag, message.author.displayAvatarURL)
-        .setDescription(`${data[0].url}`)
+    var embed = new Discord.MessageEmbed()
+        .setAuthor(message.author.tag, message.author.displayAvatarURL())
+        .setDescription(`[LINK](${data[0].url})`)
         .setFooter("thecatapi.com")
         .setColor(message.guild.member(bot.user).displayHexColor)
         .setImage(data[0].url);
@@ -28,8 +28,8 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     cmd: "cat",
     alias: ["cica", "kitty"],
-    name: "Cat Gifs",
-    desc: "A random kitty gif.",
+    name: "Cica Gifek",
+    desc: "Véletlenszerű cica gifek.",
     usage: ">cat",
-    category: "user"
+    category: "felhasználói"
 }

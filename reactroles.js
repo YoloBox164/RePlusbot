@@ -2,6 +2,8 @@ const Discord = require('discord.js');
 
 const Settings = require('./settings.json');
 
+const NSFWReactEmoji = "🔞";
+
 module.exports = {
     /**
      * @param {Discord.MessageReaction} reaction
@@ -14,6 +16,7 @@ module.exports = {
         /** @type {Discord.TextChannel} */
         var channel = reaction.message.channel;
         if(channel.id != Settings.reactChannelId) return;
+        if(reaction.emoji != NSFWReactEmoji) return;
 
         var guild = reaction.message.guild;
         var NSWFRole = guild.roles.get(Settings.NSWFRoleId);

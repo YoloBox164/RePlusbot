@@ -8,20 +8,20 @@ const math = require('mathjs');
  */
 
 module.exports.run = async (bot, message, args) => {
-    if(!args[0]) return message.channel.send("Invalid input");
+    if(!args[0]) return message.channel.send("Hibás bevitel");
 
     let res;
     try {
-        res = math.eval(args.join(' '));
+        res = math.evaluate(args.join(' '));
     } catch (e) {
-        return message.channel.send("Invalid input")
+        return message.channel.send("Hibás bevitel")
     }
 
-    const embed = new Discord.RichEmbed()
+    const embed = new Discord.MessageEmbed()
         .setColor(0xffffff)
-        .setTitle('Math calculation')
-        .addField('Input', `\`\`\`js\n${args.join("")}\`\`\``)
-        .addField('Output', `\`\`\`js\n${res}\`\`\``);
+        .setTitle('Matematika számítás')
+        .addField('Bemenet', `\`\`\`js\n${args.join("")}\`\`\``)
+        .addField('Kimenet', `\`\`\`js\n${res}\`\`\``);
 
     message.channel.send({embed: embed});
 }
@@ -29,8 +29,8 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     cmd: "calc",
     alias: ["calculate"],
-    name: "Calculations",
-    desc: "You can calculate almost everything!",
-    usage: ">calc [calculation] e.g.: >calc 1+1",
-    category: "user"
+    name: "Számítás",
+    desc: "Konkrétan egy számológép.",
+    usage: ">calc [számítás] pl.: >calc 1+1",
+    category: "felhasználói"
 }

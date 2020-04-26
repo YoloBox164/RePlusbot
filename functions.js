@@ -16,16 +16,18 @@ module.exports = {
 
     /**
      * @param {Discord.Message} message discord message
-     * @param {Array<string>} args message.content in an array without the command
-     * @returns {Discord.GuildMember} a discord guild member
+     * @param {Array<string>} [args=[]] message.content in an array without the command
+     * @param {boolean} [me=true] If is this true and everyother option fails its going to return the message.member as a target.
+     * @returns {(Discord.GuildMember|null)} a discord guild member or nothing if me is false and everyother options fails
      */
-    GetMember: function(message, args) {
+    GetMember: function(message, args, me) {
         if(!args[0]) args = [];
+        if(me == null) me = true;
         var joinedArgs = args.join(" ").toLowerCase();
         var target = message.guild.member(message.mentions.users.first())
-            || message.guild.members.find(member => joinedArgs.includes(member.displayName.toLowerCase()) || joinedArgs.includes(member.user.username))
-            || message.guild.members.get(args[0])
-            || message.member;
+            || message.guild.members.cache.find(member => joinedArgs.includes(member.displayName.toLowerCase()) || joinedArgs.includes(member.user.username))
+            || message.guild.members.resolve(args[0])
+            || me ? message.member : null;
         return target; //give back a guildmember
     },
     /**
@@ -50,7 +52,7 @@ module.exports = {
     MemberHasOneOfTheRoles: function(member, roleIds) {
         var bool = false;
         roleIds.forEach(roleId => {
-            if(member.roles.get(roleId)) bool = true;
+            if(member.roles.cache.get(roleId)) bool = true;
         });
         return bool;
     },

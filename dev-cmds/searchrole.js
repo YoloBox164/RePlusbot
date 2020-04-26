@@ -7,18 +7,18 @@ const Discord = require("discord.js");
  */
 
 module.exports.run = async (bot, message, args) => {
-    var guild = bot.guilds.get(args[1]);
+    var guild = bot.guilds.resolve(args[1]);
     if(!guild) guild = message.guild;
 
-    var role = guild.roles.get(args[0]);
+    var role = guild.roles.resolve(args[0]);
 
     if(role) {
-        var embed = new Discord.RichEmbed()
+        var embed = new Discord.MessageEmbed()
             .setTitle("Role")
             .addField(role.name, `Name: ${role}\nID: ${role.id}\nUserCount: ${role.members.size}`);
         message.channel.send({embed: embed})
     } else {
-        var roles = guild.roles.array();
+        var roles = guild.roles.cache.array();
         var desc = [];
         for(let i in roles) {
             desc.push({
@@ -26,7 +26,11 @@ module.exports.run = async (bot, message, args) => {
                 pos: roles[i].position
             });
         }
-
+        /**
+         * @param {*} array 
+         * @param {*} key 
+         * @returns {Array}
+         */
         function sortByKey(array, key) {
             return array.sort(function(a, b) {
                 var x = a[key]; var y = b[key];
@@ -37,7 +41,7 @@ module.exports.run = async (bot, message, args) => {
         var sortedDesc = sortByKey(desc, 'pos');
 
         sortedDesc = sortedDesc.reverse();
-
+        sortedDesc[sortedDesc.length - 1].name = "everyone" 
         var msg = [];
         for(let i in sortedDesc) {
             msg.push(sortedDesc[i].name/*+ " | Pos: " + sortedDesc[i].pos*/);

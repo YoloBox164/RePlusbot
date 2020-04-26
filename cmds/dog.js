@@ -10,15 +10,15 @@ const got = require('got');
  */
 
 module.exports.run = async (bot, message, args) => {
-    let msg = await message.channel.send("Fetching...");
+    let msg = await message.channel.send("Lekérés...");
     var link = `https://api.thedogapi.com/v1/images/search?mime_types=gif`;
 
     const response = await got(link);
     var data = JSON.parse(response.body);
 
-    let embed = new Discord.RichEmbed()
-        .setAuthor(message.author.tag, message.author.displayAvatarURL)
-        .setDescription(`${data[0].url}\n`)
+    let embed = new Discord.MessageEmbed()
+        .setAuthor(message.author.tag, message.author.displayAvatarURL())
+        .setDescription(`[LINK](${data[0].url})`)
         .setFooter("thedogapi.com")
         .setColor(message.guild.member(bot.user).displayHexColor)
         .setImage(data[0].url);
@@ -30,8 +30,8 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     cmd: "dog",
     alias: ["dogy", "kutyi"],
-    name: "Dog Gifs",
-    desc: "A random dogy gif.",
+    name: "Kutyi gifek",
+    desc: "Véletlenszerű kutyi gifek.",
     usage: ">dog",
-    category: "user"
+    category: "felhasználói"
 }

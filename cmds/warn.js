@@ -10,16 +10,18 @@ const Discord = require('discord.js');
 
 module.exports.run = (bot, message, args) => {
     if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) && message.author.id !== bot.devId) {
-        return message.channel.send("You do not have the permission for this command!");
+        return message.channel.send("Nincs jogod ehez a parancshoz.");
     }
+    
+    var member = Functions.GetMember(message, args, false);
 
-    if(args[0]) {
+    if(member) {
         var reason = args.slice(1).join(" ");
-        var member = Functions.GetMember(message, args);
+        if(!reason) reason = "Nincs";
         var issuer = message.member;
 
         if(member.id == issuer.id && !bot.devId) {
-            return message.channel.send("You can not issue a warning for yourself.");
+            return message.channel.send("Magadnak nem adhatsz figyelmeztetést.");
         }
 
         var memberWarning = database.GetData('warnedUsers', member.id);
@@ -28,31 +30,32 @@ module.exports.run = (bot, message, args) => {
         database.SetData('warnedUsers', memberWarning);
 
         var warning = database.GetObjectTemplate('warnings', member.id);
-        warning.warning = reason ? reason : "Not given.";
+        warning.warning = reason;
         warning.time = Date.now();
         database.SetData('warnings', warning);
 
-        message.channel.send(`Warning successfuly issued for ${member}.\n**Reason**: '${reason}'.`);
-        var logChannel = message.guild.channels.get(SETTINGS.modLogChannelId);
+        message.channel.send(`${member} figyelmeztetve lett.\n**Figyelmeztetés Oka**: '${reason}'.`);
+        /**@type {Discord.TextChannel} */
+        var logChannel = bot.logChannel;
 
-        var logMsg = `\`Warn\`:
-            **Name:** ${member.displayName} (${member.user.username})
+        var logMsg = `\`Figyelmeztetés\`:
+            **Név:** ${member.displayName} (${member.user.tag} | ${member.id})
             **Id:** ${member.id}
-            **Reason:** ${reason}
-            **Issued by:** ${issuer.displayName} (${issuer.user.username} | ${issuer.id})`;
+            **Oka:** ${reason}
+            **Adó:** ${issuer.displayName} (${issuer.user.tag} | ${issuer.id})`;
 
         var conLogMsg = `Warn: ${member.displayName} (Id: ${member.id}) | by ${issuer.displayName} (Id: ${issuer.id})`;
 
         logChannel.send(logMsg.replace('\t', ''));
         console.log(conLogMsg);
-    } else return message.channel.send(`User was not specified.\n\n\`HELP => ${this.help.usage}\``);
+    } else return message.channel.send(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => \`${this.help.usage}\``);
 }
 
 module.exports.help = {
     cmd: "warn",
     alias: ["figyelmeztet"],
-    name: "Warn",
-    desc: "A simple warning system.",
-    usage: ">warn [user] <Reason>",
+    name: "Figyelmeztetés",
+    desc: "Egy egyszerű figyelmeztető rendszer",
+    usage: ">warn [felhasználó] <Figyelmeztetés oka>",
     category: "staff"
 }
