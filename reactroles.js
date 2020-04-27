@@ -19,7 +19,7 @@ module.exports = {
         if(reaction.emoji != NSFWReactEmoji) return;
 
         var guild = reaction.message.guild;
-        var NSWFRole = guild.roles.get(Settings.NSWFRoleId);
+        var NSWFRole = guild.roles.resolve(Settings.NSWFRoleId);
         var member = guild.member(user);
         
         member.addRole(NSWFRole).catch(console.error);
