@@ -47,7 +47,7 @@ module.exports = {
         if(MemberHasOneOfTheRoles(member, Settings.StaffIds) && MemberHasOneOfTheRoles(oMember, [ Settings.AutoMemberRoleId, ])) {
             if(reaction.emoji.name == "🟩") {
                 welcomeChannel.send({embed: embed});
-                oMember.addRole(Settings.AutoMemberRoleId);
+                oMember.roles.add(Settings.AutoMemberRoleId);
             } else if(reaction.emoji.name == "🟥") {
                 if(oMember.kickable) oMember.kick("Nem volt meggyőzö az üzeneted ahhoz, hogy csatlakozz e-közösségbe!");
             } else return;

@@ -57,7 +57,7 @@ module.exports.run = (bot, message, args) => {
                             return;
                         }
                         if(currencyData.bits >= database.config.WumpusRoleCost) {
-                            message.member.addRole(database.config.WumpusRoleId).catch(console.error)
+                            message.member.roles.add(database.config.WumpusRoleId).catch(console.error)
                             currencyData.bits -= database.config.WumpusRoleCost;
                             wumpusData.hasRole = 1;
                             wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;

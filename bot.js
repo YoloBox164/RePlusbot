@@ -6,6 +6,7 @@ const database = require('./database.js');
 const daily = require('./daily.json');
 const secSys = require('./sec-sys/regist');
 const reactRoles = require('./reactroles');
+const analytic = require('./analytic-sys/analytic');
 
 const fs = require('fs');
 const colors = require('colors/safe');
@@ -86,7 +87,7 @@ bot.on('ready', async () => {
                     logChannel.send(`Unmuted ${member.displayName}`)
                 });
             } else {
-                member.addRole(SETTINGS.MuteRoleId);
+                member.roles.add(SETTINGS.MuteRoleId);
                 target.setMute(true).catch(console.error);
             }
         }
@@ -248,7 +249,7 @@ function inviteLogHandler(invite, text) {
 
 bot.on('guildMemberAdd', async member => {
     if(member.guild == mainGuild) {
-        if(member.user.bot) member.addRole(SETTINGS.AutoBotRoleId);
+        if(member.user.bot) member.roles.add(SETTINGS.AutoBotRoleId);
     
         var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
     
@@ -283,6 +284,8 @@ bot.on('guildMemberRemove', async member => {
     else devLogChannel.send(logMsg);
     console.log(colors.red(logMsg.replace(/\`/g, "")));
 });
+
+bot.on('voiceStateUpdate', (oldVoiceState, newVoiceState) => analytic.voiceState(oldVoiceState, newVoiceState));
 
 process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception") });
 
@@ -366,14 +369,14 @@ function CheckWumpus(member) {
                 database.SetData('currency', currencyData);
                 wumpusData.roleTime = MonthDateRange.end + database.config.DayInMilliSeconds;
                 database.SetData('wumpus', wumpusData);
-                if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
+                if(!member.roles.has(database.config.WumpusRoleId)) member.roles.add(database.config.WumpusRoleId);
             } else {
                 database.DeleteData('wumpus', member.id);
                 delete wumpusData;
                 member.removeRole(database.config.WumpusRoleId, "Did not have enough bits.");
             }
-        } else if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
-    } else if(!member.roles.has(database.config.WumpusRoleId)) member.addRole(database.config.WumpusRoleId);
+        } else if(!member.roles.has(database.config.WumpusRoleId)) member.roles.add(database.config.WumpusRoleId);
+    } else if(!member.roles.has(database.config.WumpusRoleId)) member.roles.add(database.config.WumpusRoleId);
 }
 
 /** 
