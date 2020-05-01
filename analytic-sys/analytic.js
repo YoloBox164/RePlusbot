@@ -100,7 +100,7 @@ module.exports.voiceState = async (oldVoiceState, newVoiceState) => {
     var query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
     /**@type {Array<voiceLogData>}*/
     var last2Data = Database.SQLiteDb.prepare(query).all(userId); //Data[0] New Data | Data[1] Old Data
-
+    if(last2Data.length < 2) return;
     //only if leaving or changing channels
     if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
         var pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
