@@ -2,6 +2,7 @@ const Functions = require('../functions.js');
 const database = require('../database.js');
 const SETTINGS = require('../settings.json');
 const Discord = require('discord.js');
+const analytic = require('../analytic-sys/analytic');
 /**
  * @param {Discord.Client} bot The bot itself.
  * @param {Discord.Message} message Discord message.
@@ -33,6 +34,10 @@ module.exports.run = (bot, message, args) => {
         warning.warning = reason;
         warning.time = Date.now();
         database.SetData('warnings', warning);
+
+        var userData = analytic.GetUserData(member.id);
+        userData.warnings.push({text: reason, time: warning.time});
+        analytic.WriteUserData(member.id, userData);
 
         message.channel.send(`${member} figyelmeztetve lett.\n**Figyelmeztetés Oka**: '${reason}'.`);
         /**@type {Discord.TextChannel} */

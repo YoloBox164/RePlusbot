@@ -36,6 +36,8 @@ var welcomeChannel;
 /** @type {Discord.TextChannel} */
 var devLogChannel;
 
+//First load of commands -- Future TODO implement Discord.js's Commando.js!!
+console.log(colors.yellow("BOT Starting...\n"));
 loadCmds("cmds");
 loadCmds("dev-cmds");
 
@@ -50,19 +52,31 @@ bot.logDate = (timestamp) => {
 var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"]
 
 bot.on('ready', async () => {
+    console.log(colors.yellow("---[ Preparing Databases ]---\n"));
     database.Prepare('currency');
     database.Prepare('wumpus');
     database.Prepare('warnedUsers');
     database.Prepare('warnings');
+    console.log(colors.yellow("\n---[ Preparing Databases ]---\n"));
 
+    /* INIT hardcode channels and guilds */
     mainGuild = bot.guilds.resolve('572873520732831754');
     logChannel = mainGuild.channels.resolve(SETTINGS.modLogChannelId);
     welcomeChannel = mainGuild.channels.resolve(SETTINGS.welcomeMsgChannelId);
     devLogChannel = bot.guilds.resolve('427567526935920655').channels.resolve('647420812722307082');
-
+    
+    //Caching the NSFWreactMessage to be able to work with it.
+    /**@type {Discord.TextChannel} */
+    var reactChannel = bot.channels.resolve(SETTINGS.reactChannelId);
+    reactChannel.messages.fetch(reactRoles.help.NSFWReactMessage, true).catch(console.error);
+    
+    //Passing the channels and guilds to the bot.
     bot.mainGuild = mainGuild;
     bot.logChannel = logChannel;
     bot.devLogChannel = devLogChannel;
+
+    //Init Analytic system
+    analytic.Init();
 
     console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode})`));
     logChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
@@ -136,11 +150,16 @@ bot.on('messageReactionAdd', (messageReaction, user) => {
     reactRoles.CheckNSFW(messageReaction, user);
 });
 
+bot.on('messageReactionRemove', (messageReaction, user) => {
+    reactRoles.CheckNSFW(messageReaction, user);
+});
+
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
 
     secSys.CheckMsg(message);
+    analytic.messageCountPlus(message, false);
 
     if(message.content.startsWith(">:")) return;
 
@@ -192,7 +211,7 @@ bot.on('message', async message => {
         if(!commands.has(command) && message.content.startsWith("> ")) return;
         var logMsg = `${message.member.displayName} used the ${cmd.help.cmd} in ${message.channel.name}.`;
         if(cmd) cmd.run(bot, message, args);
-        
+        analytic.messageCountPlus(message, true);
         console.log(colors.cyan(logMsg));
     }
 });
@@ -427,6 +446,8 @@ async function ShutdownCmds(message, args) {
 async function shutdown(message, text) {
     await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
+    database.Database.close();
+    analytic.Shut();
     console.log(text);
     bot.destroy();
     process.exit(0);

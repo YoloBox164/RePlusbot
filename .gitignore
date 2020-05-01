@@ -5,6 +5,7 @@ config.json
 logs/
 node_modules/
 database/database.sqlite-*
+analytic-sys/database/
 OLD/
 
 ## Ignore Visual Studio temporary files, build results, and
