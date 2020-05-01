@@ -141,10 +141,10 @@ module.exports.voiceState = async (oldVoiceState, newVoiceState) => {
                 time: 0,
                 lastJoinTimestampt: last2Data[0].timestampt
             };
-        } else {
-            newChannelData.lastJoin.userId = userId;
-            newChannelData.lastJoin.timestampt = last2Data[0].timestampt;
         }
+        
+        newChannelData.lastJoin.userId = userId;
+        newChannelData.lastJoin.timestampt = last2Data[0].timestampt;
     }
     //if leaving channel
     else if(oldVoiceState.channelID && !newVoiceState.channelID) {
