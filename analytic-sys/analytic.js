@@ -88,7 +88,7 @@ module.exports.Shut = () => {
  * @param {Discord.VoiceState} oldVoiceState
  * @param {Discord.VoiceState} newVoiceState
 */
-module.exports.voiceState = async (oldVoiceState, newVoiceState) => {
+module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     VoiceLogger(oldVoiceState, newVoiceState);
 
     var userId = newVoiceState.id
@@ -142,7 +142,7 @@ module.exports.voiceState = async (oldVoiceState, newVoiceState) => {
                 lastJoinTimestampt: last2Data[0].timestampt
             };
         }
-        
+
         newChannelData.lastJoin.userId = userId;
         newChannelData.lastJoin.timestampt = last2Data[0].timestampt;
     }
