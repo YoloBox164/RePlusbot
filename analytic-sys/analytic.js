@@ -3,9 +3,7 @@ const colors = require('colors/safe');
 const fs = require('fs');
 
 const Database = require('./database');
-const Functions = require('../functions');
 
-const channelsPath = "./analytic-sys/database/channels/";
 const usersPath = "./analytic-sys/database/users/";
 
 /**
@@ -51,22 +49,6 @@ const usersPath = "./analytic-sys/database/users/";
  * @property {Array<warning>} warnings
  */
 
-/**
- * @typedef channelUserData
- * @type {object}
- * @property {string} id
- * @property {number} time
- * @property {number} lastJoinTimestampt
- * 
- * @typedef channelData
- * @type {object}
- * @property {Object.<string, channelUserData} users
- * @property {Object.<number, string} top10User
- * @property {Object} lastJoin
- * @property {string} lastJoin.userId
- * @property {number} lastJoin.timestampt
- */
-
 /*
 oldChannelId => newChannelId
 undefined => id | join
@@ -84,7 +66,6 @@ module.exports.Shut = () => {
 }
 
 /**
- * @param {Discord.Client} bot
  * @param {Discord.VoiceState} oldVoiceState
  * @param {Discord.VoiceState} newVoiceState
 */
@@ -93,9 +74,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
 
     var userId = newVoiceState.id
     var userData = GetUserData(userId);
-
-    var oldChannelData = GetChannelData(oldVoiceState.channelID);
-    var newChannelData = GetChannelData(newVoiceState.channelID);
 
     var query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
     /**@type {Array<voiceLogData>}*/
@@ -116,17 +94,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
             userData.channels[oldVoiceState.channelID].time += pastTime;
             userData.channels[oldVoiceState.channelID].lastJoinTimestampt = last2Data[1].timestampt;
         }
-
-        if(!oldChannelData.users[userId]) {
-            oldChannelData.users[userId] = {
-                id: userId,
-                time: pastTime,
-                lastJoinTimestampt: last2Data[1].timestampt
-            };
-        } else {
-            oldChannelData.users[userId].time += pastTime;
-            oldChannelData.users[userId].lastJoinTimestampt = last2Data[1].timestampt;
-        }
     }
 
     //If Joining or Changing channels
@@ -134,17 +101,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
         userData.lastChannel.id = newVoiceState.channelID;
         userData.lastChannel.joinedTimestampt = last2Data[0].timestampt;
         userData.lastChannel.leavedTimestampt = -1;
-
-        if(!newChannelData.users[userId]) {
-            newChannelData.users[userId] = {
-                id: userId,
-                time: 0,
-                lastJoinTimestampt: last2Data[0].timestampt
-            };
-        }
-
-        newChannelData.lastJoin.userId = userId;
-        newChannelData.lastJoin.timestampt = last2Data[0].timestampt;
     }
     //if leaving channel
     else if(oldVoiceState.channelID && !newVoiceState.channelID) {
@@ -154,8 +110,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     }
 
     WriteUserData(userId, userData);
-    WriteChannelData(oldVoiceState.channelID, oldChannelData);
-    WriteChannelData(newVoiceState.channelID, newChannelData);
 }
 
 /**
@@ -206,41 +160,6 @@ function WriteUserData(userId, userData) {
     fs.writeFileSync(usersPath + `${userId}.json`, JSON.stringify(userData, null, 4), err => {throw err;});
 }
 module.exports.WriteUserData = WriteUserData;
-
-/**
- * @param {string} channelId
- * @returns {channelData}
-*/
-function GetChannelData(channelId) {
-    var channelData = Channel();
-    if(fs.existsSync(channelsPath + `${channelsPath}.json`)) {
-        channelData = JSON.parse(fs.readFileSync(channelsPath + `${channelId}.json`));
-    }
-    return channelData;
-}
-module.exports.GetChannelData = GetChannelData;
-
-/**
- * @param {string} channelId
- * @param {channelData} channelData
-*/
-function WriteChannelData(channelId, channelData) {
-    fs.writeFileSync(channelsPath + `${channelId}.json`, JSON.stringify(channelData, null, 4), err => {throw err;});
-}
-module.exports.WriteChannelData = WriteChannelData;
-
-/** @returns {channelData} */
-function Channel() {
-    var channel = {
-        users: {},
-        top10User: {},
-        lastJoin: {
-            userId: "",
-            timestampt: 0
-        }
-    };
-    return channel;
-}
 
 /** @returns {voiceLogData} */
 function Log() {
