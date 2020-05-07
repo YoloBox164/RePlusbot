@@ -16,18 +16,17 @@ module.exports = {
 
     /**
      * @param {Discord.Message} message discord message
-     * @param {Array<string>} [args=[]] message.content in an array without the command
-     * @param {boolean} [me=true] If is this true and everyother option fails its going to return the message.member as a target.
+     * @param {?Array<string>} [args=[]] message.content in an array without the command
+     * @param {?boolean} [me=true] If is this true and everyother option fails its going to return the message.member as a target.
      * @returns {(Discord.GuildMember|null)} a discord guild member or nothing if me is false and everyother options fails
      */
     GetMember: function(message, args, me) {
         if(!args[0]) args = [];
         if(me == null) me = true;
         var joinedArgs = args.join(" ").toLowerCase();
-        var target = message.guild.member(message.mentions.users.first())
-            || message.guild.members.cache.find(member => joinedArgs.includes(member.displayName.toLowerCase()) || joinedArgs.includes(member.user.username))
-            || message.guild.members.resolve(args[0])
-            || me ? message.member : null;
+        var target = message.mentions.members.first() || message.guild.members.resolve(args[0]);
+        if(!target) target = message.guild.members.cache.find(m => joinedArgs.includes(m.displayName.toLowerCase()) || joinedArgs.includes(m.user.tag));
+        if(!target && me) target = message.member;
         return target; //give back a guildmember
     },
     /**
