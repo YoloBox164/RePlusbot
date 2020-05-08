@@ -10,7 +10,7 @@ const analytic = require('../analytic-sys/analytic');
  */
 
 module.exports.run = (bot, message, args) => {
-    if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) && message.author.id != bot.devId) {
+    if(!Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) && message.author.id != bot.devId) {
         return message.channel.send("Nincs jogod ehez a parancshoz.");
     }
     
