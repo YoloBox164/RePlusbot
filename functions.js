@@ -51,7 +51,7 @@ module.exports = {
     MemberHasOneOfTheRoles: function(member, roleIds) {
         var bool = false;
         roleIds.forEach(roleId => {
-            if(member.roles.cache.get(roleId)) bool = true;
+            if(member.roles.resolve(roleId)) bool = true;
         });
         return bool;
     },
