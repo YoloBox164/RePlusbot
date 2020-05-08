@@ -14,42 +14,42 @@ module.exports.run = (bot, message, args) => {
         return message.channel.send("Nincs jogod ehez a parancshoz.");
     }
     
-    var member = Functions.GetMember(message, args, false);
+    var targetMember = Functions.GetMember(message, args, false);
 
-    if(member) {
+    if(targetMember) {
         var reason = args.slice(1).join(" ");
         if(!reason) reason = "Nincs";
         var issuer = message.member;
 
-        if(member.id == issuer.id && !bot.devId) {
+        if(targetMember.id == issuer.id && !bot.devId) {
             return message.channel.send("Magadnak nem adhatsz figyelmeztetést.");
         }
 
-        var memberWarning = database.GetData('warnedUsers', member.id);
+        var memberWarning = database.GetData('warnedUsers', targetMember.id);
         if(!memberWarning.count) memberWarning.count = 1;
         else memberWarning.count += 1;
         database.SetData('warnedUsers', memberWarning);
 
-        var warning = database.GetObjectTemplate('warnings', member.id);
+        var warning = database.GetObjectTemplate('warnings', targetMember.id);
         warning.warning = reason;
         warning.time = Date.now();
         database.SetData('warnings', warning);
 
-        var userData = analytic.GetUserData(member.id);
+        var userData = analytic.GetUserData(targetMember.id);
         userData.warnings.push({text: reason, time: warning.time});
-        analytic.WriteUserData(member.id, userData);
+        analytic.WriteUserData(targetMember.id, userData);
 
-        message.channel.send(`${member} figyelmeztetve lett.\n**Figyelmeztetés Oka**: '${reason}'.`);
+        message.channel.send(`${targetMember} figyelmeztetve lett.\n**Figyelmeztetés Oka**: '${reason}'.`);
         /**@type {Discord.TextChannel} */
         var logChannel = bot.logChannel;
 
         var logMsg = `\`Figyelmeztetés\`:
-            **Név:** ${member.displayName} (${member.user.tag} | ${member.id})
-            **Id:** ${member.id}
+            **Név:** ${targetMember.displayName} (${targetMember.user.tag})
+            **Id:** ${targetMember.id}
             **Oka:** ${reason}
             **Adó:** ${issuer.displayName} (${issuer.user.tag} | ${issuer.id})`;
 
-        var conLogMsg = `Warn: ${member.displayName} (Id: ${member.id}) | by ${issuer.displayName} (Id: ${issuer.id})`;
+        var conLogMsg = `Warn: ${targetMember.displayName} (Id: ${targetMember.id}) | by ${issuer.displayName} (Id: ${issuer.id})`;
 
         logChannel.send(logMsg.replace('\t', ''));
         console.log(conLogMsg);

@@ -18,7 +18,7 @@ process.env.mode = CONFIG.mode;
 
 const SETTINGS = require('./settings.json');
 const prefix = SETTINGS.Prefix;
-
+bot.prefix = prefix;
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
 var devCommands = new Discord.Collection();
@@ -222,7 +222,7 @@ bot.on('message', async message => {
  * @returns {{command:string, args: Array<string>}}
  */
 function makeArgs(message, prefix) {
-    var messageArray = message.content.split(/ +/g);
+    var messageArray = message.content.split(/\s+\n+|\s+|\n+/g);
     var args = [];
     var command = messageArray[0].toLowerCase().slice(prefix.length);
     if(!command && messageArray[1]) {

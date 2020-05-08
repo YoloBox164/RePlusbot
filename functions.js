@@ -25,7 +25,14 @@ module.exports = {
         if(me == null) me = true;
         var joinedArgs = args.join(" ").toLowerCase();
         var target = message.mentions.members.first() || message.guild.members.resolve(args[0]);
-        if(!target) target = message.guild.members.cache.find(m => joinedArgs.includes(m.displayName.toLowerCase()) || joinedArgs.includes(m.user.tag));
+        if(!target) target = message.guild.members.cache.find(m => joinedArgs == m.user.tag.toLowerCase()
+            || joinedArgs == m.user.username.toLowerCase()
+            || joinedArgs == m.displayName.toLowerCase()
+        );
+        if(!target) target = message.guild.members.cache.find(m => joinedArgs.includes(m.user.tag.toLowerCase())
+            || joinedArgs.includes(m.user.username.toLowerCase())
+            || joinedArgs.includes(m.displayName.toLowerCase())
+        );
         if(!target && me) target = message.member;
         return target; //give back a guildmember
     },
