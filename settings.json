@@ -9,7 +9,12 @@
     "giveawayChannelId": "692158285796737055",
     "modLogChannelId": "692157908842184704",
     "inviteChannelId": "653663894354526228",
+    "upvoteChannelId": "709732635211202633",
     "MuteRoleId": "626793403111309312",
+    "emojis": {
+        "voteupId": "709732743755595787",
+        "votedownId": "709732732678307840"
+    },
     "StaffIds": [
         "611682412161794081",
         "611682395078393936"

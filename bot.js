@@ -160,6 +160,7 @@ bot.on('message', async message => {
 
     secSys.CheckMsg(message);
     analytic.messageCountPlus(message, false);
+    upvoteSys(message);
 
     if(message.content.startsWith(">:")) return;
 
@@ -215,6 +216,17 @@ bot.on('message', async message => {
         console.log(colors.cyan(logMsg));
     }
 });
+
+/**
+ * @param {Discord.Message} message
+ */
+function upvoteSys(message) {
+    if(message.channel.id == SETTINGS.upvoteChannelId) {
+        var voteup = message.guild.emojis.cache.get(SETTINGS.emojis.voteupId);
+        var votedown = message.guild.emojis.cache.get(SETTINGS.emojis.votedownId);
+        message.react(voteup).then(msg => msg.message.react(votedown)).catch(console.error);
+    }
+}
 
 /**
  * @param {Discord.Message} message 
