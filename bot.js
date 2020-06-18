@@ -297,13 +297,13 @@ bot.on('guildMemberRemove', async member => {
 
     var text, reason = "N/A";
     if(banEntry && banEntry.target.id === member.id) {
-        text = "was banned by " + member.guild.members.get(banEntry.executor.id).displayName;
+        text = "was banned by " + member.guild.members.resolve(banEntry.executor.id).displayName;
         if(banEntry.reason) reason = banEntry.reason;
     } else if(kickEntry && kickEntry.target.id === member.id) {
-        text = "was kicked by " + member.guild.members.get(kickEntry.executor.id).displayName;
+        text = "was kicked by " + member.guild.members.resolve(kickEntry.executor.id).displayName;
         if(kickEntry.reason) reason = kickEntry.reason;
     } else if (pruneEntry && pruneEntry.target.id === member.id) {
-        text = "was pruned by" +  member.guild.members.get(pruneEntry.executor.id).displayName;
+        text = "was pruned by" +  member.guild.members.resolve(pruneEntry.executor.id).displayName;
         if(pruneEntry.reason) reason = pruneEntry.reason;
     } else {
         text = "leaved the server";
