@@ -18,7 +18,7 @@ module.exports = {
         }
 
         message.react("🟩").then(msg => msg.message.react("🟥"));
-        var logChannel = message.guild.channels.get(Settings.modLogChannelId);
+        var logChannel = message.guild.channels.resolve(Settings.modLogChannelId);
         logChannel.send(`${message.member.displayName} (${message.member.id}) submitted a join request!\n\nURL: ${message.url}`);
     },
 
@@ -36,7 +36,7 @@ module.exports = {
 
         var oMember = reaction.message.member; //Original message sender (GuildMember)
 
-        var welcomeChannel = guild.channels.get(Settings.welcomeMsgChannelId);
+        var welcomeChannel = guild.channels.resolve(Settings.welcomeMsgChannelId);
 
         const embed = new Discord.MessageEmbed()
             .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL)
