@@ -5,7 +5,6 @@ const Functions = require('./functions.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
 const secSys = require('./sec-sys/regist');
-const reactRoles = require('./reactroles');
 const analytic = require('./analytic-sys/analytic');
 
 const fs = require('fs');
@@ -67,8 +66,8 @@ bot.on('ready', async () => {
     
     //Caching the NSFWreactMessage to be able to work with it.
     /**@type {Discord.TextChannel} */
-    var reactChannel = bot.channels.resolve(SETTINGS.reactChannelId);
-    reactChannel.messages.fetch(reactRoles.help.NSFWReactMessage, true).catch(console.error);
+    /*var reactChannel = bot.channels.resolve(SETTINGS.reactChannelId);
+    reactChannel.messages.fetch(reactRoles.help.NSFWReactMessage, true).catch(console.error);*/
     
     //Passing the channels and guilds to the bot.
     bot.mainGuild = mainGuild;
@@ -147,11 +146,6 @@ bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember))
 
 bot.on('messageReactionAdd', (messageReaction, user) => {
     secSys.CheckReaction(messageReaction, user);
-    reactRoles.CheckNSFW(messageReaction, user);
-});
-
-bot.on('messageReactionRemove', (messageReaction, user) => {
-    reactRoles.CheckNSFW(messageReaction, user);
 });
 
 bot.on('message', async message => {
