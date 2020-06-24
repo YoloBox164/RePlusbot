@@ -312,18 +312,18 @@ bot.on('guildMemberRemove', async member => {
 
 bot.on('voiceStateUpdate', (oldVoiceState, newVoiceState) => analytic.voiceState(oldVoiceState, newVoiceState));
 
-process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception") });
+process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception", true) });
 
-process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejection") });
+process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejection", false) });
 
 /**
  * @param {Error} err
  * @param {string} msg
  */
-function errorHandling(err, msg) {
+function errorHandling(err, msg, toShutdown = false) {
     if(logChannel) logChannel.send(`\`ERROR: ${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
     console.error(err);
-    bot.setTimeout(() => { bot.destroy() }, 2000);
+    if(toShutdown) bot.setTimeout(() => { bot.destroy() }, 2000);
 }
 
 function loadCmds(dir) {
