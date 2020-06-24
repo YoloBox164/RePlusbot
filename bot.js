@@ -324,7 +324,9 @@ process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejectio
  * @param {string} msg
  */
 function errorHandling(err, msg, toShutdown = false) {
-    if(logChannel) logChannel.send(`\`ERROR: ${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\`\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``).catch(console.error);
+    let logMsg = `\`ERROR: ${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\``;
+    if(toShutdown) logMsg += `\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``;
+    if(logChannel) logChannel.send(logMsg).catch(console.error);
     console.error(err);
     if(toShutdown) bot.setTimeout(() => { bot.destroy() }, 2000);
 }
