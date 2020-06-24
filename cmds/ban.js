@@ -14,7 +14,10 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send("Nincsen jogod használni ezt a paracsot.");
         return;
     }
-    var target_member = Functions.GetMember(message, args, false);
+    let target_member = message.guild.member(args[0]);
+    if(!target_member) {
+        message.channel.send(`Nincs ilyen felhasználó vagy nem lett meg adva. Segítség => \`${this.help.usage}\``)
+    }
     if(target_member.id == message.member.id) {
         message.channel.send("Magadat nem tilthatod ki!");
         return;
@@ -30,6 +33,6 @@ module.exports.help = {
     alias: ["kitilt", "kitiltas"],
     name: "Kitiltás (Banhammer)",
     desc: "A Botnak a saját ban parancsa.",
-    usage: ">ban [felhasználó] <kitiltás oka>",
+    usage: ">ban [felhasználó tag-je] <kitiltás oka>",
     category: "moderálás"
 }

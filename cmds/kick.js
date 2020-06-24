@@ -14,7 +14,10 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send("Nincsen jogod használni ezt a paracsot.");
         return;
     }
-    var target_member = Functions.GetMember(message, args, false);
+    let target_member = message.guild.member(args[0]);
+    if(!target_member) {
+        message.channel.send(`Nincs ilyen felhasználó vagy nem lett meg adva. Segítség => \`${this.help.usage}\``)
+    }
     if(target_member.id == message.member.id) {
         message.channel.send("Magadat nem rúghatod ki!");
         return;
@@ -30,6 +33,6 @@ module.exports.help = {
     alias: ["kirug", "kirugas"],
     name: "Kirúgás",
     desc: "A Botnak a saját kick parancsa.",
-    usage: ">kick [felhasználó] <kirúgás oka>",
+    usage: ">kick [felhasználó tag-je] <kirúgás oka>",
     category: "moderálás"
 }
