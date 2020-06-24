@@ -248,26 +248,29 @@ bot.on('inviteDelete', invite => inviteLogHandler(invite, "Deleted"));
  */
 function inviteLogHandler(invite, text) {
     /** @type {Discord.Guild} */
-    var guild = invite.guild;
-    var botMember = guild.member(bot.user);
-    var inviterMember = guild.member(invite.inviter);
+    let guild = invite.guild;
+    let botMember = guild.member(bot.user);
+    let inviterMember = guild.member(invite.inviter);
+
+    let createMsg = `**Inviter:** ${inviterMember} Id: ${inviterMember ? inviterMember.id : null}
+        **Code:** ${invite.code}
+        **URL:** ${invite.url}
+        **Channel:** ${invite.channel}\n
+        **Created At:** ${invite.createdTimestamp ? bot.logDate(invite.createdTimestamp) : null}
+        **Expires At:** ${invite.createdTimestamp ? bot.logDate(invite.expiresTimestamp) : null}\n
+        **Max Age:** ${invite.maxAge} ms
+        **Max Uses:** ${invite.maxUses}
+        **Target User:** ${invite.targetUser} | Is From Stream: ${invite.targetUserType == 1 ? "True" : "False"}
+        **Temporary:** ${invite.temporary}`;
+
+    let deleteMsg = `**Code:** ${invite.code}
+        **URL:** ${invite.url}
+        **Channel:** ${invite.channel}`;
 
     const embed = new Discord.MessageEmbed()
         .setColor(botMember.displayHexColor)
         .setTitle(`Invite ${text}`)
-        .setDescription(
-            `**Inviter:** ${inviterMember} Id: ${inviterMember ? inviterMember.id : null}
-            **Code:** ${invite.code}
-            **URL:** ${invite.url}
-            **Channel:** ${invite.channel}\n
-            **Created At:** ${bot.logDate(invite.createdTimestamp)}
-            **Expires At:** ${bot.logDate(invite.expiresTimestamp)}\n
-            **Max Age:** ${invite.maxAge}
-            **Uses:** ${invite.uses}
-            **Max Uses:** ${invite.maxUses}
-            **Target User:** ${invite.targetUser} | Is From Stream: ${invite.targetUserType == 1 ? "True" : "False"}
-            **Temporary:** ${invite.temporary}`
-        );
+        .setDescription(text === "Created" ? createMsg : deleteMsg);
     
     logChannel.send({embed: embed});
 }

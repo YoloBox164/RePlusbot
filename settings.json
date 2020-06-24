@@ -1,14 +1,12 @@
 {
     "Prefix": ">",
     "AutoMemberRoleId": "651868532161642507",
-    "AutoBotRoleId": "605078278134431766",
-    "NSWFRoleId": "671804049263427609",
+    "AutoBotRoleId": "599729067981406233",
     "welcomeMsgChannelId": "692153454273232937",
     "registChannelId": "694123869430087733",
     "reactChannelId": "699710563974119504",
-    "giveawayChannelId": "692158285796737055",
     "modLogChannelId": "692157908842184704",
-    "inviteChannelId": "653663894354526228",
+    "inviteChannelId": "694123869430087733",
     "upvoteChannelId": "709732635211202633",
     "MuteRoleId": "626793403111309312",
     "emojis": {
