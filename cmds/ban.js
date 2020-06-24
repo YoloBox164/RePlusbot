@@ -9,14 +9,16 @@ const Settings = require('../settings.json');
  * @param {Array<string>} args The message.content in an array without the command.
  */
 
-module.exports.run = async (bot, message, args) => {
+module.exports.run = (bot, message, args) => {
     if(!Functions.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && !message.member.permissions.has("BAN_MEMBERS", true)) {
         message.channel.send("Nincsen jogod használni ezt a paracsot.");
         return;
     }
-    let target_member = message.guild.member(args[0]);
+    let target_memberId = args[0].match(Discord.MessageMentions.USERS_PATTERN)[0].replace(/[<@!>]/g, '');
+    let target_member = message.guild.member(target_memberId);
     if(!target_member) {
-        message.channel.send(`Nincs ilyen felhasználó vagy nem lett meg adva. Segítség => \`${this.help.usage}\``)
+        message.channel.send(`Nincs ilyen felhasználó vagy nem lett meg adva.\`Segítség => ${this.help.usage}\``);
+        return;
     }
     if(target_member.id == message.member.id) {
         message.channel.send("Magadat nem tilthatod ki!");
