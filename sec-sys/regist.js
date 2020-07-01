@@ -18,7 +18,7 @@ module.exports = {
         }
 
         message.react("🟩").then(msg => msg.message.react("🟥"));
-        var logChannel = message.guild.channels.resolve(Settings.modLogChannelId);
+        let logChannel = message.guild.channels.resolve(Settings.modLogChannelId);
         logChannel.send(`${message.member.displayName} (${message.member.id}) submitted a join request!\n\nURL: ${message.url}`);
     },
 
@@ -31,12 +31,12 @@ module.exports = {
         if(user.bot) return;
         if(reaction.message.channel.id != Settings.registChannelId) return;
 
-        var guild = reaction.message.guild;
-        var member = guild.member(user);
+        let guild = reaction.message.guild;
+        let member = guild.member(user);
 
-        var oMember = reaction.message.member; //Original message sender (GuildMember)
+        let oMember = reaction.message.member; //Original message sender (GuildMember)
 
-        var welcomeChannel = guild.channels.resolve(Settings.welcomeMsgChannelId);
+        let welcomeChannel = guild.channels.resolve(Settings.welcomeMsgChannelId);
 
         const embed = new Discord.MessageEmbed()
             .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL)
@@ -44,7 +44,7 @@ module.exports = {
             .setThumbnail(guild.iconURL)
             .setDescription(`${oMember} érezd jól magad!`);
 
-        if(MemberHasOneOfTheRoles(member, Settings.StaffIds) && MemberHasOneOfTheRoles(oMember, [ Settings.AutoMemberRoleId, ])) {
+        if(MemberHasOneOfTheRoles(member, Settings.StaffIds) && !MemberHasOneOfTheRoles(oMember, [ Settings.AutoMemberRoleId, ])) {
             if(reaction.emoji.name == "🟩") {
                 welcomeChannel.send({embed: embed});
                 oMember.roles.add(Settings.AutoMemberRoleId);

@@ -276,11 +276,10 @@ function inviteLogHandler(invite, text) {
 }
 
 bot.on('guildMemberAdd', async member => {
+    let logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
+    
     if(member.guild == mainGuild) {
         if(member.user.bot) member.roles.add(SETTINGS.AutoBotRoleId);
-    
-        var logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
-    
         logChannel.send(logMsg);
     } else devLogChannel.send(logMsg);
     
