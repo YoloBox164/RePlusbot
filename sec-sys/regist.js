@@ -52,7 +52,7 @@ module.exports = {
                 if(oMember.kickable) oMember.kick("Nem volt meggyőzö az üzeneted ahhoz, hogy csatlakozz e-közösségbe!");
             } else return;
 
-            reaction.message.clearReactions().catch(console.error);
+            reaction.message.reactions.removeAll().catch(console.error);
         }
     }
 }
