@@ -41,7 +41,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
             .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL)
             .setTitle("Üdv a szerveren!")
-            .setThumbnail(guild.iconURL)
+            .setThumbnail(guild.iconURL({size: 4096, format: "jpg"}))
             .setDescription(`${oMember} érezd jól magad!`);
 
         if(MemberHasOneOfTheRoles(member, Settings.StaffIds) && !MemberHasOneOfTheRoles(oMember, [ Settings.AutoMemberRoleId, ])) {
