@@ -4,7 +4,7 @@ const bot = new Discord.Client();
 const Functions = require('./functions.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
-const secSys = require('./sec-sys/regist');
+const secSys = require('./sec-sys');
 const analytic = require('./analytic-sys/analytic');
 
 const fs = require('fs');
@@ -48,7 +48,7 @@ bot.logDate = (timestamp) => {
     return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
 }
 
-var statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"]
+let statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"]
 
 bot.on('ready', async () => {
     console.log(colors.yellow("---[ Preparing Databases ]---\n"));
@@ -81,8 +81,8 @@ bot.on('ready', async () => {
     logChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
     
     bot.setInterval(() => {
-        var status = statuses[Math.floor(Math.random() * statuses.length)];
-        bot.user.setPresence({game : {name: status}, status: 'online'});
+        let status = statuses[Math.floor(Math.random() * statuses.length)];
+        bot.user.setPresence({activity: {name: ` you. | ${status}`, type: "LISTENING"}, status: "online"});
     }, 30000);
 
     /*bot.setInterval(() => {
@@ -145,14 +145,15 @@ bot.on('ready', async () => {
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
 bot.on('messageReactionAdd', (messageReaction, user) => {
-    secSys.CheckReaction(messageReaction, user);
+    secSys.Regist.CheckReaction(messageReaction, user);
 });
 
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
 
-    secSys.CheckMsg(message);
+    if(CONFIG.mode === "development") secSys.Automod.WordFilterCheck(message);
+    secSys.Regist.CheckMsg(message);
     analytic.messageCountPlus(message, false);
     upvoteSys(message);
 
@@ -211,9 +212,7 @@ bot.on('message', async message => {
     }
 });
 
-/**
- * @param {Discord.Message} message
- */
+/** @param {Discord.Message} message */
 function upvoteSys(message) {
     if(message.channel.id == SETTINGS.upvoteChannelId) {
         var voteup = message.guild.emojis.cache.get(SETTINGS.emojis.voteupId);
