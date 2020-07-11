@@ -152,7 +152,7 @@ bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
 
-    if(CONFIG.mode === "development") secSys.Automod.WordFilterCheck(message);
+    secSys.Automod.WordFilterCheck(message);
     secSys.Regist.CheckMsg(message);
     analytic.messageCountPlus(message, false);
     upvoteSys(message);
