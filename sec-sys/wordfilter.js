@@ -6,8 +6,10 @@ const Settings = require('../settings.json');
 const SecEmbed = require('./embed');
 
 /**@type {RegExp[]} */
-let RegExpWords = [];
-RegExpWords.push(/((?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)/gim);
+let RegExpWords = [ 
+    /((?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)/gim,
+    /((?:s+\s*)+(?:e+\s*)+(?:g+\s*)+g+)/gim
+];
 GetRegExpWords();
 
 /**
@@ -25,7 +27,10 @@ const regexpTemplates = {
 };
 
 module.exports = {
-    /** @param {Discord.Message} message */
+    /** 
+     * @param {Discord.Message} message 
+     * @returns {Boolean} If the message got deleted true, otherwise false.
+     */
     Check: function(message) {
         let found = false;
         for(const regexp of RegExpWords) {
@@ -41,7 +46,9 @@ module.exports = {
             let embed = SecEmbed.Get(message, "Fekete listán levő szavak használata.");
             logChannel.send({embed: embed});
             if(message.deletable) message.delete({reason: "Fekete listán levő szavak használata."});
+            return true;
         }
+        return false;
     }
 }
 

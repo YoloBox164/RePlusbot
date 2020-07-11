@@ -16,6 +16,7 @@ const CONFIG = require('./config.json');
 process.env.mode = CONFIG.mode;
 
 const SETTINGS = require('./settings.json');
+const functions = require('./functions.js');
 const prefix = SETTINGS.Prefix;
 bot.prefix = prefix;
 bot.devPrefix = '#>';
@@ -144,16 +145,21 @@ bot.on('ready', async () => {
 
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
-bot.on('messageReactionAdd', (messageReaction, user) => {
-    secSys.Regist.CheckReaction(messageReaction, user);
-});
+bot.on('messageReactionAdd', (messageReaction, user) => { secSys.Regist.CheckReaction(messageReaction, user); });
 
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
-
-    secSys.Automod.WordFilterCheck(message);
+    
+    if(CONFIG === "development" || !functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds)) {
+        let isMsgDeleted = false;
+        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(message);
+        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(message);
+        if(isMsgDeleted) return;
+    }
+    
     secSys.Regist.CheckMsg(message);
+
     analytic.messageCountPlus(message, false);
     upvoteSys(message);
 
@@ -174,7 +180,7 @@ bot.on('message', async message => {
          * @typedef {Object} cmd
          * @property {run} run
          * @property {help} help
-         */
+        */
 
         /** @type {cmd} */
         var cmd = devCommands.get(command);

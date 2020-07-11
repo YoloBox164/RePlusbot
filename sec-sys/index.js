@@ -1,4 +1,5 @@
 const wordfilter = require('./wordfilter');
+const linkfilter = require('./linkfilter');
 const regist = require('./regist');
 
 module.exports = {
@@ -7,6 +8,7 @@ module.exports = {
         CheckMsg: regist.CheckMsg
     },
     Automod: {
-        WordFilterCheck: wordfilter.Check
+        WordFilter: wordfilter,
+        LinkFilter: linkfilter
     }
 }
