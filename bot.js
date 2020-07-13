@@ -151,7 +151,7 @@ bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
     
-    if(CONFIG === "development" || !functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds)) {
+    if(CONFIG.mode === "development" || !functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds)) {
         let isMsgDeleted = false;
         if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(message);
         if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(message);
@@ -215,6 +215,18 @@ bot.on('message', async message => {
         if(cmd) cmd.run(bot, message, args);
         analytic.messageCountPlus(message, true);
         console.log(colors.cyan(logMsg));
+    }
+});
+
+bot.on('messageUpdate', (oldMessage, newMessage) => {
+    if(newMessage.author.bot) return;
+    if(newMessage.channel.type === 'dm') return;
+    
+    if(CONFIG.mode === "development" || !functions.MemberHasOneOfTheRoles(newMessage.member, SETTINGS.StaffIds)) {
+        let isMsgDeleted = false;
+        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(newMessage);
+        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(newMessage);
+        if(isMsgDeleted) return;
     }
 });
 
@@ -366,7 +378,7 @@ function loadCmds(dir) {
             bot.aliasCmds = aliasCmds;
         }
 
-        console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!`));
+        console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!\n`));
     });
 }
 

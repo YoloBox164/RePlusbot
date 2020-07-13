@@ -7,13 +7,13 @@ const SecEmbed = require('./embed');
 
 /**@type {RegExp[]} */
 let RegExpWords = [ 
-    /((?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)/gim,
-    /((?:s+\s*)+(?:e+\s*)+(?:g+\s*)+g+)/gim
+    /(?:(?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)(?!állító)/gim,
+    /(?:(?:s+\s*)+(?:e+\s*)+(?:g+\s*)+g+)/gim
 ];
 GetRegExpWords();
 
 /**
- * e.g.: fasz => ((?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)
+ * e.g.: fasz => /\b((?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)\b/gim
  * ***
  * * \s whitespace
  * * (?: ) non capturing group
@@ -78,6 +78,7 @@ function GetRegExpWords() {
                     if(index == word.length - 1) pattern += regexpTemplates.End.replace('#', char);
                     else pattern += regexpTemplates.StartAndMindle.replace('#', char);
                 }
+                pattern += "\\b";
                 RegExpWords.push(new RegExp(pattern, "gim"));
             }
             console.log(colors.white(`${f} loaded! Words: ${json.length}`));
