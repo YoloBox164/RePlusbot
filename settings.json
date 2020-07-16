@@ -1,14 +1,19 @@
 {
     "Prefix": ">",
-    "AutoMemberRoleId": "651868532161642507",
-    "AutoBotRoleId": "599729067981406233",
-    "welcomeMsgChannelId": "730947482950828127",
-    "registChannelId": "694123869430087733",
-    "reactChannelId": "699710563974119504",
-    "modLogChannelId": "692157908842184704",
-    "inviteChannelId": "694123869430087733",
-    "upvoteChannelId": "709732635211202633",
-    "MuteRoleId": "626793403111309312",
+    "Roles": {
+        "AutoMemberId": "651868532161642507",
+        "AutoBotId": "599729067981406233",
+        "MuteRoleId": "626793403111309312"
+    },
+    "Channels": {
+        "welcomeMsgId": "730947482950828127",
+        "registId": "694123869430087733",
+        "reactId": "699710563974119504",
+        "modLogId": "692157908842184704",
+        "automodLogId": "727238896676503676",
+        "inviteId": "694123869430087733",
+        "upvoteId": "709732635211202633"
+    },
     "emojis": {
         "voteupId": "709732743755595787",
         "votedownId": "709732732678307840"

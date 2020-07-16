@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 
-const Functions = require('../functions.js');
+const Tools = require('../utils/tools.js');
 const Settings = require('../settings.json');
 
 /**
@@ -10,7 +10,7 @@ const Settings = require('../settings.json');
  */
 
 module.exports.run = (bot, message, args) => {
-    if(!Functions.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && !message.member.permissions.has("KICK_MEMBERS", true)) {
+    if(!Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && !message.member.permissions.has("KICK_MEMBERS", true)) {
         message.channel.send("Nincsen jogod használni ezt a paracsot.");
         return;
     }

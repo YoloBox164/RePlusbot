@@ -5,7 +5,7 @@ const Database = new sqlite('./database/database.sqlite');
 
 const colors = require('colors/safe');
 
-const Functions = require('./functions.js');
+const Tools = require('./utils/tools.js');
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ module.exports = {
             Database.pragma("journal_mode = wal");
         }
 
-        console.log(colors.cyan(`DB: ${Functions.FirstCharUpperCase(tableName)} Table is Ready!`));
+        console.log(colors.cyan(`DB: ${Tools.FirstCharUpperCase(tableName)} Table is Ready!`));
         return Table;
     },
 
@@ -104,7 +104,7 @@ module.exports = {
     
     SetData: function(tableName, data) {
         var tableArr = DatabaseTableSchema[`${tableName}`];
-        var names = Functions.GetObjectValueFromArray(tableArr, "name");
+        var names = Tools.GetObjectValueFromArray(tableArr, "name");
         return Database.prepare(`INSERT OR REPLACE INTO ${tableName} (${names.join(', ')}) VALUES (@${names.join(', @')});`).run(data);
     },
 

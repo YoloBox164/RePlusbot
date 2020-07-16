@@ -1,6 +1,6 @@
-const Functions = require('../functions.js');
+const Tools = require('../utils/tools.js');
 const database = require('../database.js');
-const SETTINGS = require('../settings.json');
+const Settings = require('../settings.json');
 const Discord = require('discord.js');
 const analytic = require('../analytic-sys/analytic');
 /**
@@ -10,11 +10,11 @@ const analytic = require('../analytic-sys/analytic');
  */
 
 module.exports.run = (bot, message, args) => {
-    if(!Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) && message.author.id != bot.devId) {
+    if(!Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && message.author.id != bot.devId) {
         return message.channel.send("Nincs jogod ehez a parancshoz.");
     }
     
-    var targetMember = Functions.GetMember(message, args, false);
+    var targetMember = Tools.GetMember(message, args, false);
 
     if(targetMember) {
         var reason = args.slice(1).join(" ");

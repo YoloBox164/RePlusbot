@@ -16,6 +16,23 @@
             "type": "INTEGER DEFAULT(0)"
         }
     ],
+    "users": [{
+            "name": "id",
+            "type": "VARCHAR(30) PRIMARY KEY"
+        },
+        {
+            "name": "roleTime",
+            "type": "INTEGER"
+        },
+        {
+            "name": "kicks",
+            "type": "INTEGER"
+        },
+        {
+            "name": "bans",
+            "type": "INTEGER"
+        }
+    ],
     "wumpus": [{
             "name": "id",
             "type": "VARCHAR(30) PRIMARY KEY"

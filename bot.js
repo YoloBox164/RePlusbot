@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 
-const Functions = require('./functions.js');
+const Tools = require('./utils/tools.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
 const secSys = require('./sec-sys');
@@ -12,12 +12,12 @@ const colors = require('colors/safe');
 
 const dateFormat = require('dateformat');
 
-const CONFIG = require('./config.json');
-process.env.mode = CONFIG.mode;
+const Config = require('./config.json');
+process.env.mode = Config.mode;
 
-const SETTINGS = require('./settings.json');
-const functions = require('./functions.js');
-const prefix = SETTINGS.Prefix;
+const Settings = require('./settings.json');
+const prefix = Settings.Prefix;
+
 bot.prefix = prefix;
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
@@ -41,7 +41,7 @@ console.log(colors.yellow("BOT Starting...\n"));
 loadCmds("cmds");
 loadCmds("dev-cmds");
 
-bot.login(CONFIG.TOKEN).catch(console.error);
+bot.login(Config.TOKEN).catch(console.error);
 
 /** @param {number} timestamp */
 bot.logDate = (timestamp) => {
@@ -61,12 +61,17 @@ bot.on('ready', async () => {
 
     /* INIT hardcode channels and guilds */
     mainGuild = bot.guilds.resolve('572873520732831754');
-    logChannel = mainGuild.channels.resolve(SETTINGS.modLogChannelId);
-    welcomeChannel = mainGuild.channels.resolve(SETTINGS.welcomeMsgChannelId);
+    logChannel = mainGuild.channels.resolve(Settings.Channels.modLogId);
+    welcomeChannel = mainGuild.channels.resolve(Settings.Channels.welcomeMsgId);
     devLogChannel = bot.guilds.resolve('427567526935920655').channels.resolve('647420812722307082');
     
+    //Caching msg in the regist channel
+    /** @type {Discord.TextChannel} */
+    let registChannel = bot.channels.resolve(Settings.Channels.registId);
+    registChannel.messages.fetch({cache: true}).catch(console.error);
+
     //Caching the NSFWreactMessage to be able to work with it.
-    /**@type {Discord.TextChannel} */
+    ///**@type {Discord.TextChannel} */
     /*var reactChannel = bot.channels.resolve(SETTINGS.reactChannelId);
     reactChannel.messages.fetch(reactRoles.help.NSFWReactMessage, true).catch(console.error);*/
     
@@ -78,8 +83,8 @@ bot.on('ready', async () => {
     //Init Analytic system
     analytic.Init();
 
-    console.log(colors.bold(`Revolt Bot READY! (${CONFIG.mode})`));
-    logChannel.send(`\`ONLINE\` | \`MODE: ${CONFIG.mode}\``);
+    console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
+    logChannel.send(`\`ONLINE\` | \`MODE: ${Config.mode}\``);
     
     bot.setInterval(() => {
         let status = statuses[Math.floor(Math.random() * statuses.length)];
@@ -151,13 +156,14 @@ bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
     
-    if(CONFIG.mode === "development" || !functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds)) {
+    if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds)) {
         let isMsgDeleted = false;
         if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(message);
         if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(message);
         if(isMsgDeleted) return;
     }
     
+    secSys.Automod.SpamProtection.Check(message);
     secSys.Regist.CheckMsg(message);
 
     analytic.messageCountPlus(message, false);
@@ -222,7 +228,7 @@ bot.on('messageUpdate', (oldMessage, newMessage) => {
     if(newMessage.author.bot) return;
     if(newMessage.channel.type === 'dm') return;
     
-    if(CONFIG.mode === "development" || !functions.MemberHasOneOfTheRoles(newMessage.member, SETTINGS.StaffIds)) {
+    if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(newMessage.member, Settings.StaffIds)) {
         let isMsgDeleted = false;
         if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(newMessage);
         if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(newMessage);
@@ -232,9 +238,9 @@ bot.on('messageUpdate', (oldMessage, newMessage) => {
 
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
-    if(message.channel.id == SETTINGS.upvoteChannelId) {
-        var voteup = message.guild.emojis.cache.get(SETTINGS.emojis.voteupId);
-        var votedown = message.guild.emojis.cache.get(SETTINGS.emojis.votedownId);
+    if(message.channel.id == Settings.Channels.upvoteId) {
+        var voteup = message.guild.emojis.cache.get(Settings.emojis.voteupId);
+        var votedown = message.guild.emojis.cache.get(Settings.emojis.votedownId);
         message.react(voteup).then(msg => msg.message.react(votedown)).catch(console.error);
     }
 }
@@ -296,7 +302,7 @@ bot.on('guildMemberAdd', async member => {
     let logMsg = `${member.user.bot ? "\`BOT\`" : "\`User\`"}: ${member.displayName} (${member.id}) joined the server at \`${bot.logDate(member.joinedTimestamp)}\``;
     
     if(member.guild == mainGuild) {
-        if(member.user.bot) member.roles.add(SETTINGS.AutoBotRoleId);
+        if(member.user.bot) member.roles.add(Settings.Roles.AutoBotId);
         logChannel.send(logMsg);
     } else devLogChannel.send(logMsg);
     
@@ -456,9 +462,9 @@ async function ShutdownCmds(message, args) {
     else if(shutdowns.includes(command)) await shutdown(message, "Shutting down");
     else if(updates.includes(command)) await shutdown(message, "Updating");
     else if(restarts.includes(command)) await shutdown(message, "Restarting");
-    else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode: " + (CONFIG.mode == "development" ? "production." : "development."));
+    else if(switchmodes.includes(command)) await shutdown(message, "Switching to mode: " + (Config.mode == "development" ? "production." : "development."));
     else if(["twitch", "tw"].includes(command)) {
-        if(CONFIG.mode === "production") return;
+        if(Config.mode === "production") return;
         //console.log("Reloading twitch webhook");
         delete require.cache[require.resolve('./twitch.js')];
         const twitch = require('./twitch.js');

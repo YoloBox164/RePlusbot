@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 
-const Functions = require('../functions.js');
+const Tools = require('../utils/tools');
 
 /**
  * @param {Discord.Client} bot The bot itself.
@@ -10,7 +10,7 @@ const Functions = require('../functions.js');
 
 module.exports.run = async (bot, message, args) => {
     var msg = await message.channel.send("Avatár lehívása folyamatban...");
-    var target = Functions.GetMember(message, args);
+    var target = Tools.GetMember(message, args);
 
     var embed = new Discord.MessageEmbed()
         .setTitle(`${target.displayName} avatárja`)

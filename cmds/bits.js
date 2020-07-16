@@ -2,8 +2,8 @@ const Discord = require('discord.js');
 const fs = require('fs');
 const database = require('../database.js');
 const daily = require('../daily.json');
-const Functions = require('../functions.js');
-const SETTINGS = require('../settings.json');
+const Tools = require('../utils/tools.js');
+const Settings = require('../settings.json');
 
 /**
  * @param {Discord.Client} bot The bot itself.
@@ -88,8 +88,8 @@ module.exports.run = (bot, message, args) => {
             }).catch(console.error);
         }).catch(console.error);
     } else if(args[0] === "add") {
-        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
-        var target = Functions.GetMember(message, args.slice(1));
+        if(Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
+        var target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítsgég\` => ${this.helpForInterCmds.add}`);
             return message.channel.send({embed: errorEmbed});
@@ -111,9 +111,9 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`Hozzáadtál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "remove") {
-        if(Functions.MemberHasOneOfTheRoles(message.member, SETTINGS.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
+        if(Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
         
-        var target = Functions.GetMember(message, args.slice(1));
+        var target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.helpForInterCmds.remove}`);
             return message.channel.send({embed: errorEmbed});
@@ -135,7 +135,7 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`Eltávolítottál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "send") {
-        var target = Functions.GetMember(message, args.slice(1));
+        var target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.helpForInterCmds.send}`);
             return message.channel.send({embed: errorEmbed});

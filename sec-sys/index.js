@@ -1,5 +1,6 @@
 const wordfilter = require('./wordfilter');
 const linkfilter = require('./linkfilter');
+const spamProtection = require('./spam-protection');
 const regist = require('./regist');
 
 module.exports = {
@@ -9,6 +10,7 @@ module.exports = {
     },
     Automod: {
         WordFilter: wordfilter,
-        LinkFilter: linkfilter
+        LinkFilter: linkfilter,
+        SpamProtection: spamProtection
     }
 }

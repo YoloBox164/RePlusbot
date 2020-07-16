@@ -5,7 +5,7 @@ const Database = new sqlite('./analytic-sys/database/voicelogs.sqlite');
 
 const colors = require('colors/safe');
 
-const Functions = require('../functions.js');
+const Tools = require('../utils/tools.js');
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -50,12 +50,12 @@ module.exports = {
             Database.pragma("journal_mode = wal");
         }
 
-        console.log(colors.cyan(`DB: ${Functions.FirstCharUpperCase(tableName)} Table is Ready!`));
+        console.log(colors.cyan(`DB: ${Tools.FirstCharUpperCase(tableName)} Table is Ready!`));
         return Table;
     },
 
     /**
-     * @param {string} userid The searched userid.
+     * @param {string} userId The searched userid.
      * @returns {Array<databaseObject>} Table Data.
      */
 

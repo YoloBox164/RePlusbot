@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 
 const Settings = require('../settings.json');
-const SecEmbed = require('./embed');
+const EmbedTemplates = require('../utils/embed-templates');
 
 const BannedPages = require('./blacklisted/pornwebpages.json').concat(require('./blacklisted/webpages.json'));
 
@@ -18,7 +18,9 @@ module.exports = {
         let isDiscordLink = false;
         if(matches != null && matches.length > 0) {
             for(const link of matches) {
-                let { groups } = regexp.exec(link);
+                let match = regexp.exec(link);
+                let groups = null;
+                if(match) groups = match.groups;
                 if(groups && groups.Domain && groups.TLD) {
                     found = BannedPages.some(link => link == `${groups.Domain}.${groups.TLD}`);
                     if(groups.FullDomain == "discord.gg") isDiscordLink = true;
@@ -28,12 +30,22 @@ module.exports = {
         
         if(found) {
             /**@type {Discord.TextChannel} */
-            let logChannel = message.client.channels.resolve(Settings.modLogChannelId);
-            let msg = "Fekete listán lévő oldal küldése.";
-            if(isDiscordLink) msg = "Discord meghívó link küldése.";
-            let embed = SecEmbed.Get(message, msg);
-            logChannel.send({embed: embed});
-            if(message.deletable) message.delete({reason: msg});
+            let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
+
+            let reason = "Fekete listán lévő oldal küldése.";
+            let respReason = "fekete listán lévő oldalt küldtél";
+            
+            if(isDiscordLink) {
+                reason = "Discord meghívó link küldése engedély nélkül.";
+                respReason = "discord meghívó linket küldtél engedély nélkül";
+            }
+
+            let logEmbed = EmbedTemplates.LogMsgDelete(message, reason);
+            logChannel.send({embed: logEmbed});
+
+            message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert ${respReason}.**`);
+
+            if(message.deletable) message.delete({reason: reason});
             return true;
         }
         return false;

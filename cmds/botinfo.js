@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 
-const Functions = require('../functions.js');
+const Tools = require('../utils/tools.js');
 
 /**
  * @param {Discord.Client} bot The bot itself.
@@ -23,7 +23,7 @@ module.exports.run = async (bot, message, args) => {
             **Guildek száma:** *${bot.guilds.cache.size}*
             **Szobák száma:** *${bot.channels.cache.size}*
             **Felhasználók száma:** *${bot.users.cache.size}*\n
-            **Futási idő:** *${Functions.ParseMillisecondsIntoReadableTime(bot.uptime)}*`
+            **Futási idő:** *${Tools.ParseMillisecondsIntoReadableTime(bot.uptime)}*`
         )
         .setThumbnail(bot.user.displayAvatarURL())
         .setColor(message.guild.member(bot.user).displayHexColor);

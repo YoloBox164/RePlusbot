@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
-const { Database } = require('../database.js');
-const Functions = require('../functions.js');
+const { Database }  = require('../database.js');
+const Tools = require('../utils/tools.js');
+const analytic = require('../analytic-sys/analytic');
+const analyticDatabase = require('../analytic-sys/database');
 
 /**
  * @param {Discord.Client} bot The bot itself.
@@ -9,7 +11,7 @@ const Functions = require('../functions.js');
  */
 
 module.exports.run = (bot, message, args) => {
-    var targetMember = Functions.GetMember(message, args);
+    var targetMember = Tools.GetMember(message, args);
     var roleArr = targetMember.roles.cache.array();
     roleArr.pop();
     var roles = roleArr.join(" | ");
@@ -20,6 +22,38 @@ module.exports.run = (bot, message, args) => {
     for(const {warning, time} of warnings) {
         warningStringArr.push(`'${warning}' (${bot.logDate(time)})`)
     }
+
+    // var userData = analytic.GetUserData(targetMember.id);
+    // var userLogs = analyticDatabase.GetData(targetMember.id);
+
+    /* PerDay Logic */
+    // var pastDays = (userLogs[userLogs.length - 1].timestampt - userLogs[0].timestampt) / 1000 / 60 / 60 / 24;
+    // userData.stats.perDay = userData.stats.allTime / pastDays;
+    /*--------------*/
+    
+    /* Activity Hours Logic */
+
+    // var days = [];
+    // var currDate = new Date(userLogs[0].timestampt);
+    // var oneDay = [];
+    // userLogs.forEach(log => {
+    //     if(currDate.getDay == new Date(log.timestampt).getDay) {
+    //         oneDay.push(log);
+    //     } else {
+    //         currDate = new Date(log.timestampt);
+    //         days.push(oneDay);
+    //         oneDay = [];
+    //     }
+    // });
+    // console.log(days);
+
+    /*----------------------*/
+
+    /* Stream Time Logic */
+    
+    /*--------------*/
+
+    // analytic.WriteUserData(targetMember.id, userData);
 
     if(!warningStringArr[0]) warningStringArr[0] = "Nincs";
 
@@ -38,7 +72,9 @@ module.exports.run = (bot, message, args) => {
             **Rangok:** *${roles}*\n
             **Figyelmeztetések:**
             ${warningStringArr.join('\n')}`
-        );
+        )/*.addField("Statok", 
+            `Utolsó Szóba: `
+        )*/;
     message.channel.send({embed: embed})
 }
 

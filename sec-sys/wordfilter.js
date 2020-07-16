@@ -3,7 +3,7 @@ const fs = require('fs');
 const colors = require('colors/safe');
 
 const Settings = require('../settings.json');
-const SecEmbed = require('./embed');
+const EmbedTemplates = require('../utils/embed-templates');
 
 /**@type {RegExp[]} */
 let RegExpWords = [ 
@@ -41,11 +41,16 @@ module.exports = {
             }
         }
         if(found) {
-            /**@type {Discord.TextChannel} */
-            let logChannel = message.client.channels.resolve(Settings.modLogChannelId);
-            let embed = SecEmbed.Get(message, "Fekete listán levő szavak használata.");
-            logChannel.send({embed: embed});
-            if(message.deletable) message.delete({reason: "Fekete listán levő szavak használata."});
+            /** @type {Discord.TextChannel} */
+            let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
+
+            let reason = "Fekete listán levő szavak használata.";
+            let logEmbed = EmbedTemplates.LogMsgDelete(message, reason);
+            logChannel.send({embed: logEmbed});
+
+            message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert fekete listán levő szavakat használtál.**`);
+
+            if(message.deletable) message.delete({reason: reason});
             return true;
         }
         return false;
