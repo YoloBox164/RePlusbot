@@ -4,7 +4,7 @@ const bot = new Discord.Client();
 const Tools = require('./utils/tools.js');
 const database = require('./database.js');
 const daily = require('./daily.json');
-const secSys = require('./sec-sys');
+const SecSys = require('./sec-sys');
 const analytic = require('./analytic-sys/analytic');
 
 const fs = require('fs');
@@ -16,6 +16,7 @@ const Config = require('./config.json');
 process.env.mode = Config.mode;
 
 const Settings = require('./settings.json');
+const EmbedTemplates = require('./utils/embed-templates.js');
 const prefix = Settings.Prefix;
 
 bot.prefix = prefix;
@@ -91,6 +92,15 @@ bot.on('ready', async () => {
         bot.user.setPresence({activity: {name: ` you. | ${status}`, type: "LISTENING"}, status: "online"});
     }, 30000);
 
+    /** Removing mutes or restarting mute timers */
+    for(const userId in SecSys.MuteHandler.MutedUsers) {
+        if(SecSys.MuteHandler.MutedUsers.hasOwnProperty(userId)) {
+            const time = SecSys.MuteHandler.MutedUsers[userId];
+            if(time > Date.now()) SecSys.MuteHandler.Remove(mainGuild.member(userId));
+            else setTimeout(() => SecSys.MuteHandler.Remove(mainGuild.member(userId)), time - Date.now());
+        }
+    }
+
     /*bot.setInterval(() => {
         const MUTES = JSON.parse(fs.readFileSync("./mute.json"));
         for(i in MUTES) {
@@ -150,21 +160,25 @@ bot.on('ready', async () => {
 
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
-bot.on('messageReactionAdd', (messageReaction, user) => { secSys.Regist.CheckReaction(messageReaction, user); });
+bot.on('messageReactionAdd', (messageReaction, user) => { SecSys.Regist.CheckReaction(messageReaction, user); });
 
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
     
     if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds)) {
-        let isMsgDeleted = false;
-        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(message);
-        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(message);
-        if(isMsgDeleted) return;
+        if(SecSys.Automod.LinkFilter.Check(message)) return;
+        if(SecSys.Automod.WordFilter.Check(message)) return;
+        if(SecSys.Automod.SpamProtection.CheckTime(message)) return;
+        if(SecSys.Automod.SpamProtection.CheckContent(message)) return;
     }
-    
-    secSys.Automod.SpamProtection.Check(message);
-    secSys.Regist.CheckMsg(message);
+
+    if(message.channel.id == Settings.Channels.modLogId || message.channel.id == Settings.Channels.automodLogId) {
+        if(message.deletable) message.delete().catch(console.error);
+        message.author.send("A log csatornákba nem küldhetsz üzeneteket.");
+    }
+
+    SecSys.Regist.CheckMsg(message);
 
     analytic.messageCountPlus(message, false);
     upvoteSys(message);
@@ -230,8 +244,8 @@ bot.on('messageUpdate', (oldMessage, newMessage) => {
     
     if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(newMessage.member, Settings.StaffIds)) {
         let isMsgDeleted = false;
-        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.LinkFilter.Check(newMessage);
-        if(!isMsgDeleted) isMsgDeleted = secSys.Automod.WordFilter.Check(newMessage);
+        if(!isMsgDeleted) isMsgDeleted = SecSys.Automod.LinkFilter.Check(newMessage);
+        if(!isMsgDeleted) isMsgDeleted = SecSys.Automod.WordFilter.Check(newMessage);
         if(isMsgDeleted) return;
     }
 });
@@ -346,9 +360,10 @@ process.on('unhandledRejection', err => { errorHandling(err, "Unhandled Rejectio
  * @param {string} msg
  */
 function errorHandling(err, msg, toShutdown = false) {
-    let logMsg = `\`ERROR: ${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\``;
+    let logMsg = `\`${msg}\`\n\`\`\`xl\n${clean(err)}\n\`\`\``;
     if(toShutdown) logMsg += `\n\`SHUTTING DOWN\` | \`${bot.logDate()}\``;
-    if(logChannel) logChannel.send(logMsg).catch(console.error);
+    let embed = EmbedTemplates.Error(logMsg);
+    if(logChannel) logChannel.send({embed: embed}).catch(console.error);
     console.error(err);
     if(toShutdown) bot.setTimeout(() => { bot.destroy() }, 2000);
 }

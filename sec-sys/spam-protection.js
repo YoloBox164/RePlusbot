@@ -1,5 +1,10 @@
 const Discord = require('discord.js');
 
+const EmbedTemplates = require('../utils/embed-templates');
+const Settings = require('../settings.json');
+
+const MuteHandler = require('./mute-handler');
+
 /**
  * @typedef userData
  * @type {Object}
@@ -13,41 +18,83 @@ const Discord = require('discord.js');
 let userCollection = new Discord.Collection();
 
 module.exports.help = {
-    TimeDifferenceTreshold: 2500, //milliseconds
+    /**2.5 sec in milliseconds*/
+    TimeDifferenceTreshold: 2500,
     MessageTreshold: 5,
-    TimeoutTimer: 5000 //milliseconds
+    /**5 sec in milliseconds*/
+    TimeoutTimer: 5000, 
+    FirstLast: {
+        DifferenceTreshold: 1000,
+        MessageTreshold: 2
+    },
+    HalfAnHoureInMilliseconds: 1800000,
+    /**5 min in milliseconds*/
+    MuteTime: 320000
 }
 
 module.exports = {
-    /** @param {Discord.Message} message */
-    Check: (message) => {
+    /** 
+     * @param {Discord.Message} message
+     * @returns {boolean}
+    */
+    CheckTime: (message) => {
         let userData = userCollection.get(message.author.id);
         if(userData) {
+            userData.messageCount++;
+            userData.messages.set(message.id, message);
+
             let difference = message.createdTimestamp - userData.lastMessage.createdTimestamp;
-            console.log(difference);
+            let firstLastDifference = userData.messages.last().createdTimestamp - userData.messages.first().createdTimestamp;
+
             if(difference > this.help.TimeDifferenceTreshold) {
                 clearTimeout(userData.timeout);
                 let messages = CreateMessageCollecton();
                 messages.set(message.id, message);
+
                 userData = {
                     messageCount: 1,
                     messages: messages,
                     lastMessage: message,
-                    timeout: setTimeout(() => {
-                        userCollection.delete(message.author.id);
-                        console.log("Removed user from spam collection.");
-                    }, this.help.TimeoutTimer)
+                    timeout: setTimeout(() => userCollection.delete(message.author.id), this.help.TimeoutTimer)
                 }
+
                 userCollection.set(message.author.id, userData);
+            } else if(userData.messages.size > this.help.FirstLast.MessageTreshold
+              && this.help.FirstLast.DifferenceTreshold > firstLastDifference) {
+                message.channel.bulkDelete(userData.messages).catch(console.error);
+                clearTimeout(userData.timeout);
+                userCollection.delete(message.author.id);
+
+                MuteHandler.Add(message.member, this.help.MuteTime);
+
+                let seconds = firstLastDifference / 1000;
+                let embed = EmbedTemplates.LogSpamDelete(message, `${userData.messages.size} üzenet ${seconds} másodperc alatt.`);
+                /** @type {Discord.TextChannel} */
+                let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
+                logChannel.send({embed: embed});
+                message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert ${userData.messages.size} üzenetet küldtél ${seconds} másodperc alatt.**`);
+
+                return true;
             } else {
-                userData.messageCount++;
                 if(userData.messageCount > this.help.MessageTreshold) {
-                    userData.messages.forEach(msg => { if(msg.deletable) msg.delete(); });
-                    console.log("Spam!");
+                    userData.messages.set(message.id, message);
+                    message.channel.bulkDelete(userData.messages).catch(console.error);
+                    clearTimeout(userData.timeout);
+                    userCollection.delete(message.author.id);
+
+                    MuteHandler.Add(message.member, this.help.MuteTime);
+                    
+                    let embed = EmbedTemplates.LogSpamDelete(message, `${userData.messages.size} üzenet kevesebb mint 5 másodperc alatt.`);
+                    /** @type {Discord.TextChannel} */
+                    let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
+                    logChannel.send({embed: embed});
+                    message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert ${userData.messages.size} üzenetet küldtél kevesebb mint 5 másodperc alatt.**`);
+
+                    return true;
                 } else {
                     userData.lastMessage = message;
                     userData.messages.set(message.id, message);
-                    userCollection.set(message.author.id);
+                    userCollection.set(message.author.id, userData);
                 }
             }
         } else {
@@ -57,13 +104,29 @@ module.exports = {
                 messageCount: 1,
                 messages: messages,
                 lastMessage: message,
-                timeout: setTimeout(() => {
-                    userCollection.delete(message.author.id);
-                    console.log("Removed user from spam collection.");
-                }, this.help.TimeoutTimer)
+                timeout: setTimeout(() => userCollection.delete(message.author.id), this.help.TimeoutTimer)
             }
             userCollection.set(message.author.id, userData);
         }
+        return false;
+    },
+    /** 
+     * @param {Discord.Message} message
+     * @returns {boolean}
+    */
+    CheckContent: (message) => {
+        let userData = userCollection.get(message.author.id);
+        //console.log(userData.lastMessage.content);
+        if(userData && !message.content.startsWith('>')
+          && message.content == userData.lastMessage.content
+          && userData.lastMessage.createdTimestamp < Date.now() - this.help.HalfAnHoureInMilliseconds) {
+            message.channel.bulkDelete(userData.messages).catch(console.error);
+            clearTimeout(userData.timeout);
+            userCollection.delete(message.author.id);
+            console.log("Spam! Delete by content.");
+            return true;
+        }
+        return false;
     }
 }
 

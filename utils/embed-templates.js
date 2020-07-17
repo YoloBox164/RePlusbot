@@ -3,6 +3,21 @@ const Discord = require('discord.js');
 
 module.exports = {
     /**
+     * Use this for logging spamming that got deleted by the auto mod.
+     * @param {Discord.Message} message
+     * @param {string} reason
+     * @returns {Discord.MessageEmbed}
+     */
+    LogSpamDelete: (message, reason) => {
+        let embed = new Discord.MessageEmbed()
+            .setColor("ORANGE")
+            .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
+            .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
+            .addField("Törlés Oka:", reason)
+            .setFooter(`USER_ID: ${message.author.id} • ${message.createdAt.toLocaleString()}`);
+        return embed;
+    },
+    /**
      * Use this for logging messages that got deleted by the auto mod.
      * @param {Discord.Message} message
      * @param {string} reason
@@ -10,7 +25,7 @@ module.exports = {
      */
     LogMsgDelete: (message, reason) => {
         let embed = new Discord.MessageEmbed()
-            .setColor(Discord.Constants.Colors.RED)
+            .setColor("ORANGE")
             .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Üzenet:", message.content)
@@ -39,7 +54,7 @@ module.exports = {
      */
     JoinRequest: (message) => {
         let embed = new Discord.MessageEmbed()
-            .setColor(Discord.Constants.Colors.AQUA)
+            .setColor("AQUA")
             .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
             .setDescription(`${message.member} szeretne csatlakozni a közösségünkbe!`)
             .addField("Üzenet:", message.content)
@@ -47,4 +62,17 @@ module.exports = {
             .setFooter(`USER_ID: ${message.author.id} • ${message.createdAt.toLocaleString()}`);
         return embed;
     },
+    /**
+     * Use this for logging errors.
+     * @param {string} code
+     * @returns {Discord.MessageEmbed}
+     */
+    Error: (code) => {
+        let embed = new Discord.MessageEmbed()
+            .setColor("RED")
+            .setTitle("ERROR")
+            .setDescription(code)
+            .setFooter(`${new Date().toLocaleString()}`);
+        return embed;
+    }
 }
