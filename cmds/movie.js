@@ -3,7 +3,8 @@ const fs = require('fs');
 
 const Settings = require('../settings.json');
 /** @type {Object<string, {ChannelId:string,AuthorId:string}>} */
-const MovieMessages = require('./movie-msg.json');
+const MovieMessages = require('../movie-sys/movie-msg.json');
+/** Relative to bot.js */
 const MovieMessagesJSONPath = "./movie-sys/movie-msg.json";
 const RegexpPatterns = require('../utils/regexp-patterns');
 
