@@ -6,6 +6,7 @@ const database = require('./database.js');
 const daily = require('./daily.json');
 const SecSys = require('./sec-sys');
 const analytic = require('./analytic-sys/analytic');
+const MovieSys = require('./movie-sys');
 
 const fs = require('fs');
 const colors = require('colors/safe');
@@ -22,10 +23,12 @@ const prefix = Settings.Prefix;
 bot.prefix = prefix;
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
+
+/** @type {Discord.Collection<string, cmd>} */
 var devCommands = new Discord.Collection();
-
-
+/** @type {Discord.Collection<string, cmd>} */
 var commands = new Discord.Collection();
+/** @type {Discord.Collection<string, cmd>} */
 var aliasCmds = new Discord.Collection();
 
 /** @type {Discord.Guild} */
@@ -36,6 +39,18 @@ var logChannel;
 var welcomeChannel;
 /** @type {Discord.TextChannel} */
 var devLogChannel;
+
+/**
+ * @typedef {Object} cmd
+ * @property {(bot: Discord.Client, message: Discord.Message, args: Array<string>)=>void} run
+ * @property {Object} help
+ * @property {string} help.cmd
+ * @property {Array<string>} help.alias
+ * @property {string} help.name
+ * @property {string} help.desc
+ * @property {string} help.usage
+ * @property {string} help.category
+*/
 
 //First load of commands -- Future TODO implement Discord.js's Commando.js!!
 console.log(colors.yellow("BOT Starting...\n"));
@@ -70,6 +85,8 @@ bot.on('ready', async () => {
     /** @type {Discord.TextChannel} */
     let registChannel = bot.channels.resolve(Settings.Channels.registId);
     registChannel.messages.fetch({cache: true}).catch(console.error);
+
+    MovieSys.CacheMovieMessages(bot);
 
     //Caching the NSFWreactMessage to be able to work with it.
     ///**@type {Discord.TextChannel} */
@@ -160,7 +177,10 @@ bot.on('ready', async () => {
 
 bot.on('presenceUpdate', async (oldMember, newMember) => CheckWumpus(newMember));
 
-bot.on('messageReactionAdd', (messageReaction, user) => { SecSys.Regist.CheckReaction(messageReaction, user); });
+bot.on('messageReactionAdd', (messageReaction, user) => { 
+    SecSys.Regist.CheckReaction(messageReaction, user);
+    MovieSys.CheckReaction(messageReaction, user);
+});
 
 bot.on('message', async message => {
     if(message.author.bot) return;
@@ -191,19 +211,10 @@ bot.on('message', async message => {
             ShutdownCmds(message, args);
             return;
         }
-        /**
-         * @typedef {(bot: Discord.Client, message: Discord.Message, args: Array<string>)} run
-         * 
-         * @typedef {Object} help
-         * @property {string} cmd
-         * 
-         * @typedef {Object} cmd
-         * @property {run} run
-         * @property {help} help
-        */
+        
 
         /** @type {cmd} */
-        var cmd = devCommands.get(command);
+        let cmd = devCommands.get(command);
         if(cmd) cmd.run(bot, message, args);
 
     } else if(message.content.startsWith(prefix)) {
@@ -212,26 +223,9 @@ bot.on('message', async message => {
         bot.commands = commands;
         bot.aliasCmds = aliasCmds;
 
-        /**
-         * @typedef {(bot: Discord.Client, message: Discord.Message, args: Array<string>)} run
-         *
-         * @typedef {Object} help
-         * @property {string} cmd
-         * @property {Array<string>} alias
-         * @property {string} name
-         * @property {string} desc
-         * @property {string} usage
-         * @property {string} category
-         *
-         * @typedef {Object} cmd
-         * @property {run} run
-         * @property {help} help
-         */
-
-        /** @type {cmd} */
-        var cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
+        let cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
         if(!commands.has(command) && message.content.startsWith("> ")) return;
-        var logMsg = `${message.member.displayName} used the ${cmd.help.cmd} in ${message.channel.name}.`;
+        let logMsg = `${message.member.displayName} used the ${cmd.help.cmd} in ${message.channel.name}.`;
         if(cmd) cmd.run(bot, message, args);
         analytic.messageCountPlus(message, true);
         console.log(colors.cyan(logMsg));

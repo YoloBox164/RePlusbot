@@ -23,7 +23,7 @@ module.exports = {
      * @param {string} reason
      * @returns {Discord.MessageEmbed}
      */
-    LogMsgDelete: (message, reason) => {
+    LogMsgDelete: (message, reason, asd) => {
         let embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
             .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))

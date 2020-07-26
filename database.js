@@ -1,7 +1,7 @@
 const DatabaseTableSchema = require('./database.json');
 
-const sqlite = require('better-sqlite3');
-const Database = new sqlite('./database/database.sqlite');
+const SQLiteConst = require('better-sqlite3');
+const Database = new SQLiteConst('./database/database.sqlite');
 
 const colors = require('colors/safe');
 
@@ -58,7 +58,7 @@ const Tools = require('./utils/tools.js');
 
 module.exports = {
 
-    Database: Database,
+    SQLiteDB: Database,
 
     /**
      * @param {tableName} tableName The name of the table to Prepare for use
