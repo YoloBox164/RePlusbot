@@ -2,12 +2,9 @@ const Discord = require('discord.js');
 const fs = require('fs');
 
 const Settings = require('../settings.json');
-/** @type {Object<string, {ChannelId:string,AuthorId:string}>} */
-const MovieMessages = require('../movie-sys/movie-msg.json');
-/** Relative to bot.js */
-const MovieMessagesJSONPath = "./movie-sys/movie-msg.json";
 const RegexpPatterns = require('../utils/regexp-patterns');
 
+const MoiveSys = require('../movie-sys');
 const Tools = require('../utils/tools');
 
 /**
@@ -32,13 +29,14 @@ module.exports.run = (bot, message, args) => {
     if(match.groups.guildId != message.guild.id) return;
     /** @type {Discord.TextChannel} */
     let movieMsgChannel = bot.channels.resolve(match.groups.channelId);
-    if(!movieMsgChannel)  return;
+    if(!movieMsgChannel) return;
     movieMsgChannel.messages.fetch(match.groups.messageId, true).then(movieMsg => {
+        const MovieMessages = MoiveSys.GetJSON();
         MovieMessages[`${movieMsg.id}`] = {
             AuthorId: movieMsg.author.id,
             ChannelId: movieMsgChannel.id
         }
-        fs.writeFile(MovieMessagesJSONPath, JSON.stringify(MovieMessages, null, 4), err => { if(err) throw err; });
+        MoiveSys.AddToJSON(MovieMessages);
         movieMsg.react(Settings.emojis.ticket);
         message.channel.send("Sikeresen létrehoztál egy jegy vásárlói üzenetet. Az üzenet törlésével tudod megállítani a jegyek vásárlását.");
     }).catch(console.error);

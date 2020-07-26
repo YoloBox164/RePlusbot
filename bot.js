@@ -243,6 +243,8 @@ bot.on('messageUpdate', (oldMessage, newMessage) => {
     }
 });
 
+bot.on('messageDelete', (message) => { MovieSys.CheckDeletedMsg(message); });
+
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
     if(message.channel.id == Settings.Channels.upvoteId) {
