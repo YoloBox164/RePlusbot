@@ -6,7 +6,6 @@ const Database = require('../database');
 /** @type {Object<string, {ChannelId:string,AuthorId:string}>} */
 const MovieMessages = require('./movie-msg.json');
 const MovieMessagesJSONPath = "./movie-sys/movie-msg.json";
-const RegexpPatterns = require('../utils/regexp-patterns');
 
 const TicketPrice = 250 //Bit
 

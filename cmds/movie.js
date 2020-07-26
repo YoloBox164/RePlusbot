@@ -29,19 +29,21 @@ module.exports.run = (bot, message, args) => {
         message.channel.send("Nem találtam megfelelő Discord Üzenet Linket!");
         return;
     }
-    if(match.groups.guildId != message.guild.id) return;
+    console.log(match);
+    if(match.groups.guildId != message.guild.id) { console.log("mismatch of guilds"); return; }
     /** @type {Discord.TextChannel} */
     let movieMsgChannel = bot.channels.resolve(match.groups.channelId);
-    if(movieMsgChannel === null) return;
-    let movieMsg = movieMsgChannel.messages.resolve(match.groups.messageId);
-    if(movieMsg === null) return;
-    MovieMessages[`${movieMsg.id}`] = {
-        AuthorId: movieMsg.author.id,
-        ChannelId: movieMsgChannel.id
-    }
-    fs.writeFile(MovieMessagesJSONPath, JSON.stringify(MovieMessages, null, 4), err => { if(err) throw err; });
-    movieMsg.react(Settings.emojis.ticket);
-    message.channel.send("Sikeresen létrehoztál egy jegy vásárlói üzenetet. Az üzenet törlésével tudod megállítani a jegyek vásárlását.");
+    if(!movieMsgChannel) { console.log("not found channel"); return; }
+    movieMsgChannel.messages.fetch(match.groups.messageId, true).then(movieMsg => {
+        MovieMessages[`${movieMsg.id}`] = {
+            AuthorId: movieMsg.author.id,
+            ChannelId: movieMsgChannel.id
+        }
+        fs.writeFile(MovieMessagesJSONPath, JSON.stringify(MovieMessages, null, 4), err => { if(err) throw err; });
+        movieMsg.react(Settings.emojis.ticket);
+        message.channel.send("Sikeresen létrehoztál egy jegy vásárlói üzenetet. Az üzenet törlésével tudod megállítani a jegyek vásárlását.");
+    }).catch(console.error);
+
 }
 
 module.exports.help = {
