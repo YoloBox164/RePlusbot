@@ -11,7 +11,7 @@ module.exports.run = (bot, message, args) => {
         message.channel.send("Nincsen emotikon kezelési jogusultságod.");
         return;
     }
-    
+
     let emojiString = args[0];
     if(!emojiString) {
         message.channel.send("Nincs emoji megadva!");
@@ -27,7 +27,6 @@ module.exports.run = (bot, message, args) => {
         if(matches && matches.length > 0) for(const role of matches) roles.push(role.replace(/[<@&>]/g, ''));
         emoji.roles.set(roles);
     }
-    console.log(emoji.roles.cache);
 }
 
 module.exports.help = {
