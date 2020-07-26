@@ -29,11 +29,10 @@ module.exports.run = (bot, message, args) => {
         message.channel.send("Nem találtam megfelelő Discord Üzenet Linket!");
         return;
     }
-    console.log(match);
-    if(match.groups.guildId != message.guild.id) { console.log("mismatch of guilds"); return; }
+    if(match.groups.guildId != message.guild.id) return;
     /** @type {Discord.TextChannel} */
     let movieMsgChannel = bot.channels.resolve(match.groups.channelId);
-    if(!movieMsgChannel) { console.log("not found channel"); return; }
+    if(!movieMsgChannel)  return;
     movieMsgChannel.messages.fetch(match.groups.messageId, true).then(movieMsg => {
         MovieMessages[`${movieMsg.id}`] = {
             AuthorId: movieMsg.author.id,
