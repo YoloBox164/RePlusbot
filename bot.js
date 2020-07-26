@@ -211,7 +211,6 @@ bot.on('message', async message => {
             ShutdownCmds(message, args);
             return;
         }
-        
 
         /** @type {cmd} */
         let cmd = devCommands.get(command);
