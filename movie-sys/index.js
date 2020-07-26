@@ -17,11 +17,15 @@ module.exports = {
                 const movieMsgData = MovieMessages[messageId];
                 /** @type {Discord.TextChannel} */
                 const channel = bot.channels.resolve(movieMsgData.ChannelId);
-                if(channel) channel.messages.fetch(messageId, true).catch(console.error);
-                else {
+                if(!channel) { 
                     delete MovieMessages[`${messageId}`];
                     fs.writeFile(MovieMessagesJSONPath, JSON.stringify(MovieMessages, null, 4), err => { if(err) throw err; });
+                    continue; 
                 }
+                channel.messages.fetch(messageId, true).catch(reason => {
+                    channel.guild.members.cache.forEach(m => m.roles.remove(Settings.Roles.TicketRoleId));
+                    console.error(reason);
+                });
             }
         }
     },
