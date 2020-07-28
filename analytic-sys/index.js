@@ -75,6 +75,7 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     const userId = newVoiceState.id
     const userData = GetUserData(userId);
     if(!userData.voiceChannels) userData.voiceChannels = {};
+    if(!userData.lastVoiceChannel) userData.lastVoiceChannel = {};
 
     const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
     /**@type {Array<voiceLogData>}*/
@@ -160,7 +161,7 @@ function GetAllUserData() {
                     const userData = JSON.parse(fs.readFileSync(usersPath + file));
                     if(userData.channels) { //Old json data
                         let fixedUserData = User();
-                        fixedUserData.lastVoiceChannel = userData.lastVoiceChannel;
+                        fixedUserData.lastVoiceChannel = userData.lastChannel;
                         fixedUserData.stats.allTime = userData.stats.voice.allTime;
                         fixedUserData.stats.commandUses = userData.stats.text.commandUses;
                         fixedUserData.stats.messages = userData.stats.text.messages;
@@ -187,7 +188,7 @@ function GetUserData(userId) {
         userData = JSON.parse(fs.readFileSync(usersPath + `${userId}.json`));
         if(userData.channels) { //Old json data
             let fixedUserData = User();
-            fixedUserData.lastVoiceChannel = userData.lastVoiceChannel;
+            fixedUserData.lastVoiceChannel = userData.lastChannel;
             fixedUserData.stats.allTime = userData.stats.voice.allTime;
             fixedUserData.stats.commandUses = userData.stats.text.commandUses;
             fixedUserData.stats.messages = userData.stats.text.messages;
