@@ -163,7 +163,7 @@ function GetAllUserData() {
                         fixedUserData.stats.allTime = userData.stats.voice.allTime;
                         fixedUserData.stats.commandUses = userData.stats.text.commandUses;
                         fixedUserData.stats.messages = userData.stats.text.messages;
-                        fixedUserData.voiceChannels = fixedUserData.channels;
+                        fixedUserData.voiceChannels = userData.channels;
                         WriteUserData(userId, fixedUserData);
                         users.set(userId, fixedUserData);
                     } else users.set(userId, userData);
@@ -190,7 +190,7 @@ function GetUserData(userId) {
             fixedUserData.stats.allTime = userData.stats.voice.allTime;
             fixedUserData.stats.commandUses = userData.stats.text.commandUses;
             fixedUserData.stats.messages = userData.stats.text.messages;
-            fixedUserData.voiceChannels = fixedUserData.channels;
+            fixedUserData.voiceChannels = userData.channels;
             WriteUserData(userId, fixedUserData);
             return fixedUserData;
         }
