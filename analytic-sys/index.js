@@ -87,6 +87,7 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
         if(!userData.voiceChannels[oldVoiceState.channelID]) {
             userData.voiceChannels[oldVoiceState.channelID] = {
                 id: oldVoiceState.channelID,
+                name: oldVoiceState.channel.name,
                 time: pastTime,
                 lastJoinTimestampt: last2Data[1].timestampt
             };
@@ -183,6 +184,16 @@ function GetUserData(userId) {
     let userData = User();
     if(fs.existsSync(usersPath + `${userId}.json`)) {
         userData = JSON.parse(fs.readFileSync(usersPath + `${userId}.json`));
+        if(userData.channels) { //Old json data
+            let fixedUserData = User();
+            fixedUserData.lastVoiceChannel = userData.lastVoiceChannel;
+            fixedUserData.stats.allTime = userData.stats.voice.allTime;
+            fixedUserData.stats.commandUses = userData.stats.text.commandUses;
+            fixedUserData.stats.messages = userData.stats.text.messages;
+            fixedUserData.voiceChannels = fixedUserData.channels;
+            WriteUserData(userId, fixedUserData);
+            return fixedUserData;
+        }
     }
     return userData;
 }
