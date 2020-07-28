@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const RegexpPatterns = require("../utils/regexp-patterns");
+const RegexpPatterns = require("../../utils/regexp-patterns");
 
 /**
  * @param {Discord.Client} bot The bot itself.

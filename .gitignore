@@ -4,6 +4,7 @@ config.json
 .vscode/
 logs/
 node_modules/
+storage/
 database/database.sqlite-*
 analytic-sys/database/
 OLD/

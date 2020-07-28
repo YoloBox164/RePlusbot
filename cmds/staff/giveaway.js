@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 
 const fs = require('fs');
 
-const Settings = require('../settings.json');
+const Settings = require('../../settings.json');
 
 const times = {
     millis: {

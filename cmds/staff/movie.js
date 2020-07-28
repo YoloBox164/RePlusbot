@@ -1,11 +1,11 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 
-const Settings = require('../settings.json');
-const RegexpPatterns = require('../utils/regexp-patterns');
+const Settings = require('../../settings.json');
+const RegexpPatterns = require('../../utils/regexp-patterns');
 
-const MoiveSys = require('../movie-sys');
-const Tools = require('../utils/tools');
+const MoiveSys = require('../../movie-sys');
+const Tools = require('../../utils/tools');
 
 /**
  * @param {Discord.Client} bot The bot itself.

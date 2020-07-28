@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 
-const Tools = require('../utils/tools');
-const Settings = require('../settings.json');
+const Tools = require('../../utils/tools');
+const Settings = require('../../settings.json');
 
 /**
  * @param {Discord.Client} bot The bot itself.

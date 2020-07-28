@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
 const fs = require('fs');
-const database = require('../database.js');
-const daily = require('../daily.json');
-const Tools = require('../utils/tools.js');
-const Settings = require('../settings.json');
+const database = require('../../database');
+const daily = require('../../storage/daily.json');
+const Tools = require('../../utils/tools.js');
+const Settings = require('../../settings.json');
 
 /**
  * @param {Discord.Client} bot The bot itself.

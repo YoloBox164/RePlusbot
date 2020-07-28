@@ -2,10 +2,10 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 
 const Tools = require('./utils/tools.js');
-const database = require('./database.js');
-const daily = require('./daily.json');
+const database = require('./database');
+const daily = require('./storage/daily.json');
 const SecSys = require('./sec-sys');
-const analytic = require('./analytic-sys/analytic');
+const analytic = require('./analytic-sys');
 const MovieSys = require('./movie-sys');
 
 const fs = require('fs');
@@ -24,11 +24,13 @@ bot.prefix = prefix;
 bot.devPrefix = '#>';
 bot.devId = "333324517730680842";
 
+/** @type {Discord.Collection<string, Array<string>} */
+var categories = new Discord.Collection();
 /** @type {Discord.Collection<string, cmd>} */
 var devCommands = new Discord.Collection();
 /** @type {Discord.Collection<string, cmd>} */
 var commands = new Discord.Collection();
-/** @type {Discord.Collection<string, cmd>} */
+/** @type {Discord.Collection<string, string} */
 var aliasCmds = new Discord.Collection();
 
 /** @type {Discord.Guild} */
@@ -40,22 +42,9 @@ var welcomeChannel;
 /** @type {Discord.TextChannel} */
 var devLogChannel;
 
-/**
- * @typedef {Object} cmd
- * @property {(bot: Discord.Client, message: Discord.Message, args: Array<string>)=>void} run
- * @property {Object} help
- * @property {string} help.cmd
- * @property {Array<string>} help.alias
- * @property {string} help.name
- * @property {string} help.desc
- * @property {string} help.usage
- * @property {string} help.category
-*/
-
 //First load of commands -- Future TODO implement Discord.js's Commando.js!!
 console.log(colors.yellow("BOT Starting...\n"));
-loadCmds("cmds");
-loadCmds("dev-cmds");
+loadCmds();
 
 bot.login(Config.TOKEN).catch(console.error);
 
@@ -106,7 +95,7 @@ bot.on('ready', async () => {
     
     bot.setInterval(() => {
         let status = statuses[Math.floor(Math.random() * statuses.length)];
-        bot.user.setPresence({activity: {name: ` you. | ${status}`, type: "LISTENING"}, status: "online"});
+        bot.user.setPresence({activity: {name: `you | ${status}`, type: "WATCHING"}, status: "online"});
     }, 30000);
 
     /** Removing mutes or restarting mute timers */
@@ -138,8 +127,9 @@ bot.on('ready', async () => {
             }
         }
     }, 10000);*/
+
     bot.setInterval(async () => {
-        const Giveaways = JSON.parse(fs.readFileSync("./giveaways.json"));
+        const Giveaways = JSON.parse(fs.readFileSync("./storage/giveaways.json"));
         for(i in Giveaways) {
             /** @type {number} */
             var date = Giveaways[i].date;
@@ -185,7 +175,7 @@ bot.on('messageReactionAdd', (messageReaction, user) => {
 bot.on('message', async message => {
     if(message.author.bot) return;
     if(message.channel.type === 'dm') return;
-    
+
     if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds)) {
         if(SecSys.Automod.LinkFilter.Check(message)) return;
         if(SecSys.Automod.WordFilter.Check(message)) return;
@@ -194,14 +184,17 @@ bot.on('message', async message => {
     }
 
     if(message.channel.id == Settings.Channels.modLogId || message.channel.id == Settings.Channels.automodLogId) {
-        if(message.deletable) message.delete().catch(console.error);
-        message.author.send("A log csatornákba nem küldhetsz üzeneteket.");
+        let reason = "A log csatornákba nem küldhetsz üzeneteket."
+        if(message.deletable) message.delete({reason: reason}).catch(console.error);
+        message.author.send(reason);
     }
 
     SecSys.Regist.CheckMsg(message);
 
     analytic.messageCountPlus(message, false);
     upvoteSys(message);
+
+    if(message.mentions.has(bot.user)) message.channel.send("`>help` » Ha kell segítség használatomhoz.");
 
     if(message.content.startsWith(">:")) return;
 
@@ -222,12 +215,15 @@ bot.on('message', async message => {
         bot.commands = commands;
         bot.aliasCmds = aliasCmds;
 
-        let cmd = commands.get(command) || commands.get(aliasCmds.get(command)) || commands.get("help");
-        if(!commands.has(command) && message.content.startsWith("> ")) return;
-        let logMsg = `${message.member.displayName} used the ${cmd.help.cmd} in ${message.channel.name}.`;
-        if(cmd) cmd.run(bot, message, args);
+        let cmd = commands.get(command) || commands.get(aliasCmds.get(command));
+        if(cmd) {
+            if(message.content.startsWith("> ")) return;
+            let logMsg = `${message.member.displayName} used the ${cmd.help.cmd} in ${message.channel.name}.`;
+            cmd.run(bot, message, args);
+            console.log(colors.cyan(logMsg));
+        }
+        else message.channel.send("`>help` » Ha kell segítség használatomhoz.");
         analytic.messageCountPlus(message, true);
-        console.log(colors.cyan(logMsg));
     }
 });
 
@@ -363,38 +359,50 @@ function errorHandling(err, msg, toShutdown = false) {
     if(toShutdown) bot.setTimeout(() => { bot.destroy() }, 2000);
 }
 
-function loadCmds(dir) {
-    fs.readdir(`./${dir}/`, (err, files) => {
+function loadCmds() {
+    fs.readdir("./cmds/", (err, dirs) => {
         if(err) console.error(`ERROR: ${err}`);
+        dirs.forEach(dir => {
+            fs.readdir(`./cmds/${dir}/`, (err, files) => {
+                if(err) console.error(`ERROR: ${err}`);
 
-        var jsfiles = files.filter(f => f.split(".").pop() === "js");
-        if(jsfiles.length <= 0) {
-            console.log(colors.red("ERROR: No commands to load!"));
-            return;
-        }
+                var jsfiles = files.filter(f => f.split(".").pop() === "js");
+                if(jsfiles.length <= 0) {
+                    console.log(colors.red("ERROR: No commands to load!"));
+                    return;
+                }
 
-        console.log(colors.cyan(`Loading ${jsfiles.length} bot commands! (${dir})`));
+                console.log(colors.cyan(`Loading ${jsfiles.length} ${dir} commands!`));
 
-        jsfiles.forEach((f, i) => {
-            delete require.cache[require.resolve(`./${dir}/${f}`)];
-            var props = require(`./${dir}/${f}`);
-            console.log(colors.white(`${i + 1}: ${f} loaded!`));
-            if(dir == "dev-cmds") {
-                devCommands.set(props.help.cmd, props);
-            } else {
-                commands.set(props.help.cmd, props);
-                props.help.alias.forEach((name) => {
-                    aliasCmds.set(name, props.help.cmd);
+                /** @type {string[]} */
+                let cmdNames = [];
+
+                jsfiles.forEach((f, i) => {
+                    delete require.cache[require.resolve(`./cmds/${dir}/${f}`)];
+                    /** @type {cmd} */
+                    var props = require(`./cmds/${dir}/${f}`);
+                    console.log(colors.white(`${i + 1}: ${f} loaded!`));
+                    cmdNames.push(props.help.cmd);
+                    if(dir == "dev") devCommands.set(props.help.cmd, props);
+                    else {
+                        commands.set(props.help.cmd, props);
+                        props.help.alias.forEach((name) => {
+                            aliasCmds.set(name, props.help.cmd);
+                        });
+                    }
                 });
-            }
+
+                categories.set(dir, cmdNames);
+
+                if(dir != "dev") {
+                    bot.categories = categories;
+                    bot.commands = commands;
+                    bot.aliasCmds = aliasCmds;
+                }
+
+                console.log(colors.cyan(`Successfully loaded ${jsfiles.length} ${dir} commands!\n`));
+            });
         });
-
-        if(dir != "dev-cmds") {
-            bot.commands = commands;
-            bot.aliasCmds = aliasCmds;
-        }
-
-        console.log(colors.cyan(`Successfully loaded ${jsfiles.length} commands!\n`));
     });
 }
 
@@ -489,7 +497,7 @@ async function ShutdownCmds(message, args) {
 async function shutdown(message, text) {
     await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
-    database.Database.close();
+    database.SQLiteDB.close();
     analytic.Shut();
     console.log(text);
     bot.destroy();

@@ -1,13 +1,62 @@
 const Discord = require('discord.js');
 
+const CategoryTranslation = {
+    analytic: "Analitikus",
+    dev: "Fejlesztő",
+    economy: "Economy",
+    fun: "Szorakoztató",
+    info: "Infó",
+    misc: "Melékleges",
+    mod: "Moderátor",
+    staff: "Staff",
+    test: "Teszt",
+    utility: "Hasznos"
+} 
+
 /**
  * @param {Discord.Client} bot The bot itself.
  * @param {Discord.Message} message Discord message.
  * @param {Array<string>} args The message.content in an array without the command.
  */
-
 module.exports.run = (bot, message, args) => {
-    var pageSystem = {
+    /** @type {Discord.Collection<string, Array<string>} */
+    const categories = bot.categories;
+    /** @type {Discord.Collection<string, cmd} */
+    const commands = bot.commands;
+
+    const embed = new Discord.MessageEmbed()
+        .setTitle("Parancs Lista")
+        .setColor(message.guild.member(bot.user).displayHexColor)
+        .setDescription("**`>help <parancs>` » Leírja az adott parancsot.** (A zárójelek közöttire kell rá keresni.)")
+        .addField("Szímbólumok jelentése:", "<opcionális> | [kötelező]", true);
+    
+    if(args[0]) {
+        const cmd = commands.get(args[0].toLowerCase()) || commands.get(bot.aliasCmds.get(args[0].toLowerCase()));
+        if(cmd) {
+            embed.addField(cmd.help.name,
+                `**Parancs:** *${cmd.help.cmd}*
+                **Leírás:** *${cmd.help.desc}*
+                **Használat:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Álnevek:** \`>" + cmd.help.alias.join(" | >") + "\`" : ""}`
+            );
+            message.channel.send({embed: embed});
+        } else message.channel.send("Nem találtam ilyen parancsot.");
+        
+    } else {
+        categories.forEach((cmdNames, category) => {
+            if(category !== "dev" && category !== "test") {
+                let cmds = [];
+                cmdNames.forEach(cmdName => {
+                    const cmd = commands.get(cmdName);
+                    cmds.push(`\`${cmd.help.name} (${cmd.help.cmd})\``);
+                });
+                embed.addField(`${CategoryTranslation[category]} ─ ${cmdNames.length}`, `${cmds.join(" | ")}`);
+            }
+        });
+        message.channel.send({embed: embed});
+    }
+    
+
+    /*var pageSystem = {
         currentPage: 1,
         pages: [],
         indexHelp: []
@@ -17,8 +66,7 @@ module.exports.run = (bot, message, args) => {
         pageSystem.pages.push(
             `**Név:** *${cmd.help.name}*
             **Leírás:** *${cmd.help.desc}*
-            **Használat:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Álnevek:** \`>" + cmd.help.alias.join(" | >") + "\`" : ""}
-            **Kategória:** *${cmd.help.category}*`
+            **Használat:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Álnevek:** \`>" + cmd.help.alias.join(" | >") + "\`" : ""}`
         );
         pageSystem.indexHelp.push(cmd.help.cmd);
     });
@@ -70,7 +118,7 @@ module.exports.run = (bot, message, args) => {
                 msg.edit({embed: embed}).catch(console.error);
             });
         }).catch(console.error);
-    }).catch(console.error);
+    }).catch(console.error);*/
 }
 
 module.exports.help = {
@@ -78,7 +126,5 @@ module.exports.help = {
     alias: ["segitseg", "segítség"],
     name: "Segítség",
     desc: "Leírások a parancsokról",
-    usage: ">help <oldal / parancs>",
-    category: "felhasználói"
-
+    usage: ">help <oldal / parancs>"
 }

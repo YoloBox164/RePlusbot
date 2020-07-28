@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-const { Database }  = require('../database.js');
-const Tools = require('../utils/tools.js');
-const analytic = require('../analytic-sys/analytic');
-const analyticDatabase = require('../analytic-sys/database');
+const { Database }  = require('../../database');
+const Tools = require('../../utils/tools.js');
+const analytic = require('../../analytic-sys');
+const analyticDatabase = require('../../analytic-sys/database');
 
 /**
  * @param {Discord.Client} bot The bot itself.

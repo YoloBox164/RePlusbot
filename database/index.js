@@ -1,11 +1,11 @@
 const DatabaseTableSchema = require('./database.json');
 
 const SQLiteConst = require('better-sqlite3');
-const Database = new SQLiteConst('./database/database.sqlite');
+const Database = new SQLiteConst('./database/database.sqlite'); // Path relative to bot.js
 
 const colors = require('colors/safe');
 
-const Tools = require('./utils/tools.js');
+const Tools = require('../utils/tools');
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////

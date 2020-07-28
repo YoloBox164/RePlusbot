@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const Database = require('./database');
 
-const usersPath = "./analytic-sys/database/users/";
+const usersPath = "./analytic-sys/database/users/"; //Path is relative to bot.js
 
 /**
  * @typedef voiceLogData
@@ -16,9 +16,17 @@ const usersPath = "./analytic-sys/database/users/";
 */
 
 /**
- * @typedef userChannelData
+ * @typedef userTextChannelData
  * @type {object}
  * @property {string} id
+ * @property {string} name
+ * @property {number} messages
+ * @property {number} commandUses
+ * 
+ * @typedef userVoiceChannelData
+ * @type {object}
+ * @property {string} id
+ * @property {string} name
  * @property {number} time
  * @property {number} lastJoinTimestampt
  * 
@@ -29,24 +37,16 @@ const usersPath = "./analytic-sys/database/users/";
  * 
  * @typedef userData
  * @type {object}
- * @property {Object} lastChannel
- * @property {string} lastChannel.id
- * @property {number} lastChannel.joinedTimestampt
- * @property {number} lastChannel.leavedTimestampt
- * @property {Object.<string, userChannelData>} channels
+ * @property {Object} lastVoiceChannel
+ * @property {string} lastVoiceChannel.id
+ * @property {number} lastVoiceChannel.joinedTimestampt
+ * @property {number} lastVoiceChannel.leavedTimestampt
  * @property {Object} stats
- * @property {Object} stats.voice
- * @property {Object} stats.voice.activityHours
- * @property {number} stats.voice.activityHours.start
- * @property {number} stats.voice.activityHours.end
- * @property {number} stats.voice.allTime
- * @property {number} stats.voice.perDay
- * @property {number} stats.voice.streamTime
- * @property {Object} stats.text
- * @property {number} stats.text.messages
- * @property {number} stats.text.commandUses
- * @property {string} mostUsedChannelId
- * @property {Array<warning>} warnings
+ * @property {number} stats.allTime
+ * @property {number} stats.messages
+ * @property {number} stats.commandUses
+ * @property {Object<string, userTextChannelData>} textChannels
+ * @property {Object<string, userVoiceChannelData>} voiceChannels
  */
 
 /*
@@ -82,31 +82,31 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     //only if leaving or changing channels
     if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
         var pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
-        userData.stats.voice.allTime += pastTime;
+        userData.stats.allTime += pastTime;
 
-        if(!userData.channels[oldVoiceState.channelID]) {
-            userData.channels[oldVoiceState.channelID] = {
+        if(!userData.voiceChannels[oldVoiceState.channelID]) {
+            userData.voiceChannels[oldVoiceState.channelID] = {
                 id: oldVoiceState.channelID,
                 time: pastTime,
                 lastJoinTimestampt: last2Data[1].timestampt
             };
         } else {
-            userData.channels[oldVoiceState.channelID].time += pastTime;
-            userData.channels[oldVoiceState.channelID].lastJoinTimestampt = last2Data[1].timestampt;
+            userData.voiceChannels[oldVoiceState.channelID].time += pastTime;
+            userData.voiceChannels[oldVoiceState.channelID].lastJoinTimestampt = last2Data[1].timestampt;
         }
     }
 
     //If Joining or Changing channels
     if(newVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
-        userData.lastChannel.id = newVoiceState.channelID;
-        userData.lastChannel.joinedTimestampt = last2Data[0].timestampt;
-        userData.lastChannel.leavedTimestampt = -1;
+        userData.lastVoiceChannel.id = newVoiceState.channelID;
+        userData.lastVoiceChannel.joinedTimestampt = last2Data[0].timestampt;
+        userData.lastVoiceChannel.leavedTimestampt = -1;
     }
     //if leaving channel
     else if(oldVoiceState.channelID && !newVoiceState.channelID) {
-        userData.lastChannel.id = oldVoiceState.channelID;
-        userData.lastChannel.joinedTimestampt = last2Data[1].timestampt;
-        userData.lastChannel.leavedTimestampt = last2Data[0].timestampt;
+        userData.lastVoiceChannel.id = oldVoiceState.channelID;
+        userData.lastVoiceChannel.joinedTimestampt = last2Data[1].timestampt;
+        userData.lastVoiceChannel.leavedTimestampt = last2Data[0].timestampt;
     }
 
     WriteUserData(userId, userData);
@@ -119,8 +119,8 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
 module.exports.messageCountPlus = (message, isCommandTrue) => {
     var userId = message.author.id;
     var userData = GetUserData(userId);
-    if(!isCommandTrue) userData.stats.text.messages += 1;
-    if(isCommandTrue) userData.stats.text.commandUses += 1;
+    userData.stats.messages += 1;
+    if(isCommandTrue) userData.stats.commandUses += 1;
     WriteUserData(userId, userData);
 }
 
@@ -138,6 +138,32 @@ function VoiceLogger(oldVoiceState, newVoiceState) {
 
     Database.AddData(voiceLog);
 }
+
+/**@returns {Promise<Discord.Collection<string, userData>>} */
+function GetAllUserData() {
+    /** @type {Promise<Discord.Collection<string, userData>>} */
+    const promise = new Promise((resolve, reject) => {
+        /** @type {Discord.Collection<string, userData>} */
+        const users = new Discord.Collection();
+        fs.readdir(usersPath, (err, files) => {
+            if(err) throw err;
+
+            const jsonfiles = files.filter(f => f.split('.').pop() === "json");
+            if(jsonfiles.length <= 0) return;
+            
+            jsonfiles.forEach(file => {
+                if(fs.existsSync(usersPath + file)) {
+                    /** @type {userData} */
+                    const userData = JSON.parse(fs.readFileSync(usersPath + file));
+                    users.set(file.split('.')[0], userData);
+                }
+            });
+            resolve(users);
+        });
+    });
+    return promise;
+}
+module.exports.GetAllUserData = GetAllUserData;
 
 /**
  * @param {string} userId
@@ -174,29 +200,18 @@ function Log() {
 /** @returns {userData} */ 
 function User() {
     var user = {
-        lastChannel: {
+        lastVoiceChannel: {
             id: "",
             joinedTimestampt: 0,
             leavedTimestampt: 0
         },
-        channels: {},
         stats: {
-            voice: {
-                activityHours: {
-                    start: 0,
-                    end: 0
-                },
-                allTime: 0,
-                perDay: 0,
-                streamTime: 0,
-            },
-            text: {
-                messages: 0,
-                commandUses: 0
-            }
+            allTime: 0,
+            messages: 0,
+            commandUses: 0
         },
-        mostUsedChannelId: "",
-        warnings: []
+        textChannels: {},
+        voiceChannels: {}
     };
     return user;
 }
