@@ -72,16 +72,17 @@ module.exports.Shut = () => {
 module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     VoiceLogger(oldVoiceState, newVoiceState);
 
-    var userId = newVoiceState.id
-    var userData = GetUserData(userId);
+    const userId = newVoiceState.id
+    const userData = GetUserData(userId);
+    if(!userData.voiceChannels) userData.voiceChannels = {};
 
-    var query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
+    const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
     /**@type {Array<voiceLogData>}*/
-    var last2Data = Database.SQLiteDb.prepare(query).all(userId); //Data[0] New Data | Data[1] Old Data
+    const last2Data = Database.SQLiteDb.prepare(query).all(userId); //Data[0] New Data | Data[1] Old Data
     if(last2Data.length < 2) return;
     //only if leaving or changing channels
     if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
-        var pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
+        const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
         userData.stats.allTime += pastTime;
 
         if(!userData.voiceChannels[oldVoiceState.channelID]) {
