@@ -75,7 +75,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     const userId = newVoiceState.id
     const userData = GetUserData(userId);
     if(!userData.voiceChannels) userData.voiceChannels = {};
-    if(!userData.lastVoiceChannel) userData.lastVoiceChannel = {};
 
     const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
     /**@type {Array<voiceLogData>}*/
@@ -101,15 +100,19 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
 
     //If Joining or Changing channels
     if(newVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
-        userData.lastVoiceChannel.id = newVoiceState.channelID;
-        userData.lastVoiceChannel.joinedTimestampt = last2Data[0].timestampt;
-        userData.lastVoiceChannel.leavedTimestampt = -1;
+        userData.lastVoiceChannel = {
+            id: newVoiceState.channelID,
+            joinedTimestampt: last2Data[0].timestampt,
+            leavedTimestampt: -1
+        };
     }
     //if leaving channel
     else if(oldVoiceState.channelID && !newVoiceState.channelID) {
-        userData.lastVoiceChannel.id = oldVoiceState.channelID;
-        userData.lastVoiceChannel.joinedTimestampt = last2Data[1].timestampt;
-        userData.lastVoiceChannel.leavedTimestampt = last2Data[0].timestampt;
+        userData.lastVoiceChannel = {
+            id: oldVoiceState.channelID,
+            joinedTimestampt: last2Data[1].timestampt,
+            leavedTimestampt: last2Data[0].timestampt
+        };
     }
 
     WriteUserData(userId, userData);
