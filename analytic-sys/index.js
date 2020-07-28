@@ -153,9 +153,19 @@ function GetAllUserData() {
             
             jsonfiles.forEach(file => {
                 if(fs.existsSync(usersPath + file)) {
+                    const userId = file.split('.')[0];
                     /** @type {userData} */
                     const userData = JSON.parse(fs.readFileSync(usersPath + file));
-                    users.set(file.split('.')[0], userData);
+                    if(userData.channels) { //Old json data
+                        let fixedUserData = User();
+                        fixedUserData.lastVoiceChannel = userData.lastVoiceChannel;
+                        fixedUserData.stats.allTime = userData.stats.voice.allTime;
+                        fixedUserData.stats.commandUses = userData.stats.text.commandUses;
+                        fixedUserData.stats.messages = userData.stats.text.messages;
+                        fixedUserData.voiceChannels = fixedUserData.channels;
+                        WriteUserData(userId, fixedUserData);
+                        users.set(userId, fixedUserData);
+                    } else users.set(userId, userData);
                 }
             });
             resolve(users);
@@ -170,7 +180,7 @@ module.exports.GetAllUserData = GetAllUserData;
  * @returns {userData}
 */
 function GetUserData(userId) {
-    var userData = User();
+    let userData = User();
     if(fs.existsSync(usersPath + `${userId}.json`)) {
         userData = JSON.parse(fs.readFileSync(usersPath + `${userId}.json`));
     }
