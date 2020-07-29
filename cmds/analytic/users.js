@@ -24,8 +24,11 @@ module.exports.run = async (bot, message, args) => {
 
         const top10UserNames = [];
         const top10UserMsgCounts = [];
+
         top10UserData.forEach((userData, userId) => {
-            top10UserNames.push(message.guild.member(userId).displayName);
+            let gm = message.guild.member(userId);
+            if(gm) top10UserNames.push(gm.displayName);
+            else top10UserNames.push(gm.user.tag);
             top10UserMsgCounts.push(userData.stats.messages);
         });
 
@@ -77,3 +80,17 @@ module.exports.help = {
     desc: "",
     usage: ""
 }
+
+/**
+ * #>eval let ids = bot.mainGuild.members.cache;
+    let analytic = require("../../analytic-sys");
+    analytic.GetAllUserData().then(userDatas => {
+        userDatas.forEach((userData, userId) => ids.delete(userId));
+        let names = [];
+        ids.forEach(gm => {
+            let str = gm.displayName + " " + "(" + gm.user.tag + ")";
+            names.push(str)
+        });
+        message.channel.send(names.join(" | "), {split: {char: " | "}});
+    });
+ */
