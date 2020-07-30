@@ -91,21 +91,35 @@ module.exports = {
 
     ParseMillisecondsIntoReadableTime: function(milliseconds){
         //Get hours from milliseconds
-        var hours = milliseconds / (1000*60*60);
-        var absoluteHours = Math.floor(hours);
-        var h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours;
+        let hours = milliseconds / (1000*60*60);
+
+        /**let days = 0;
+        let absoluteDays = 0;
+        let d = 0;
+        if(hours >= 24) {
+            days = hours / 24;
+            absoluteDays = Math.floor(days);
+            if(absoluteDays < 9) d = `00${absoluteDays}`;
+            else if(absoluteDays < 100) d = `0${absoluteDays}`;
+            else d = absoluteDays;
+        }*/
+
+        let absoluteHours = Math.floor(hours /*- absoluteDays*/)// * 24;
+        let h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours;
 
         //Get remainder from hours and convert to minutes
-        var minutes = (hours - absoluteHours) * 60;
-        var absoluteMinutes = Math.floor(minutes);
-        var m = absoluteMinutes > 9 ? absoluteMinutes : '0' +  absoluteMinutes;
+        let minutes = (hours - absoluteHours) * 60;
+        let absoluteMinutes = Math.floor(minutes);
+        let m = absoluteMinutes > 9 ? absoluteMinutes : '0' +  absoluteMinutes;
 
         //Get remainder from minutes and convert to seconds
-        var seconds = (minutes - absoluteMinutes) * 60;
-        var absoluteSeconds = Math.floor(seconds);
-        var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds;
+        let seconds = (minutes - absoluteMinutes) * 60;
+        let absoluteSeconds = Math.floor(seconds);
+        let s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds;
 
-        return h + ':' + m + ':' + s;
+        /*if(days !== 0) {
+            return `${d}nap ${h}:${m}:${s}`;
+        } else */return `${h}:${m}:${s}`;
     },
 
     /**
