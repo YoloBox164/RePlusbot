@@ -35,8 +35,11 @@ module.exports.run = async (bot, message, args) => {
 
         Msg_top10UserData.forEach((userData, userId) => {
             let gm = message.guild.member(userId);
-            if (gm) Msg_top10UserNames.push(gm.displayName);
-            else Msg_top10UserNames.push(gm.user.tag);
+            let user = bot.users.resolve(userId);
+            if(gm) Msg_top10UserNames.push(gm.displayName);
+            else if(user) Msg_top10UserNames.push(user.tag);
+            else if(userData.tag) Msg_top10UserNames.push(userData.tag);
+            else Msg_top10UserNames.push(userId);
             Msg_top10UserMsgCounts.push(userData.stats.messages);
         });
 
@@ -56,11 +59,11 @@ module.exports.run = async (bot, message, args) => {
 
         Voice_top10UserData.forEach((userData, userId) => {
             let gm = message.guild.member(userId);
-            if (gm) Voice_top10UserNames.push(gm.displayName);
-            else {
-                let user = bot.users.resolve(userId);
-                Voice_top10UserNames.push(user ? user.tag : userId);
-            }
+            let user = bot.users.resolve(userId);
+            if(gm) Voice_top10UserNames.push(gm.displayName);
+            else if(user) Voice_top10UserNames.push(user.tag);
+            else if(userData.tag) Voice_top10UserNames.push(userData.tag);
+            else Voice_top10UserNames.push(userId);
             Voice_top10UserTimes.push(userData.stats.allTime);
         });
 
