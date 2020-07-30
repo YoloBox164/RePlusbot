@@ -94,6 +94,10 @@ bot.on('ready', async () => {
         allUserData.forEach((userData, userId) => {
             let user = bot.users.resolve(userId);
             if(user) userData.tag = user.tag;
+            if(!userData.lastVoiceChannel) userData.lastVoiceChannel = {};
+            if(!userData.textChannels) userData.textChannels = {};
+            if(!userData.voiceChannels) userData.voiceChannels = {};
+            AnalyticSys.WriteUserData(userId, userData);
         });
     });
 
