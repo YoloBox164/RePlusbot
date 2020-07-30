@@ -37,6 +37,7 @@ const usersPath = "./analytic-sys/database/users/"; //Path is relative to bot.js
  * 
  * @typedef userData
  * @type {object}
+ * @property {string} tag
  * @property {Object} lastVoiceChannel
  * @property {string} lastVoiceChannel.id
  * @property {number} lastVoiceChannel.joinedTimestampt
@@ -75,6 +76,7 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     const userId = newVoiceState.id
     const userData = GetUserData(userId);
     if(!userData.voiceChannels) userData.voiceChannels = {};
+    userData.tag = oldVoiceState.member.user.tag;
 
     const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
     /**@type {Array<voiceLogData>}*/
@@ -162,16 +164,7 @@ function GetAllUserData() {
                     const userId = file.split('.')[0];
                     /** @type {userData} */
                     const userData = JSON.parse(fs.readFileSync(usersPath + file));
-                    if(userData.channels) { //Old json data
-                        let fixedUserData = User();
-                        fixedUserData.lastVoiceChannel = userData.lastChannel;
-                        fixedUserData.stats.allTime = userData.stats.voice.allTime;
-                        fixedUserData.stats.commandUses = userData.stats.text.commandUses;
-                        fixedUserData.stats.messages = userData.stats.text.messages;
-                        fixedUserData.voiceChannels = userData.channels;
-                        WriteUserData(userId, fixedUserData);
-                        users.set(userId, fixedUserData);
-                    } else users.set(userId, userData);
+                    users.set(userId, userData);
                 }
             });
             resolve(users);
@@ -189,16 +182,6 @@ function GetUserData(userId) {
     let userData = User();
     if(fs.existsSync(usersPath + `${userId}.json`)) {
         userData = JSON.parse(fs.readFileSync(usersPath + `${userId}.json`));
-        if(userData.channels) { //Old json data
-            let fixedUserData = User();
-            fixedUserData.lastVoiceChannel = userData.lastChannel;
-            fixedUserData.stats.allTime = userData.stats.voice.allTime;
-            fixedUserData.stats.commandUses = userData.stats.text.commandUses;
-            fixedUserData.stats.messages = userData.stats.text.messages;
-            fixedUserData.voiceChannels = userData.channels;
-            WriteUserData(userId, fixedUserData);
-            return fixedUserData;
-        }
     }
     return userData;
 }
@@ -226,6 +209,7 @@ function Log() {
 /** @returns {userData} */ 
 function User() {
     var user = {
+        tag: "",
         lastVoiceChannel: {
             id: "",
             joinedTimestampt: 0,
