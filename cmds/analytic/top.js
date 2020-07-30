@@ -57,7 +57,10 @@ module.exports.run = async (bot, message, args) => {
         Voice_top10UserData.forEach((userData, userId) => {
             let gm = message.guild.member(userId);
             if (gm) Voice_top10UserNames.push(gm.displayName);
-            else Voice_top10UserNames.push(gm.user.tag);
+            else {
+                let user = bot.users.resolve(userId);
+                Voice_top10UserNames.push(user ? user.tag : userId);
+            }
             Voice_top10UserTimes.push(userData.stats.allTime);
         });
 
