@@ -93,10 +93,14 @@ bot.on('ready', async () => {
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
     logChannel.send(`\`ONLINE\` | \`MODE: ${Config.mode}\``);
     
-    bot.setInterval(() => {
-        let status = statuses[Math.floor(Math.random() * statuses.length)];
-        bot.user.setPresence({activity: {name: `you | ${status}`, type: "WATCHING"}, status: "online"});
-    }, 30000);
+    if(Config.mode === "development") {
+        bot.user.setPresence({activity: {name: `in development`, type: "PLAYING"}, status: "dnd"});
+    } else {
+        bot.setInterval(() => {
+            let status = statuses[Math.floor(Math.random() * statuses.length)];
+            bot.user.setPresence({activity: {name: `you | ${status}`, type: "WATCHING"}, status: "online"});
+        }, 30000);
+    }
 
     /** Removing mutes or restarting mute timers */
     for(const userId in SecSys.MuteHandler.MutedUsers) {
