@@ -90,17 +90,6 @@ bot.on('ready', async () => {
     //Init Analytic system
     AnalyticSys.Init();
 
-    AnalyticSys.GetAllUserData().then(allUserData => {
-        allUserData.forEach((userData, userId) => {
-            let user = bot.users.resolve(userId);
-            if(user) userData.tag = user.tag;
-            if(!userData.lastVoiceChannel) userData.lastVoiceChannel = {};
-            if(!userData.textChannels) userData.textChannels = {};
-            if(!userData.voiceChannels) userData.voiceChannels = {};
-            AnalyticSys.WriteUserData(userId, userData);
-        });
-    });
-
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
     logChannel.send(`\`ONLINE\` | \`MODE: ${Config.mode}\``);
     
