@@ -5,7 +5,7 @@ const Tools = require('./utils/tools.js');
 const database = require('./database');
 const daily = require('./storage/daily.json');
 const SecSys = require('./sec-sys');
-const analytic = require('./analytic-sys');
+const AnalyticSys = require('./analytic-sys');
 const MovieSys = require('./movie-sys');
 
 const fs = require('fs');
@@ -88,7 +88,14 @@ bot.on('ready', async () => {
     bot.devLogChannel = devLogChannel;
 
     //Init Analytic system
-    analytic.Init();
+    AnalyticSys.Init();
+
+    AnalyticSys.GetAllUserData().then(allUserData => {
+        allUserData.forEach((userData, userId) => {
+            let user = bot.users.resolve(userId);
+            if(user) userData.tag = user.tag;
+        });
+    });
 
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
     logChannel.send(`\`ONLINE\` | \`MODE: ${Config.mode}\``);
@@ -195,7 +202,7 @@ bot.on('message', async message => {
 
     SecSys.Regist.CheckMsg(message);
 
-    analytic.messageCountPlus(message, false);
+    AnalyticSys.messageCountPlus(message, false);
     upvoteSys(message);
 
     if(message.mentions.has(bot.user)) message.channel.send("`>help` » Ha kell segítség használatomhoz.");
@@ -227,7 +234,7 @@ bot.on('message', async message => {
             console.log(colors.cyan(logMsg));
         }
         else message.channel.send("`>help` » Ha kell segítség használatomhoz.");
-        analytic.messageCountPlus(message, true);
+        AnalyticSys.messageCountPlus(message, true);
     }
 });
 
@@ -344,7 +351,7 @@ bot.on('guildMemberRemove', async member => {
     console.log(colors.red(logMsg.replace(/\`/g, "")));
 });
 
-bot.on('voiceStateUpdate', (oldVoiceState, newVoiceState) => analytic.voiceState(oldVoiceState, newVoiceState));
+bot.on('voiceStateUpdate', (oldVoiceState, newVoiceState) => AnalyticSys.voiceState(oldVoiceState, newVoiceState));
 
 process.on('uncaughtException', err => { errorHandling(err, "Uncaught Exception", true) });
 
@@ -502,7 +509,7 @@ async function shutdown(message, text) {
     await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
     database.SQLiteDB.close();
-    analytic.Shut();
+    AnalyticSys.Shut();
     console.log(text);
     bot.destroy();
     process.exit(0);
