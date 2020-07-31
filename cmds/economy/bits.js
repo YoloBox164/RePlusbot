@@ -88,7 +88,10 @@ module.exports.run = (bot, message, args) => {
             }).catch(console.error);
         }).catch(console.error);
     } else if(args[0] === "add") {
-        if(Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
+        if(!Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && message.author.id != bot.devId) {
+            return message.channel.send("Nincs jogod ehez a parancshoz.");
+        }
+
         var target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítsgég\` => ${this.helpForInterCmds.add}`);
@@ -111,7 +114,9 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`Hozzáadtál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "remove") {
-        if(Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) || !message.author.id === bot.devId) return message.channel.send("Nincs jogod ehez a parancshoz.");
+        if(!Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && message.author.id != bot.devId) {
+            return message.channel.send("Nincs jogod ehez a parancshoz.");
+        }
         
         var target = Tools.GetMember(message, args.slice(1));
         if(!target) {
