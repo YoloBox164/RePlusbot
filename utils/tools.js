@@ -92,19 +92,7 @@ module.exports = {
     ParseMillisecondsIntoReadableTime: function(milliseconds){
         //Get hours from milliseconds
         let hours = milliseconds / (1000*60*60);
-
-        /**let days = 0;
-        let absoluteDays = 0;
-        let d = 0;
-        if(hours >= 24) {
-            days = hours / 24;
-            absoluteDays = Math.floor(days);
-            if(absoluteDays < 9) d = `00${absoluteDays}`;
-            else if(absoluteDays < 100) d = `0${absoluteDays}`;
-            else d = absoluteDays;
-        }*/
-
-        let absoluteHours = Math.floor(hours /*- absoluteDays*/)// * 24;
+        let absoluteHours = Math.floor(hours);
         let h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours;
 
         //Get remainder from hours and convert to minutes
@@ -117,9 +105,7 @@ module.exports = {
         let absoluteSeconds = Math.floor(seconds);
         let s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds;
 
-        /*if(days !== 0) {
-            return `${d}nap ${h}:${m}:${s}`;
-        } else */return `${h}:${m}:${s}`;
+        return `${h}:${m}:${s}`;
     },
 
     /**
