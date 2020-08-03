@@ -51,7 +51,7 @@ module.exports.run = (bot, message, args) => {
                     if(r.emoji.name === '🇦') {
                         if(wumpusData.hasRole) {
                             message.channel.send("Már van ilyen rangod.", {embed: embed}).then(msg1 => {
-                                msg1.delete(5000).catch(console.error);
+                                msg1.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
                             }).catch(console.error);
                             collector.stop();
                             return;
@@ -65,13 +65,13 @@ module.exports.run = (bot, message, args) => {
                             database.SetData('wumpus', wumpusData);
                             embed.fields.pop();
                             message.channel.send("Sikeresen megvetted a Wumpus+ rangot.", {embed: embed}).then(msg1 => {
-                                msg1.delete(5000).catch(console.error);
+                                msg1.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
                             }).catch(console.error);
                             collector.stop();
                         } else {
                             embed.fields.pop();
                             message.channel.send("Nincs elég bited.", {embed: embed}).then(msg1 => {
-                                msg1.delete(5000).catch(console.error);
+                                msg1.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
                             }).catch(console.error);
                             collector.stop();
                         }
@@ -82,7 +82,7 @@ module.exports.run = (bot, message, args) => {
                 });
         
                 collector.on('end', collected => {
-                    msg.delete(5000).catch(console.error);
+                    msg.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
                     console.log(`Collected ${collected.size} items`);
                 });
             }).catch(console.error);
