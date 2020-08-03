@@ -89,7 +89,7 @@ module.exports.run = (bot, message, args) => {
         }).catch(console.error);
     } else if(args[0] === "add") {
         if(!Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && message.author.id != bot.devId) {
-            return message.channel.send("Nincs jogod ehez a parancshoz.");
+            return message.channel.send("Nincs jogod ehhez a parancshoz.");
         }
 
         var target = Tools.GetMember(message, args.slice(1));
@@ -115,7 +115,7 @@ module.exports.run = (bot, message, args) => {
         message.channel.send({embed: embed});
     } else if(args[0] === "remove") {
         if(!Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds) && message.author.id != bot.devId) {
-            return message.channel.send("Nincs jogod ehez a parancshoz.");
+            return message.channel.send("Nincs jogod ehhez a parancshoz.");
         }
         
         var target = Tools.GetMember(message, args.slice(1));

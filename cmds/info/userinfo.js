@@ -1,8 +1,7 @@
 const Discord = require('discord.js');
-const { Database }  = require('../../database');
+const { SQLiteDB }  = require('../../database');
 const Tools = require('../../utils/tools.js');
 const analytic = require('../../analytic-sys');
-const analyticDatabase = require('../../analytic-sys/database');
 
 /**
  * @param {Discord.Client} bot The bot itself.
@@ -11,53 +10,36 @@ const analyticDatabase = require('../../analytic-sys/database');
  */
 
 module.exports.run = (bot, message, args) => {
-    var targetMember = Tools.GetMember(message, args);
-    var roleArr = targetMember.roles.cache.array();
+    const targetMember = Tools.GetMember(message, args);
+    let roleArr = targetMember.roles.cache.array();
     roleArr.pop();
-    var roles = roleArr.join(" | ");
+    let roles = roleArr.join(" | ");
     if(!roles) roles = "Nincsen rangja."
 
-    var warnings = Database.prepare("SELECT * FROM warnings WHERE userid = ?;").all(targetMember.id);
-    var warningStringArr = [];
+    const warnings = SQLiteDB.prepare("SELECT * FROM warnings WHERE userid = ?;").all(targetMember.id);
+    let warningStringArr = [];
     for(const {warning, time} of warnings) {
         warningStringArr.push(`'${warning}' (${bot.logDate(time)})`)
     }
 
-    // var userData = analytic.GetUserData(targetMember.id);
-    // var userLogs = analyticDatabase.GetData(targetMember.id);
+    const userData = analytic.GetUserData(targetMember.id);
 
-    /* PerDay Logic */
-    // var pastDays = (userLogs[userLogs.length - 1].timestampt - userLogs[0].timestampt) / 1000 / 60 / 60 / 24;
-    // userData.stats.perDay = userData.stats.allTime / pastDays;
-    /*--------------*/
-    
-    /* Activity Hours Logic */
+    let voiceChanelsStats = [];
 
-    // var days = [];
-    // var currDate = new Date(userLogs[0].timestampt);
-    // var oneDay = [];
-    // userLogs.forEach(log => {
-    //     if(currDate.getDay == new Date(log.timestampt).getDay) {
-    //         oneDay.push(log);
-    //     } else {
-    //         currDate = new Date(log.timestampt);
-    //         days.push(oneDay);
-    //         oneDay = [];
-    //     }
-    // });
-    // console.log(days);
+    for (const channelId in userData.voiceChannels) {
+        if (userData.voiceChannels.hasOwnProperty(channelId)) {
+            const channelData = userData.voiceChannels[channelId];
+            /** @type {Discord.VoiceChannel} */
+            const channel = bot.channels.resolve(channelData.id);
+            voiceChanelsStats.push(`${channel.name}: ${Tools.RedableTime(channelData.time)}`);
+        }
+    }
 
-    /*----------------------*/
-
-    /* Stream Time Logic */
-    
-    /*--------------*/
-
-    // analytic.WriteUserData(targetMember.id, userData);
+    //let textChanelsStats = [];
 
     if(!warningStringArr[0]) warningStringArr[0] = "Nincs";
 
-    var embed = new Discord.MessageEmbed()
+    const embed = new Discord.MessageEmbed()
         .setAuthor(targetMember.user.tag, targetMember.user.displayAvatarURL({format: "png", size: 4096}))
         .setThumbnail(targetMember.user.displayAvatarURL({format: "png", size: 4096}))
         .setTitle("Felhasználói információ:")
@@ -72,9 +54,14 @@ module.exports.run = (bot, message, args) => {
             **Rangok:** *${roles}*\n
             **Figyelmeztetések:**
             ${warningStringArr.join('\n')}`
-        )/*.addField("Statok", 
-            `Utolsó Szóba: `
-        )*/;
+        ).addField("Statok", 
+            `Összes elküldött üzenet: ${userData.stats.messages}
+            Parancs használatok száma: ${userData.stats.commandUses}
+            
+            Hangszobákban töltött idő: ${Tools.RedableTime(userData.stats.allTime)}
+            
+            Hangszobák:\n\t${voiceChanelsStats.join("\n\t")}`
+        );
     message.channel.send({embed: embed})
 }
 
