@@ -46,8 +46,6 @@ const usersPath = "./analytic-sys/database/users/"; //Path is relative to bot.js
  * @property {number} stats.allTime
  * @property {number} stats.messages
  * @property {number} stats.commandUses
- * @property {Object<string, userTextChannelData>} textChannels
- * @property {Object<string, userVoiceChannelData>} voiceChannels
  */
 
 /*
@@ -75,7 +73,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
 
     const userId = newVoiceState.id
     const userData = GetUserData(userId);
-    if(!userData.voiceChannels) userData.voiceChannels = {};
     userData.tag = oldVoiceState.member.user.tag;
 
     const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
@@ -86,18 +83,6 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
         const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
         userData.stats.allTime += pastTime;
-
-        if(!userData.voiceChannels[oldVoiceState.channelID]) {
-            userData.voiceChannels[oldVoiceState.channelID] = {
-                id: oldVoiceState.channelID,
-                name: oldVoiceState.channel.name,
-                time: pastTime,
-                lastJoinTimestampt: last2Data[1].timestampt
-            };
-        } else {
-            userData.voiceChannels[oldVoiceState.channelID].time += pastTime;
-            userData.voiceChannels[oldVoiceState.channelID].lastJoinTimestampt = last2Data[1].timestampt;
-        }
     }
 
     //If Joining or Changing channels
@@ -219,9 +204,7 @@ function User() {
             allTime: 0,
             messages: 0,
             commandUses: 0
-        },
-        textChannels: {},
-        voiceChannels: {}
+        }
     };
     return user;
 }

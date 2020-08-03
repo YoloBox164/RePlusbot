@@ -24,19 +24,6 @@ module.exports.run = (bot, message, args) => {
 
     const userData = analytic.GetUserData(targetMember.id);
 
-    let voiceChanelsStats = [];
-
-    for (const channelId in userData.voiceChannels) {
-        if (userData.voiceChannels.hasOwnProperty(channelId)) {
-            const channelData = userData.voiceChannels[channelId];
-            /** @type {Discord.VoiceChannel} */
-            const channel = bot.channels.resolve(channelData.id);
-            voiceChanelsStats.push(`${channel.name}: ${Tools.RedableTime(channelData.time)}`);
-        }
-    }
-
-    //let textChanelsStats = [];
-
     if(!warningStringArr[0]) warningStringArr[0] = "Nincs";
 
     const embed = new Discord.MessageEmbed()
@@ -58,9 +45,7 @@ module.exports.run = (bot, message, args) => {
             `Összes elküldött üzenet: ${userData.stats.messages}
             Parancs használatok száma: ${userData.stats.commandUses}
             
-            Hangszobákban töltött idő: ${Tools.RedableTime(userData.stats.allTime)}
-            
-            Hangszobák:\n\t${voiceChanelsStats.join("\n\t")}`
+            Hangszobákban töltött idő: ${Tools.RedableTime(userData.stats.allTime)}`
         );
     message.channel.send({embed: embed})
 }

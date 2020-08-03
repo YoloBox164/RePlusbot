@@ -90,6 +90,14 @@ bot.on('ready', async () => {
     //Init Analytic system
     AnalyticSys.Init();
 
+    AnalyticSys.GetAllUserData().then(allUserData => {
+        allUserData.forEach((userData, userID) => {
+            delete userData.textChannels;
+            delete userData.voiceChannels;
+            AnalyticSys.WriteUserData(userID, userData);
+        });
+    });
+
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
     logChannel.send(`\`ONLINE\` | \`MODE: ${Config.mode}\``);
     
