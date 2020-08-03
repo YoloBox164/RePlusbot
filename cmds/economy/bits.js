@@ -50,9 +50,7 @@ module.exports.run = (bot, message, args) => {
                 collector.on('collect', r => {
                     if(r.emoji.name === '🇦') {
                         if(wumpusData.hasRole) {
-                            message.channel.send("Már van ilyen rangod.", {embed: embed}).then(msg1 => {
-                                msg1.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
-                            }).catch(console.error);
+                            message.channel.send("Már van ilyen rangod.", {embed: embed});
                             collector.stop();
                             return;
                         }
@@ -64,15 +62,11 @@ module.exports.run = (bot, message, args) => {
                             database.SetData('currency', currencyData);
                             database.SetData('wumpus', wumpusData);
                             embed.fields.pop();
-                            message.channel.send("Sikeresen megvetted a Wumpus+ rangot.", {embed: embed}).then(msg1 => {
-                                msg1.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
-                            }).catch(console.error);
+                            message.channel.send("Sikeresen megvetted a Wumpus+ rangot.", {embed: embed});
                             collector.stop();
                         } else {
                             embed.fields.pop();
-                            message.channel.send("Nincs elég bited.", {embed: embed}).then(msg1 => {
-                                msg1.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
-                            }).catch(console.error);
+                            message.channel.send("Nincs elég bited.", {embed: embed});
                             collector.stop();
                         }
                     }
@@ -82,7 +76,7 @@ module.exports.run = (bot, message, args) => {
                 });
         
                 collector.on('end', collected => {
-                    msg.delete({timeout: 5000, reason: "Timeout"}).catch(console.error);
+                    msg.edit("Lejárt a reagálási idő.");
                     console.log(`Collected ${collected.size} items`);
                 });
             }).catch(console.error);
