@@ -74,5 +74,18 @@ module.exports = {
             .setDescription(code)
             .setFooter(`${new Date().toLocaleString()}`);
         return embed;
+    },
+    /**
+     * Use this for logging getting online.
+     * @param {string} mode
+     * @returns {Discord.MessageEmbed}
+     */
+    Online: (mode) => {
+        let embed = new Discord.MessageEmbed()
+            .setColor("GREEN")
+            .setTitle("Online")
+            .setDescription(mode)
+            .setFooter(`${new Date().toLocaleString()}`);
+        return embed;
     }
 }

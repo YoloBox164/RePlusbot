@@ -14,10 +14,14 @@ module.exports.run = (bot, message, args) => {
         message.channel.send("Nincsen jogod használni ezt a paracsot.");
         return;
     }
+    if(!args[0]) {
+        message.channel.send(`Kérlek adj meg egy felhasználót.\`Segítség => ${this.help.usage}\``);
+        return;
+    }
     let target_memberId = args[0].match(Discord.MessageMentions.USERS_PATTERN)[0].replace(/[<@!>]/g, '');
     let target_member = message.guild.member(target_memberId);
     if(!target_member) {
-        message.channel.send(`Nincs ilyen felhasználó vagy nem lett meg adva.\`Segítség => ${this.help.usage}\``);
+        message.channel.send(`Nincs ilyen felhasználó.\`Segítség => ${this.help.usage}\``);
         return;
     }
     if(target_member.id == message.member.id) {

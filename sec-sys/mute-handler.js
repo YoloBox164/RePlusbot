@@ -21,14 +21,13 @@ module.exports = {
         if(member.roles.highest.position < member.guild.member(member.client.user).roles.highest.position) {
             MutedUsers[`${member.id}`] = Date.now() + time;
             member.roles.add(muteRole).catch(console.error);
-            setTimeout(() => this.Remove(member), time);
+            setTimeout(() => module.exports.Remove(member), time);
             fs.writeFile(MuteJsonPath, JSON.stringify(MutedUsers, null, 4), err => { if(err) throw err; });
         } else {
             /** @type {Discord.TextChannel} */
             let logChannel = member.client.channels.resolve(Settings.Channels.modLogId);
             logChannel.send(EmbedTemplates.Error(`Nem tudom hozzá adni a ${member} felhasználóhoz a ${muteRole} rangot!`));
         }
-
     },
     /** @param {Discord.GuildMember} member */
     Remove: (member) => {

@@ -91,7 +91,7 @@ bot.on('ready', async () => {
     AnalyticSys.Init();
 
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
-    logChannel.send(`\`ONLINE\` | \`MODE: ${Config.mode}\``);
+    logChannel.send(EmbedTemplates.Online(`**MODE:** \`${Config.mode}\``));
     
     if(Config.mode === "development") {
         bot.user.setPresence({activity: {name: `in development`, type: "PLAYING"}, status: "dnd"});
