@@ -18,6 +18,7 @@ process.env.mode = Config.mode;
 
 const Settings = require('./settings.json');
 const EmbedTemplates = require('./utils/embed-templates.js');
+const RegexpPatterns = require('./utils/regexp-patterns.js');
 const prefix = Settings.Prefix;
 
 bot.prefix = prefix;
@@ -247,7 +248,8 @@ bot.on('messageDelete', (message) => { MovieSys.CheckDeletedMsg(message); });
 
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
-    if(message.channel.id == Settings.Channels.upvoteId && message.attachments) {
+    if(message.channel.id == Settings.Channels.upvoteId) {
+        if(message.attachments.size === 0 && !RegexpPatterns.LinkFinder.test(message.content)) return;
         let voteup = message.guild.emojis.cache.get(Settings.emojis.voteupId);
         let votedown = message.guild.emojis.cache.get(Settings.emojis.votedownId);
         message.react(voteup).then(msg => msg.message.react(votedown)).catch(console.error);

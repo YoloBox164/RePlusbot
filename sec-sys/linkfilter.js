@@ -2,10 +2,9 @@ const Discord = require('discord.js');
 
 const Settings = require('../settings.json');
 const EmbedTemplates = require('../utils/embed-templates');
+const RegexpPatterns = require('../utils/regexp-patterns');
 
 const BannedPages = require('./blacklisted/pornwebpages.json').concat(require('./blacklisted/webpages.json'));
-
-let regexp = /\b(?<!@)(?:(?!\d+)(?:(?<Protocol>\w+):\/\/)?(?<FullDomain>(?:(?:(?<www>w{0,3})\.)?(?<Domain>[\w-\.]+)\.(?!\d+)(?<TLD>\w{2,3}))|(?:(?:\d{1,3})\.(?:\d{1,3})\.(?:\d{1,3})\.(?:\d{1,3})(?::?\d{1,6})))){1,68}(?<AfterString>\/[\w\/]*)?\b/gi;
 
 module.exports = { 
     /** 
@@ -13,12 +12,12 @@ module.exports = {
      * @returns {Boolean} If the message got deleted true, otherwise false.
     */
     Check: function(message) {
-        let matches = message.content.match(regexp);
+        let matches = message.content.match(RegexpPatterns.LinkFinder);
         let found = false;
         let isDiscordLink = false;
         if(matches != null && matches.length > 0) {
             for(const link of matches) {
-                let match = regexp.exec(link);
+                let match = RegexpPatterns.LinkFinder.exec(link);
                 let groups = null;
                 if(match) groups = match.groups;
                 if(groups && groups.Domain && groups.TLD) {
