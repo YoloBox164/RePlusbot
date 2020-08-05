@@ -249,9 +249,10 @@ bot.on('messageDelete', (message) => { MovieSys.CheckDeletedMsg(message); });
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
     if(message.channel.id == Settings.Channels.upvoteId) {
-        if(message.attachments.size === 0 && !RegexpPatterns.LinkFinder.test(message.content)) return;
-        let voteup = message.guild.emojis.cache.get(Settings.emojis.voteupId);
-        let votedown = message.guild.emojis.cache.get(Settings.emojis.votedownId);
+        const match = message.content.match(RegexpPatterns.LinkFinder);
+        if(!match && message.attachments.size === 0) return;
+        const voteup = message.guild.emojis.cache.get(Settings.emojis.voteupId);
+        const votedown = message.guild.emojis.cache.get(Settings.emojis.votedownId);
         message.react(voteup).then(msg => msg.message.react(votedown)).catch(console.error);
     }
 }
