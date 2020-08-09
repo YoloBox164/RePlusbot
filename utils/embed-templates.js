@@ -3,12 +3,31 @@ const Discord = require('discord.js');
 
 module.exports = {
     /**
+     * Use this for logging warns.
+     * @param {Discord.Message} message
+     * @param {Discord.GuildMember} targetMember
+     * @param {Discord.GuildMember} issuer
+     * @param {string} reason
+     * @returns {Discord.MessageEmbed}
+     */
+    Warning: (message, targetMember, issuer, reason) => {
+        let embed = new Discord.MessageEmbed()
+            .setColor("ORANGE")
+            .setTitle("Figyelmeztetés")
+            .addField("Név:", `${targetMember.displayName} (${targetMember.user.tag})`)
+            .addField("Id:", `${targetMember.id}`)
+            .addField("Oka:", `${reason}`)
+            .addField("Adó:", `${issuer.displayName} (${issuer.user.tag} | ${issuer.id})`)
+            .setFooter(`${message.createdAt.toLocaleString()}`);
+        return embed;
+    },
+    /**
      * Use this for logging spamming that got deleted by the auto mod.
      * @param {Discord.Message} message
      * @param {string} reason
      * @returns {Discord.MessageEmbed}
      */
-    LogSpamDelete: (message, reason) => {
+    SpamDelete: (message, reason) => {
         let embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
             .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
@@ -23,7 +42,7 @@ module.exports = {
      * @param {string} reason
      * @returns {Discord.MessageEmbed}
      */
-    LogMsgDelete: (message, reason, asd) => {
+    MsgDelete: (message, reason, asd) => {
         let embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
             .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))

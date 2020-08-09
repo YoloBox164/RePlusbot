@@ -13,20 +13,25 @@ const Settings = require('../../settings.json');
 
 module.exports.run = (bot, message, args) => {
     if(process.env.mode === "development" && message.author.id !== bot.devId) return message.channel.send("Ez a parancs nem elérhető fejlesztői módban neked.");
-    var timeNow = Date.now();
+    let timeNow = Date.now();
 
     while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += database.config.DayInMilliSeconds;
-    fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
+    fs.writeFile("./storage/daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
 
-    var currencyData = database.GetData('currency', message.author.id);
-    var wumpusData = database.GetData('wumpus', message.author.id);
+    let currencyData = database.GetData('currency', message.author.id);
+    if(!currencyData) currencyData = {
+        id: message.author.id,
+        bits: 0,
+        claimTime: 0,
+        streak: 0
+    };
 
-    var embed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setAuthor(message.member.displayName, message.author.displayAvatarURL())
         .setColor(message.member.displayHexColor)
         .setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. nap)`);
     
-    var errorEmbed = new Discord.MessageEmbed()
+    let errorEmbed = new Discord.MessageEmbed()
         .setColor(message.member.displayHexColor);
 
     if(!args[0]) {
@@ -49,7 +54,8 @@ module.exports.run = (bot, message, args) => {
                 
                 collector.on('collect', r => {
                     if(r.emoji.name === '🇦') {
-                        if(wumpusData.hasRole) {
+                        let wumpusData = database.GetData('wumpus', message.author.id);
+                        if(wumpusData && wumpusData.hasRole) {
                             message.channel.send("Már van ilyen rangod.", {embed: embed});
                             collector.stop();
                             return;
@@ -57,8 +63,12 @@ module.exports.run = (bot, message, args) => {
                         if(currencyData.bits >= database.config.WumpusRoleCost) {
                             message.member.roles.add(database.config.WumpusRoleId).catch(console.error)
                             currencyData.bits -= database.config.WumpusRoleCost;
-                            wumpusData.hasRole = 1;
-                            wumpusData.roleTime = daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds;
+                            wumpusData = {
+                                id: message.author.id,
+                                hasRole: 1,
+                                perma: 0,
+                                roleTime: daily.EndOfTheMonthInMilliSeconds + database.config.DayInMilliSeconds
+                            }
                             database.SetData('currency', currencyData);
                             database.SetData('wumpus', wumpusData);
                             embed.fields.pop();
@@ -86,20 +96,26 @@ module.exports.run = (bot, message, args) => {
             return message.channel.send("Nincs jogod ehhez a parancshoz.");
         }
 
-        var target = Tools.GetMember(message, args.slice(1));
+        let target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítsgég\` => ${this.helpForInterCmds.add}`);
             return message.channel.send({embed: errorEmbed});
         }
 
-        var bits = 0;
+        let bits = 0;
         if(!isNaN(args[1])) bits = parseInt(args[1]);
         else if(!isNaN(args[2])) bits = parseInt(args[2]);
         else {
             errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.helpForInterCmds.add}`);
             return message.channel.send({embed: errorEmbed});   
         }
-        var targetCurrencyData = database.GetData('currency', target.id);
+        let targetCurrencyData = database.GetData('currency', target.id);
+        if(!targetCurrencyData) targetCurrencyData = {
+            id: target.id,
+            bits: 0,
+            claimTime: 0,
+            streak: 0
+        };
 
         if(bits > 1000000000) targetCurrencyData.bits = 1000000000;
         else targetCurrencyData.bits =  parseInt(bits) + parseInt(targetCurrencyData.bits);
@@ -112,20 +128,26 @@ module.exports.run = (bot, message, args) => {
             return message.channel.send("Nincs jogod ehhez a parancshoz.");
         }
         
-        var target = Tools.GetMember(message, args.slice(1));
+        let target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.helpForInterCmds.remove}`);
             return message.channel.send({embed: errorEmbed});
         }
 
-        var bits = 0;
+        let bits = 0;
         if(!isNaN(args[1])) bits = parseInt(args[1]);
         else if(!isNaN(args[2])) bits = parseInt(args[2]);
         else {
             errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.helpForInterCmds.remove}`);
             return message.channel.send({embed: errorEmbed});   
         }
-        var targetCurrencyData = database.GetData('currency', target.id);
+        let targetCurrencyData = database.GetData('currency', target.id);
+        if(!targetCurrencyData) targetCurrencyData = {
+            id: target.id,
+            bits: 0,
+            claimTime: 0,
+            streak: 0
+        };
 
         if(Math.abs(bits) > targetCurrencyData.bits) bits = parseInt(targetCurrencyData.bits)
         targetCurrencyData.bits = parseInt(targetCurrencyData.bits) - parseInt(bits);
@@ -134,7 +156,7 @@ module.exports.run = (bot, message, args) => {
         embed.setDescription(`Eltávolítottál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({embed: embed});
     } else if(args[0] === "send") {
-        var target = Tools.GetMember(message, args.slice(1));
+        let target = Tools.GetMember(message, args.slice(1));
         if(!target) {
             errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.helpForInterCmds.send}`);
             return message.channel.send({embed: errorEmbed});
@@ -149,9 +171,15 @@ module.exports.run = (bot, message, args) => {
             return message.channel.send({embed: errorEmbed});
         }
 
-        var targetCurrencyData = database.GetData('currency', target.id);
+        let targetCurrencyData = database.GetData('currency', target.id);
+        if(!targetCurrencyData) targetCurrencyData = {
+            id: target.id,
+            bits: 0,
+            claimTime: 0,
+            streak: 0
+        };
 
-        var bits = parseInt(args[2]);
+        let bits = parseInt(args[2]);
         
         if(Math.abs(bits) > parseInt(currencyData.bits)) bits = parseInt(currencyData.bits);
         targetCurrencyData.bits = parseInt(targetCurrencyData.bits) + bits;

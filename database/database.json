@@ -1,79 +1,28 @@
 {
-    "currency": [{
-            "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
-        },
-        {
-            "name": "bits",
-            "type": "INTEGER DEFAULT(0)"
-        },
-        {
-            "name": "claimTime",
-            "type": "INTEGER"
-        },
-        {
-            "name": "streak",
-            "type": "INTEGER DEFAULT(0)"
-        }
-    ],
-    "users": [{
-            "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
-        },
-        {
-            "name": "roleTime",
-            "type": "INTEGER"
-        },
-        {
-            "name": "kicks",
-            "type": "INTEGER"
-        },
-        {
-            "name": "bans",
-            "type": "INTEGER"
-        }
-    ],
-    "wumpus": [{
-            "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
-        },
-        {
-            "name": "perma",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "hasRole",
-            "type": "BOOLEAN"
-        },
-        {
-            "name": "roleTime",
-            "type": "INTEGER"
-        }
-    ],
-    "warnedUsers": [{
-            "name": "id",
-            "type": "VARCHAR(30) PRIMARY KEY"
-        },
-        {
-            "name": "count",
-            "type": "INTEGER"
-        }
-    ],
-    "warnings": [{
-            "name": "id",
-            "type":"INTEGER PRIMARY KEY"
-        },
-        {
-            "name": "userid",
-            "type": "VARCHAR(30)"
-        },
-        {
-            "name": "warning",
-            "type": "TEXT"
-        },
-        {
-            "name": "time",
-            "type":"INTEGER"
-        }
-    ]
+    "currency": {
+        "id": "TEXT PRIMARY KEY",
+        "bits": "INTEGER DEFAULT(0)",
+        "claimTime": "INTEGER DEFAULT(0)",
+        "streak": "INTEGER DEFAULT(0)"
+    },
+    "users": {
+        "id": "TEXT PRIMARY KEY",
+        "spams": "INTEGER DEFAULT(0)",
+        "blLinks": "INTEGER DEFAULT(0)",
+        "kicks": "INTEGER DEFAULT(0)",
+        "bans": "INTEGER DEFAULT(0)",
+        "warns": "INTEGER DEFAULT(0)"
+    },
+    "wumpus": {
+        "id": "TEXT PRIMARY KEY",
+        "perma": "BOOLEAN DEFAULT(0)",
+        "hasRole": "BOOLEAN DEFAULT(0)",
+        "roleTime": "INTEGER DEFAULT(0)"
+    },
+    "warnings": {
+        "id": "INTEGER PRIMARY KEY",
+        "userid": "TEXT",
+        "warning": "TEXT",
+        "time": "INTEGER"
+    }
 }

@@ -39,7 +39,7 @@ module.exports = {
                 respReason = "discord meghívó linket küldtél engedély nélkül";
             }
 
-            let logEmbed = EmbedTemplates.LogMsgDelete(message, reason);
+            let logEmbed = EmbedTemplates.MsgDelete(message, reason);
             logChannel.send({embed: logEmbed});
 
             message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert ${respReason}.**`);

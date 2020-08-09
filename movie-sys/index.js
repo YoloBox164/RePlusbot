@@ -38,10 +38,19 @@ module.exports = {
         if(reaction.emoji.name !== Settings.emojis.ticket) return;
         if(!MovieMessages[reaction.message.id]) return;
         if(user.bot) return;
-        var currencyData = Database.GetData('currency', user.id);
+        const currencyData = Database.GetData('currency', user.id);
+        let errorMsg = "Nincsen még elég bited, ezért nem tudtad megvenni a jegyet. Szerezz biteket a >bits daily parancsal.";
+        if(!currencyData) {
+            user.send(errorMsg);
+            return;
+        }
+        if(currencyData.bits < TicketPrice) {
+            user.send(errorMsg);
+            return;
+        }
         currencyData.bits -= TicketPrice;
-        let member = reaction.message.guild.member(user);
-        member.roles.add(Settings.Roles.TicketRoleId).then(() => Database.SetData('currency', currencyData)).catch(console.error);
+        const member = reaction.message.guild.member(user);
+        member.roles.add(Settings.Roles.TicketRoleId).then(() => Database.UpdateData('currency', currencyData)).catch(console.error);
     },
 
     /** @param {Discord.Message} message */

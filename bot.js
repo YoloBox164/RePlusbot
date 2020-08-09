@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 
 const Tools = require('./utils/tools.js');
-const database = require('./database');
+const Database = require('./database');
 const daily = require('./storage/daily.json');
 const SecSys = require('./sec-sys');
 const AnalyticSys = require('./analytic-sys');
@@ -59,10 +59,10 @@ let statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Bet
 
 bot.on('ready', async () => {
     console.log(colors.yellow("---[ Preparing Databases ]---\n"));
-    database.Prepare('currency');
-    database.Prepare('wumpus');
-    database.Prepare('warnedUsers');
-    database.Prepare('warnings');
+    Database.Prepare('currency');
+    Database.Prepare('users');
+    Database.Prepare('wumpus');
+    Database.Prepare('warnings');
     console.log(colors.yellow("\n---[ Preparing Databases ]---\n"));
 
     /* INIT hardcode channels and guilds */
@@ -421,16 +421,25 @@ function clean(text) {
 
 /** @param {Discord.GuildMember} member Discord guild member */
 function CheckWumpus(member) {
-    var wumpusData = database.GetData('wumpus', member.id);
+    const wumpusData = Database.GetData('wumpus', member.id);
+    if(!wumpusData) return;
+
     if(!wumpusData.hasRole) {
-        database.DeleteData('wumpus', member.id);
+        Database.DeleteData('wumpus', member.id);
         delete wumpusData;
         return;
     }
 
-    var currencyData = database.GetData('currency', member.id);
+    if(wumpusData.perma && !member.roles.cache.has(Database.config.WumpusRoleId)) {
+        Database.DeleteData('wumpus', member.id);
+        delete wumpusData;
+        return;
+    }
+
+    const currencyData = Database.GetData('currency', member.id);
+    if(!currencyData) return;
     
-    if(member.roles.has(database.config.WumpusRoleId) && !wumpusData.perma) {
+    if(member.roles.has(Database.config.WumpusRoleId) && !wumpusData.perma) {
         var now = new Date(Date.now());
         var year = now.getFullYear();
         var month = now.getMonth();
@@ -438,22 +447,22 @@ function CheckWumpus(member) {
         var MonthDateRange = Functions.GetMonthDateRange(year, month);
         if(parseInt(daily.EndOfTheMonthInMilliSeconds) < MonthDateRange.end) {
             daily.EndOfTheMonthInMilliSeconds = MonthDateRange.end;
-            fs.writeFile("./daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
+            fs.writeFile("./storage/daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
         }
-        if(wumpusData.roleTime < MonthDateRange.start + (database.config.DayInMilliSeconds * 2)) {
-            if(currencyData.bits >= database.config.WumpusRoleCost) {
-                currencyData.bits -= database.config.WumpusRoleCost;
-                database.SetData('currency', currencyData);
-                wumpusData.roleTime = MonthDateRange.end + database.config.DayInMilliSeconds;
-                database.SetData('wumpus', wumpusData);
-                if(!member.roles.has(database.config.WumpusRoleId)) member.roles.add(database.config.WumpusRoleId);
+        if(wumpusData.roleTime < MonthDateRange.start + (Database.config.DayInMilliSeconds * 2)) {
+            if(currencyData.bits >= Database.config.WumpusRoleCost) {
+                currencyData.bits -= Database.config.WumpusRoleCost;
+                Database.SetData('currency', currencyData);
+                wumpusData.roleTime = MonthDateRange.end + Database.config.DayInMilliSeconds;
+                Database.SetData('wumpus', wumpusData);
+                if(!member.roles.has(Database.config.WumpusRoleId)) member.roles.add(Database.config.WumpusRoleId);
             } else {
-                database.DeleteData('wumpus', member.id);
+                Database.DeleteData('wumpus', member.id);
                 delete wumpusData;
-                member.removeRole(database.config.WumpusRoleId, "Did not have enough bits.");
+                member.removeRole(Database.config.WumpusRoleId, "Did not have enough bits.");
             }
-        } else if(!member.roles.has(database.config.WumpusRoleId)) member.roles.add(database.config.WumpusRoleId);
-    } else if(!member.roles.has(database.config.WumpusRoleId)) member.roles.add(database.config.WumpusRoleId);
+        } else if(!member.roles.has(Database.config.WumpusRoleId)) member.roles.add(Database.config.WumpusRoleId);
+    } else if(!member.roles.has(Database.config.WumpusRoleId)) member.roles.add(Database.config.WumpusRoleId);
 }
 
 /** 
@@ -504,7 +513,7 @@ async function ShutdownCmds(message, args) {
 async function shutdown(message, text) {
     await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
-    database.SQLiteDB.close();
+    Database.SQLiteDB.close();
     AnalyticSys.Shut();
     console.log(text);
     bot.destroy();

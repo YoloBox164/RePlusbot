@@ -68,7 +68,7 @@ module.exports = {
                 MuteHandler.Add(message.member, this.help.MuteTime);
 
                 let seconds = firstLastDifference / 1000;
-                let embed = EmbedTemplates.LogSpamDelete(message, `${userData.messages.size} üzenet ${seconds} másodperc alatt.`);
+                let embed = EmbedTemplates.SpamDelete(message, `${userData.messages.size} üzenet ${seconds} másodperc alatt.`);
                 /** @type {Discord.TextChannel} */
                 let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
                 logChannel.send({embed: embed});
@@ -84,7 +84,7 @@ module.exports = {
 
                     MuteHandler.Add(message.member, this.help.MuteTime);
                     
-                    let embed = EmbedTemplates.LogSpamDelete(message, `${userData.messages.size} üzenet kevesebb mint 5 másodperc alatt.`);
+                    let embed = EmbedTemplates.SpamDelete(message, `${userData.messages.size} üzenet kevesebb mint 5 másodperc alatt.`);
                     /** @type {Discord.TextChannel} */
                     let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
                     logChannel.send({embed: embed});

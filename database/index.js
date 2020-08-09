@@ -1,7 +1,8 @@
+/** @type {Object<string, Object<string, string>>} */
 const DatabaseTableSchema = require('./database.json');
 
-const SQLiteConst = require('better-sqlite3');
-const Database = new SQLiteConst('./database/database.sqlite'); // Path relative to bot.js
+const SQLite = require('better-sqlite3');
+const Database = new SQLite('./database/database.sqlite'); // Path relative to bot.js
 
 const colors = require('colors/safe');
 
@@ -21,19 +22,22 @@ const Tools = require('../utils/tools');
 ///////////////////////////////////
 
 /**
- * @typedef {Object} wumpus
+ * @typedef {Object} users
  * @property {string} id
- * @property {boolean} perma
- * @property {boolean} hasRole
- * @property {number} roleTime
+ * @property {number} spams
+ * @property {number} kicks
+ * @property {number} bans
+ * @property {number} warns
 */
 
 ///////////////////////////////////
 
 /**
- * @typedef {Object} warnedUsers
+ * @typedef {Object} wumpus
  * @property {string} id
- * @property {number} count
+ * @property {boolean} perma
+ * @property {boolean} hasRole
+ * @property {number} roleTime
 */
 
 ///////////////////////////////////
@@ -49,9 +53,27 @@ const Tools = require('../utils/tools');
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
-/** @typedef {(currency|wumpus|warnedUsers|warnings)} databaseObject */
+/** @typedef {(currency|users|wumpus|warnings)} databaseObject */
 
-/** @typedef {('currency'|'wumpus'|'warnedUsers'|'warnings')} tableName */
+/** @typedef {('currency'|'users'|'wumpus'|'warnings')} tableName */
+
+/** @typedef GetDataFunc
+ *  @type {{
+        (table: 'currency', id: string): currency;
+        (table: 'users', id: string): users;
+        (table: 'wumpus', id: string): wumpus;
+        (table: 'warnings', id: string): warnings;
+    }}
+*/
+
+/** @typedef SetDataFunc
+ *  @type {{
+        (table: 'currency', data: Object<currency>): void;
+        (table: 'users', data: Object<users>): void;
+        (table: 'wumpus', data: Object<wumpus>): void;
+        (table: 'warnings', data: Object<warnings>): void;
+    }}
+*/
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -65,10 +87,13 @@ module.exports = {
      * @returns {sqlite.Statement} The table
      */
     Prepare: function(tableName) {
-        var tableArrString = [];
-        var tableArr = DatabaseTableSchema[`${tableName}`];
-        for(var i = 0; i < tableArr.length; i++) {
-            tableArrString.push(`${tableArr[i].name} ${tableArr[i].type}`);
+        const tableArrString = [];
+        const tableColumns = DatabaseTableSchema[`${tableName}`];
+        for(const name in tableColumns) {
+            if (tableColumns.hasOwnProperty(name)) {
+                const type = tableColumns[name];
+                tableArrString.push(`${name} ${type}`);
+            }
         }
 
         const Table = Database.prepare(`SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = '${tableName}';`).get();
@@ -84,79 +109,40 @@ module.exports = {
     },
 
     /**
+     * @type {GetDataFunc}
      * @param {tableName} tableName The name of the table.
      * @param {string} id The searched id.
      * @returns {databaseObject} Table Data.
      */
-
-    GetData: function(tableName, id) {
-        var tableData = Database.prepare(`SELECT * FROM ${tableName} WHERE id = ? ;`).get(id);
-        if(!tableData) tableData = this.GetObjectTemplate(tableName, id);
-        this.SetData(tableName, tableData);
-        return tableData;
-    },
+    GetData: function(tableName, id) { return Database.prepare(`SELECT * FROM ${tableName} WHERE id = ? ;`).get(id); },
 
     /**
+     * @type {SetDataFunc}
      * @param {tableName} tableName The name of the table.
      * @param {databaseObject} data Data that will be inserted into the table.
-     * @returns {sqlite.Statement}
      */
-    
     SetData: function(tableName, data) {
-        var tableArr = DatabaseTableSchema[`${tableName}`];
-        var names = Tools.GetObjectValueFromArray(tableArr, "name");
-        return Database.prepare(`INSERT OR REPLACE INTO ${tableName} (${names.join(', ')}) VALUES (@${names.join(', @')});`).run(data);
+        const columnNames = [];
+        for(const name in data) columnNames.push(name);
+
+        const userData = this.GetData(tableName, data.id);
+        if(data && data.id && userData) {
+            columnNames.forEach((name, i, array) => {
+                array[i] = `${name} = ${data[name]}`;
+            });
+            Database.prepare(`UPDATE ${tableName} SET ${columnNames.join(', ')} WHERE id = ?`).run(data.id);
+            return;
+        }
+
+        Database.prepare(`INSERT INTO ${tableName} (${columnNames.join(', ')}) VALUES (@${columnNames.join(', @')});`).run(data);
+        return;
     },
 
     /**
      * @param {tableName} tableName The name of the table.
      * @param {string} id Based on this id, the database will delete that data.
-     * @returns {sqlite.Statement}
      */
-    
-    DeleteData: function(tableName, id) {
-        return Database.prepare(`delete FROM ${tableName} WHERE id = ? ;`).run(id);
-    },
-    
-    /**
-     * @param {tableName} tableName The name of the table.
-     * @param {string | number}  id The id which repsresent the primary key.
-     * @returns {databaseObject}
-     */
-
-    GetObjectTemplate: function(tableName, id) {
-        var tableArr = DatabaseTableSchema[`${tableName}`];
-        var obj = {};
-        var start = 0;
-        if(tableName == "warnings") {
-            obj = {id: GetLastAvaiableId(), userid: `${id}`};
-            start = 2;
-        } else {
-            obj = {id: `${id}`};
-            start = 1;
-        }
-        for(let i = start; i < tableArr.length; i++) {
-            if(tableArr[i].type.includes("BOOLEAN") || tableArr[i].type.includes("INTEGER")) {
-                obj[tableArr[i].name] = 0;
-            } else if(tableArr[i].type.includes("TEXT")) {
-                obj[tableArr[i].name] = "None";
-            } else {
-                obj[tableArr[i].name] = null;
-            }
-        }
-
-        return obj;
-    }
-}
-
-/** 
- * @param {tableName} tableName
- * @returns {number}
-*/
-
-function GetLastAvaiableId() {
-    var statement = Database.prepare("SELECT count(*) FROM warnings;").get();
-    return statement['count(*)'] + 1;
+    DeleteData: function(tableName, id) { return Database.prepare(`DELETE FROM ${tableName} WHERE id = ? ;`).run(id); }
 }
 
 module.exports.config = {

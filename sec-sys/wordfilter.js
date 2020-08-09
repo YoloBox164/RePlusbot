@@ -45,7 +45,7 @@ module.exports = {
             let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
 
             let reason = "Fekete listán levő szavak használata.";
-            let logEmbed = EmbedTemplates.LogMsgDelete(message, reason);
+            let logEmbed = EmbedTemplates.MsgDelete(message, reason);
             logChannel.send({embed: logEmbed});
 
             message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert fekete listán levő szavakat használtál.**`);
