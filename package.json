@@ -1,36 +1,40 @@
 {
-  "name": "arevoltbot",
-  "version": "1.0.6b",
-  "description": "A Discord bot",
-  "main": "bot.js",
-  "scripts": {
-    "start": "node bot.js",
-    "dev": "nodemon bot.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://CsiPA0723@bitbucket.org/CsiPA0723/arevoltbot.git"
-  },
-  "keywords": [
-    "bot",
-    "discord",
-    "anime-revolt"
-  ],
-  "author": "CsiPA",
-  "license": "ISC",
-  "homepage": "https://bitbucket.org/CsiPA0723/arevoltbot#readme",
-  "dependencies": {
-    "better-sqlite3": "^5.4.3",
-    "colors": "^1.4.0",
-    "convert-units": "^2.3.4",
-    "dateformat": "^3.0.3",
-    "discord.js": "^12.2.0",
-    "express": "^4.17.1",
-    "fs": "0.0.1-security",
-    "got": "^9.6.0",
-    "mathjs": "^6.6.4",
-    "moment": "^2.24.0",
-    "quickchart-js": "^1.0.2",
-    "string-similarity": "^3.0.0"
-  }
+    "name": "arevoltbot",
+    "version": "1.0.6b",
+    "description": "A Discord bot",
+    "main": "bot.js",
+    "scripts": {
+        "start": "node bot.js",
+        "dev": "nodemon bot.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://CsiPA0723@bitbucket.org/CsiPA0723/arevoltbot.git"
+    },
+    "keywords": [
+        "bot",
+        "discord",
+        "anime-revolt"
+    ],
+    "author": "CsiPA",
+    "license": "ISC",
+    "homepage": "https://bitbucket.org/CsiPA0723/arevoltbot#readme",
+    "dependencies": {
+        "better-sqlite3": "^5.4.3",
+        "colors": "^1.4.0",
+        "convert-units": "^2.3.4",
+        "dateformat": "^3.0.3",
+        "discord.js": "^12.2.0",
+        "express": "^4.17.1",
+        "fs": "0.0.1-security",
+        "got": "^9.6.0",
+        "mathjs": "^6.6.4",
+        "moment": "^2.24.0",
+        "quickchart-js": "^1.0.2",
+        "string-similarity": "^3.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^14.0.27",
+        "eslint": "^7.6.0"
+    }
 }
