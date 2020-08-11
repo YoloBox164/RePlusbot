@@ -1,6 +1,6 @@
 {
     "name": "arevoltbot",
-    "version": "1.0.6b",
+    "version": "2.0.0",
     "description": "A Discord bot",
     "main": "bot.js",
     "scripts": {
@@ -14,7 +14,7 @@
     "keywords": [
         "bot",
         "discord",
-        "anime-revolt"
+        "revolt"
     ],
     "author": "CsiPA",
     "license": "ISC",
