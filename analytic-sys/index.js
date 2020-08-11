@@ -1,10 +1,10 @@
-const Discord = require('discord.js');
-const colors = require('colors/safe');
-const fs = require('fs');
+const Discord = require("discord.js");
+const colors = require("colors/safe");
+const fs = require("fs");
 
-const Database = require('./database');
+const Database = require("./database");
 
-const usersPath = "./analytic-sys/database/users/"; //Path is relative to bot.js
+const usersPath = "./analytic-sys/database/users/"; // Path is relative to bot.js
 
 /**
  * @typedef voiceLogData
@@ -22,19 +22,19 @@ const usersPath = "./analytic-sys/database/users/"; //Path is relative to bot.js
  * @property {string} name
  * @property {number} messages
  * @property {number} commandUses
- * 
+ *
  * @typedef userVoiceChannelData
  * @type {object}
  * @property {string} id
  * @property {string} name
  * @property {number} time
  * @property {number} lastJoinTimestampt
- * 
+ *
  * @typedef warning
  * @type {object}
  * @property {string} text
  * @property {number} time
- * 
+ *
  * @typedef userData
  * @type {object}
  * @property {string} tag
@@ -58,11 +58,11 @@ module.exports.Init = () => {
     console.log(colors.yellow("Initializing Analytic System..."));
     Database.Prepare("logs");
     console.log(colors.yellow("Analytic System Ready!"));
-}
+};
 
 module.exports.Shut = () => {
     Database.SQLiteDb.close();
-}
+};
 
 /**
  * @param {Discord.VoiceState} oldVoiceState
@@ -71,21 +71,21 @@ module.exports.Shut = () => {
 module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     VoiceLogger(oldVoiceState, newVoiceState);
 
-    const userId = newVoiceState.id
+    const userId = newVoiceState.id;
     const userData = GetUserData(userId);
     userData.tag = oldVoiceState.member.user.tag;
 
     const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
-    /**@type {Array<voiceLogData>}*/
-    const last2Data = Database.SQLiteDb.prepare(query).all(userId); //Data[0] New Data | Data[1] Old Data
+    /** @type {Array<voiceLogData>}*/
+    const last2Data = Database.SQLiteDb.prepare(query).all(userId); // Data[0] New Data | Data[1] Old Data
     if(last2Data.length < 2) return;
-    //only if leaving or changing channels
+    // only if leaving or changing channels
     if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
         const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
         userData.stats.allTime += pastTime;
     }
 
-    //If Joining or Changing channels
+    // If Joining or Changing channels
     if(newVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
         userData.lastVoiceChannel = {
             id: newVoiceState.channelID,
@@ -93,7 +93,7 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
             leavedTimestampt: -1
         };
     }
-    //if leaving channel
+    // if leaving channel
     else if(oldVoiceState.channelID && !newVoiceState.channelID) {
         userData.lastVoiceChannel = {
             id: oldVoiceState.channelID,
@@ -103,19 +103,19 @@ module.exports.voiceState = (oldVoiceState, newVoiceState) => {
     }
 
     WriteUserData(userId, userData);
-}
+};
 
 /**
  * @param {Discord.Message} message
  * @param {boolean} isCommandTrue
 */
 module.exports.messageCountPlus = (message, isCommandTrue) => {
-    var userId = message.author.id;
-    var userData = GetUserData(userId);
+    const userId = message.author.id;
+    const userData = GetUserData(userId);
     userData.stats.messages += 1;
     if(isCommandTrue) userData.stats.commandUses += 1;
     WriteUserData(userId, userData);
-}
+};
 
 /**
  * @param {Discord.VoiceState} oldVoiceState
@@ -124,7 +124,7 @@ module.exports.messageCountPlus = (message, isCommandTrue) => {
 function VoiceLogger(oldVoiceState, newVoiceState) {
     if(oldVoiceState.channelID == newVoiceState.channelID) return;
 
-    var voiceLog = Log();
+    const voiceLog = Log();
     voiceLog.channelId = newVoiceState.channelID;
     voiceLog.userId = newVoiceState.id;
     voiceLog.timestampt = Date.now();
@@ -132,7 +132,7 @@ function VoiceLogger(oldVoiceState, newVoiceState) {
     Database.AddData(voiceLog);
 }
 
-/**@returns {Promise<Discord.Collection<string, userData>>} */
+/** @returns {Promise<Discord.Collection<string, userData>>} */
 function GetAllUserData() {
     /** @type {Promise<Discord.Collection<string, userData>>} */
     const promise = new Promise((resolve, reject) => {
@@ -141,12 +141,12 @@ function GetAllUserData() {
         fs.readdir(usersPath, (err, files) => {
             if(err) throw err;
 
-            const jsonfiles = files.filter(f => f.split('.').pop() === "json");
+            const jsonfiles = files.filter(f => f.split(".").pop() === "json");
             if(jsonfiles.length <= 0) return;
-            
+
             jsonfiles.forEach(file => {
                 if(fs.existsSync(usersPath + file)) {
-                    const userId = file.split('.')[0];
+                    const userId = file.split(".")[0];
                     /** @type {userData} */
                     const userData = JSON.parse(fs.readFileSync(usersPath + file));
                     users.set(userId, userData);
@@ -183,7 +183,7 @@ module.exports.WriteUserData = WriteUserData;
 
 /** @returns {voiceLogData} */
 function Log() {
-    var log = {
+    const log = {
         userId: "",
         channelId: "",
         timestampt: 0
@@ -191,9 +191,9 @@ function Log() {
     return log;
 }
 
-/** @returns {userData} */ 
+/** @returns {userData} */
 function User() {
-    var user = {
+    const user = {
         tag: "",
         lastVoiceChannel: {
             id: "",

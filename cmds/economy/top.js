@@ -1,58 +1,58 @@
 const Discord = require("discord.js");
 
-const AnalyticSys = require('../../analytic-sys');
-const Tools = require('../../utils/tools');
-const Database = require('../../database');
+const AnalyticSys = require("../../analytic-sys");
+const Tools = require("../../utils/tools");
+const Database = require("../../database");
 const QuickChart = require("quickchart-js");
 
-const ChartBgColor = '#2C2F33';
-const ChartFontColor = '#99AAB5';
-const BarBgColor = 'rgba(114, 137, 218, 0.5)';
-const BarBorderColor = 'rgb(114, 137, 218)';
+const ChartBgColor = "#2C2F33";
+const ChartFontColor = "#99AAB5";
+const BarBgColor = "rgba(114, 137, 218, 0.5)";
+const BarBorderColor = "rgb(114, 137, 218)";
 const ChartWidth = 800;
 const ChartHeight = 400;
 
-/**
- * @param {Discord.Client} bot The bot itself.
- * @param {Discord.Message} message Discord message.
- * @param {Array<string>} args The message.content in an array without the command.
- */
-module.exports.run = async (bot, message, args) => {
-    message.channel.send("Készülödik...").then(async msg => {
-        const allUserData = await AnalyticSys.GetAllUserData();
-        const VoiceEmbed = new Discord.MessageEmbed()
-            .setTitle("Top 10 legtöbb időt volt a hangszobákban")
-            .setColor(Discord.Constants.Colors.BLURPLE)
-            .setImage(await (GetVoiceTop10Chart(allUserData, bot, message).getShortUrl()));
 
-        const MsgEmbed = new Discord.MessageEmbed()
-            .setTitle("Top 10 legtöbb üzenetet elküldött emberek a szerveren")
-            .setColor(Discord.Constants.Colors.BLURPLE)
-            .setImage(await (GetMsgTop10Chart(allUserData, bot, message).getShortUrl()));
+module.exports = {
+    /**
+     * @async
+     * @param {import("discord.js").Message} message Discord message.
+     */
+    execute: async (message) => {
+        message.channel.send("Készülödik...").then(async msg => {
+            const allUserData = await AnalyticSys.GetAllUserData();
+            const VoiceEmbed = new Discord.MessageEmbed()
+                .setTitle("Top 10 legtöbb időt volt a hangszobákban")
+                .setColor(Discord.Constants.Colors.BLURPLE)
+                .setImage(await (GetVoiceTop10Chart(allUserData, message.client, message).getShortUrl()));
 
-        const BitsEmbbed = new Discord.MessageEmbed()
-            .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
-            .setColor(message.guild.member(bot.user).displayHexColor)
-            .setImage(await (GetBitsTop10Chart(bot, message).getShortUrl()));
+            const MsgEmbed = new Discord.MessageEmbed()
+                .setTitle("Top 10 legtöbb üzenetet elküldött emberek a szerveren")
+                .setColor(Discord.Constants.Colors.BLURPLE)
+                .setImage(await (GetMsgTop10Chart(allUserData, message.client, message).getShortUrl()));
 
-        message.channel.send(VoiceEmbed);
-        message.channel.send(MsgEmbed);
-        message.channel.send(BitsEmbbed);
+            const BitsEmbbed = new Discord.MessageEmbed()
+                .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
+                .setColor(message.guild.member(message.client.user).displayHexColor)
+                .setImage(await (GetBitsTop10Chart(message.client, message).getShortUrl()));
 
-        if(msg.deletable) msg.delete({reason: "Finished waiting."});
-    });
-}
+            message.channel.send(VoiceEmbed);
+            message.channel.send(MsgEmbed);
+            message.channel.send(BitsEmbbed);
 
-module.exports.help = {
-    cmd: "top",
-    alias: [],
-    name: "Top 10",
+            if(msg.deletable) msg.delete({ reason: "Finished waiting." });
+        });
+    },
+
+    args: false,
+    name: "top",
+    aliases: [],
     desc: "A top 10 legaktívabb felhasználók",
     usage: ">top"
-}
+};
 
 /**
- * 
+ *
  * @param {Discord.Collection<string, import("../../analytic-sys").userData>} allUserData
  * @param {Discord.Client} bot
  * @param {Discord.Message} message
@@ -62,7 +62,7 @@ function GetVoiceTop10Chart(allUserData, bot, message) {
     const sortedCollection = allUserData.sort((a, b) => b.stats.allTime - a.stats.allTime);
     /** @type {Discord.Collection<string, import("../../analytic-sys").userData} */
     const UserData = new Discord.Collection();
-    counter = 0;
+    let counter = 0;
     sortedCollection.forEach((userData, userId) => {
         if (counter < 10) {
             counter++;
@@ -74,8 +74,8 @@ function GetVoiceTop10Chart(allUserData, bot, message) {
     const UserTimes = [];
 
     UserData.forEach((userData, userId) => {
-        let gm = message.guild.member(userId);
-        let user = bot.users.resolve(userId);
+        const gm = message.guild.member(userId);
+        const user = bot.users.resolve(userId);
         if(gm) UserNames.push(gm.displayName);
         else if(user) UserNames.push(user.tag);
         else if(userData.tag) UserNames.push(userData.tag);
@@ -85,11 +85,11 @@ function GetVoiceTop10Chart(allUserData, bot, message) {
 
     const Chart = new QuickChart();
     Chart.setConfig({
-        type: 'horizontalBar',
+        type: "horizontalBar",
         data: {
             labels: UserNames,
             datasets: [{
-                label: 'Eltöltött idő a hangszobákban',
+                label: "Eltöltött idő a hangszobákban",
                 backgroundColor: BarBgColor,
                 borderColor: BarBorderColor,
                 borderWidth: 1,
@@ -99,24 +99,24 @@ function GetVoiceTop10Chart(allUserData, bot, message) {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                position: "top",
                 labels: {
                     fontColor: ChartFontColor
                 }
             },
             title: {
                 display: true,
-                text: 'Top 10 legtöbb időt volt a hangszobákban',
+                text: "Top 10 legtöbb időt volt a hangszobákban",
                 fontColor: ChartFontColor
             },
             plugins: {
                 datalabels: {
                     display: true,
-                    anchor: 'end',
-                    align: 'right',
+                    anchor: "end",
+                    align: "right",
                     color: ChartFontColor,
                     font: {
-                        weight: 'bold'
+                        weight: "bold"
                     },
                     clamp: true,
                     formatter: Tools.RedableTime
@@ -155,7 +155,7 @@ function GetVoiceTop10Chart(allUserData, bot, message) {
 }
 
 /**
- * 
+ *
  * @param {Discord.Collection<string, import("../../analytic-sys").userData>} allUserData
  * @param {Discord.Client} bot
  * @param {Discord.Message} message
@@ -177,8 +177,8 @@ function GetMsgTop10Chart(allUserData, bot, message) {
     const UserMsgCounts = [];
 
     UserData.forEach((userData, userId) => {
-        let gm = message.guild.member(userId);
-        let user = bot.users.resolve(userId);
+        const gm = message.guild.member(userId);
+        const user = bot.users.resolve(userId);
         if(gm) UserNames.push(gm.displayName);
         else if(user) UserNames.push(user.tag);
         else if(userData.tag) UserNames.push(userData.tag);
@@ -188,11 +188,11 @@ function GetMsgTop10Chart(allUserData, bot, message) {
 
     const Chart = new QuickChart();
     Chart.setConfig({
-        type: 'horizontalBar',
+        type: "horizontalBar",
         data: {
             labels: UserNames,
             datasets: [{
-                label: 'Küldött üzenetek száma',
+                label: "Küldött üzenetek száma",
                 backgroundColor: BarBgColor,
                 borderColor: BarBorderColor,
                 borderWidth: 1,
@@ -202,26 +202,26 @@ function GetMsgTop10Chart(allUserData, bot, message) {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                position: "top",
                 labels: {
                     fontColor: ChartFontColor
                 }
             },
             title: {
                 display: true,
-                text: 'Top 10 legtöbb üzenetet elküldött emberek a szerveren',
+                text: "Top 10 legtöbb üzenetet elküldött emberek a szerveren",
                 fontColor: ChartFontColor
             },
             plugins: {
                 datalabels: {
                     display: true,
-                    anchor: 'end',
-                    align: 'right',
+                    anchor: "end",
+                    align: "right",
                     color: ChartFontColor,
                     font: {
-                        weight: 'bold'
+                        weight: "bold"
                     },
-                    clamp: true,
+                    clamp: true
                 }
             },
             scales: {
@@ -238,7 +238,7 @@ function GetMsgTop10Chart(allUserData, bot, message) {
                     }
                 }]
             }
-        },
+        }
     }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight);
 
     return Chart;
@@ -259,8 +259,8 @@ function GetBitsTop10Chart(bot, message) {
     const UserDatas = Database.SQLiteDB.prepare("SELECT * FROM currency ORDER BY bits DESC LIMIT 10").all();
 
     UserDatas.forEach(userData => {
-        let gm = message.guild.member(userData.id);
-        let user = bot.users.resolve(userData.id);
+        const gm = message.guild.member(userData.id);
+        const user = bot.users.resolve(userData.id);
         if(gm) UserNames.push(gm.displayName);
         else if(user) UserNames.push(user.tag);
         else if(userData.tag) UserNames.push(userData.tag);
@@ -270,11 +270,11 @@ function GetBitsTop10Chart(bot, message) {
 
     const Chart = new QuickChart();
     Chart.setConfig({
-        type: 'horizontalBar',
+        type: "horizontalBar",
         data: {
             labels: UserNames,
             datasets: [{
-                label: 'Bitek',
+                label: "Bitek",
                 backgroundColor: BarBgColor,
                 borderColor: BarBorderColor,
                 borderWidth: 1,
@@ -284,24 +284,24 @@ function GetBitsTop10Chart(bot, message) {
         options: {
             responsive: true,
             legend: {
-                position: 'top',
+                position: "top",
                 labels: {
                     fontColor: ChartFontColor
                 }
             },
             title: {
                 display: true,
-                text: 'Top 10 legtöbb bit birtokában lévő felhasználó',
+                text: "Top 10 legtöbb bit birtokában lévő felhasználó",
                 fontColor: ChartFontColor
             },
             plugins: {
                 datalabels: {
                     display: true,
-                    anchor: 'end',
-                    align: 'right',
+                    anchor: "end",
+                    align: "right",
                     color: ChartFontColor,
                     font: {
-                        weight: 'bold'
+                        weight: "bold"
                     },
                     clamp: true
                 }
@@ -327,7 +327,7 @@ function GetBitsTop10Chart(bot, message) {
 }
 
 /**
- * @param {number} number 
+ * @param {number} number
  * @returns {number}
  */
 function GetSuggestedMax(number) {

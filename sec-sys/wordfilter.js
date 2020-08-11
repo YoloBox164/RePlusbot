@@ -1,12 +1,11 @@
-const Discord = require('discord.js');
-const fs = require('fs');
-const colors = require('colors/safe');
+const fs = require("fs");
+const colors = require("colors/safe");
 
-const Settings = require('../settings.json');
-const EmbedTemplates = require('../utils/embed-templates');
+const Settings = require("../settings.json");
+const EmbedTemplates = require("../utils/embed-templates");
 
-/**@type {RegExp[]} */
-let RegExpWords = [ 
+/** @type {RegExp[]} */
+const RegExpWords = [
     /(?:(?:f+\s*)+(?:a+\s*)+(?:s+\s*)+z+)(?!állító)/gim,
     /(?:(?:s+\s*)+(?:e+\s*)+(?:g+\s*)+g+)/gim
 ];
@@ -27,44 +26,44 @@ const regexpTemplates = {
 };
 
 module.exports = {
-    /** 
-     * @param {Discord.Message} message 
+    /**
+     * @param {import("discord.js").Message} message
      * @returns {Boolean} If the message got deleted true, otherwise false.
      */
     Check: function(message) {
         let found = false;
         for(const regexp of RegExpWords) {
-            let matches = message.content.match(regexp);
+            const matches = message.content.match(regexp);
             if(matches != null && matches.length > 0) {
                 found = true;
                 break;
             }
         }
         if(found) {
-            /** @type {Discord.TextChannel} */
-            let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
+            /** @type {import("discord.js").TextChannel} */
+            const logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
 
-            let reason = "Fekete listán levő szavak használata.";
-            let logEmbed = EmbedTemplates.MsgDelete(message, reason);
-            logChannel.send({embed: logEmbed});
+            const reason = "Fekete listán levő szavak használata.";
+            const logEmbed = EmbedTemplates.MsgDelete(message, reason);
+            logChannel.send({ embed: logEmbed });
 
             message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert fekete listán levő szavakat használtál.**`);
 
-            if(message.deletable) message.delete({reason: reason});
+            if(message.deletable) message.delete({ reason: reason });
             return true;
         }
         return false;
     }
-}
+};
 
 /** This function imports words from jsons and converting them to regular expresstions. */
 function GetRegExpWords() {
-    let dir = "blacklisted/words";
-    
+    const dir = "blacklisted/words";
+
     fs.readdir(`./sec-sys/${dir}/`, (err, files) => {
         if(err) console.error(`ERROR: ${err}`);
 
-        let jsonfiles = files.filter(f => f.split(".").pop() === "json");
+        const jsonfiles = files.filter(f => f.split(".").pop() === "json");
         if(jsonfiles.length <= 0) {
             console.log(colors.red("ERROR: No jsons to load!"));
             return;
@@ -72,16 +71,16 @@ function GetRegExpWords() {
 
         console.log(colors.cyan(`Loading ${jsonfiles.length} jsons! (sec-sys/${dir})`));
 
-        jsonfiles.forEach((f, i) => {
+        jsonfiles.forEach((f) => {
             delete require.cache[require.resolve(`./${dir}/${f}`)];
             /** @type {string[]} */
-            let json = require(`./${dir}/${f}`);
+            const json = require(`./${dir}/${f}`);
             for(const word of json) {
                 let pattern = "\\b";
                 for (let index = 0; index < word.length; index++) {
                     const char = word[index];
-                    if(index == word.length - 1) pattern += regexpTemplates.End.replace('#', char);
-                    else pattern += regexpTemplates.StartAndMindle.replace('#', char);
+                    if(index == word.length - 1) pattern += regexpTemplates.End.replace("#", char);
+                    else pattern += regexpTemplates.StartAndMindle.replace("#", char);
                 }
                 pattern += "\\b";
                 RegExpWords.push(new RegExp(pattern, "gim"));

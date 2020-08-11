@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const Discord = require("discord.js");
 
 
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     Warning: (message, targetMember, issuer, reason) => {
-        let embed = new Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
             .setTitle("Figyelmeztetés")
             .addField("Név:", `${targetMember.displayName} (${targetMember.user.tag})`)
@@ -28,9 +28,9 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     SpamDelete: (message, reason) => {
-        let embed = new Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
-            .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
+            .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Törlés Oka:", reason)
             .setFooter(`USER_ID: ${message.author.id} • ${message.createdAt.toLocaleString()}`);
@@ -42,10 +42,11 @@ module.exports = {
      * @param {string} reason
      * @returns {Discord.MessageEmbed}
      */
-    MsgDelete: (message, reason, asd) => {
-        let embed = new Discord.MessageEmbed()
+    MsgDelete: (message, reason) => {
+        console.log(global.mainGuild);
+        const embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
-            .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
+            .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Üzenet:", message.content)
             .addField("Törlés Oka:", reason)
@@ -59,10 +60,10 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     Join: (guild, member) => {
-        let embed = new Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
             .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL)
             .setTitle("Üdv a szerveren!")
-            .setThumbnail(guild.iconURL({size: 4096, format: "jpg"}))
+            .setThumbnail(guild.iconURL({ size: 4096, format: "jpg" }))
             .setDescription(`${member} érezd jól magad!`);
         return embed;
     },
@@ -72,9 +73,9 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     JoinRequest: (message) => {
-        let embed = new Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
             .setColor("AQUA")
-            .setAuthor(message.author.tag, message.author.avatarURL({size: 4096, format: "png"}))
+            .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
             .setDescription(`${message.member} szeretne csatlakozni a közösségünkbe!`)
             .addField("Üzenet:", message.content)
             .addField("URL:", message.url)
@@ -87,7 +88,7 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     Error: (code) => {
-        let embed = new Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
             .setColor("RED")
             .setTitle("ERROR")
             .setDescription(code)
@@ -100,11 +101,24 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     Online: (mode) => {
-        let embed = new Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
             .setColor("GREEN")
             .setTitle("Online")
             .setDescription(mode)
             .setFooter(`${new Date().toLocaleString()}`);
         return embed;
+    },
+    /**
+     * Use this for logging getting online.
+     * @param {string} mode
+     * @returns {Discord.MessageEmbed}
+     */
+    Shutdown: (mode) => {
+        const embed = new Discord.MessageEmbed()
+            .setColor("YELLOW")
+            .setTitle("Shutting Down")
+            .setDescription(mode)
+            .setFooter(`${new Date().toLocaleString()}`);
+        return embed;
     }
-}
+};

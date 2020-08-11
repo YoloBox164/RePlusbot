@@ -1,23 +1,21 @@
-const Discord = require('discord.js');
+const Settings = require("../settings.json");
+const EmbedTemplates = require("../utils/embed-templates");
+const RegexpPatterns = require("../utils/regexp-patterns");
 
-const Settings = require('../settings.json');
-const EmbedTemplates = require('../utils/embed-templates');
-const RegexpPatterns = require('../utils/regexp-patterns');
+const BannedPages = require("./blacklisted/pornwebpages.json").concat(require("./blacklisted/webpages.json"));
 
-const BannedPages = require('./blacklisted/pornwebpages.json').concat(require('./blacklisted/webpages.json'));
-
-module.exports = { 
-    /** 
-     * @param {Discord.Message} message
+module.exports = {
+    /**
+     * @param {import("discord.js").Message} message
      * @returns {Boolean} If the message got deleted true, otherwise false.
     */
     Check: function(message) {
-        let matches = message.content.match(RegexpPatterns.LinkFinder);
+        const matches = message.content.match(RegexpPatterns.LinkFinder);
         let found = false;
         let isDiscordLink = false;
         if(matches != null && matches.length > 0) {
             for(const link of matches) {
-                let match = RegexpPatterns.LinkFinder.exec(link);
+                const match = RegexpPatterns.LinkFinder.exec(link);
                 let groups = null;
                 if(match) groups = match.groups;
                 if(groups && groups.Domain && groups.TLD) {
@@ -26,27 +24,27 @@ module.exports = {
                 }
             }
         }
-        
+
         if(found) {
-            /**@type {Discord.TextChannel} */
-            let logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
+            /** @type {import("discord.js").TextChannel} */
+            const logChannel = message.client.channels.resolve(Settings.Channels.automodLogId);
 
             let reason = "Fekete listán lévő oldal küldése.";
             let respReason = "fekete listán lévő oldalt küldtél";
-            
+
             if(isDiscordLink) {
                 reason = "Discord meghívó link küldése engedély nélkül.";
                 respReason = "discord meghívó linket küldtél engedély nélkül";
             }
 
-            let logEmbed = EmbedTemplates.MsgDelete(message, reason);
-            logChannel.send({embed: logEmbed});
+            const logEmbed = EmbedTemplates.MsgDelete(message, reason);
+            logChannel.send({ embed: logEmbed });
 
             message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert ${respReason}.**`);
 
-            if(message.deletable) message.delete({reason: reason});
+            if(message.deletable) message.delete({ reason: reason });
             return true;
         }
         return false;
     }
-}
+};

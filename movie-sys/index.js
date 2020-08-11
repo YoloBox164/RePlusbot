@@ -1,12 +1,12 @@
-const Discord = require('discord.js');
-const fs = require('fs');
+const Discord = require("discord.js");
+const fs = require("fs");
 
-const Settings = require('../settings.json');
-const Database = require('../database');
+const Settings = require("../settings.json");
+const Database = require("../database");
 
 const MovieMessagesJSONPath = "./movie-sys/movie-msg.json";
 
-const TicketPrice = 250 //Bit
+const TicketPrice = 250; // Bit
 
 /** @typedef {Object<string, {ChannelId:string,AuthorId:string}>} MovieMsgJSON */
 
@@ -38,8 +38,8 @@ module.exports = {
         if(reaction.emoji.name !== Settings.emojis.ticket) return;
         if(!MovieMessages[reaction.message.id]) return;
         if(user.bot) return;
-        const currencyData = Database.GetData('currency', user.id);
-        let errorMsg = "Nincsen még elég bited, ezért nem tudtad megvenni a jegyet. Szerezz biteket a >bits daily parancsal.";
+        const currencyData = Database.GetData("currency", user.id);
+        const errorMsg = "Nincsen még elég bited, ezért nem tudtad megvenni a jegyet. Szerezz biteket a >bits daily parancsal.";
         if(!currencyData) {
             user.send(errorMsg);
             return;
@@ -50,7 +50,7 @@ module.exports = {
         }
         currencyData.bits -= TicketPrice;
         const member = reaction.message.guild.member(user);
-        member.roles.add(Settings.Roles.TicketRoleId).then(() => Database.UpdateData('currency', currencyData)).catch(console.error);
+        member.roles.add(Settings.Roles.TicketRoleId).then(() => Database.UpdateData("currency", currencyData)).catch(console.error);
     },
 
     /** @param {Discord.Message} message */
@@ -63,7 +63,7 @@ module.exports = {
     },
 
     /** @returns {MovieMsgJSON} */
-    GetJSON: function() { 
+    GetJSON: function() {
         return JSON.parse(fs.readFileSync(MovieMessagesJSONPath));
     },
 
@@ -78,5 +78,5 @@ module.exports = {
         delete MovieMessages[`${messageId}`];
         fs.writeFileSync(MovieMessagesJSONPath, JSON.stringify(MovieMessages, null, 4), err => { if(err) throw err; });
     }
-}
+};
 

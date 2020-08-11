@@ -1,15 +1,15 @@
 /** @type {Object<string, Object<string, string>>} */
-const DatabaseTableSchema = require('./database.json');
+const DatabaseTableSchema = require("./database.json");
 
-const SQLite = require('better-sqlite3');
-const Database = new SQLite('./database/database.sqlite'); // Path relative to bot.js
+const SQLite = require("better-sqlite3");
+const Database = new SQLite("./database/database.sqlite"); // Path relative to bot.js
 
-const colors = require('colors/safe');
+const colors = require("colors/safe");
 
-const Tools = require('../utils/tools');
+const Tools = require("../utils/tools");
 
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 /**
  * @typedef {Object} currency
@@ -19,18 +19,19 @@ const Tools = require('../utils/tools');
  * @property {number} streak
 */
 
-///////////////////////////////////
+// /////////////////////////////////
 
 /**
  * @typedef {Object} users
  * @property {string} id
+ * @property {number} exp
  * @property {number} spams
  * @property {number} kicks
  * @property {number} bans
  * @property {number} warns
 */
 
-///////////////////////////////////
+// /////////////////////////////////
 
 /**
  * @typedef {Object} wumpus
@@ -40,7 +41,7 @@ const Tools = require('../utils/tools');
  * @property {number} roleTime
 */
 
-///////////////////////////////////
+// /////////////////////////////////
 
 /**
  * @typedef {Object} warnings
@@ -50,8 +51,8 @@ const Tools = require('../utils/tools');
  * @property {number} time
 */
 
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 /** @typedef {(currency|users|wumpus|warnings)} databaseObject */
 
@@ -75,8 +76,8 @@ const Tools = require('../utils/tools');
     }}
 */
 
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 module.exports = {
 
@@ -90,7 +91,7 @@ module.exports = {
         const tableArrString = [];
         const tableColumns = DatabaseTableSchema[`${tableName}`];
         for(const name in tableColumns) {
-            if (tableColumns.hasOwnProperty(name)) {
+            if (tableColumns[name]) {
                 const type = tableColumns[name];
                 tableArrString.push(`${name} ${type}`);
             }
@@ -98,8 +99,8 @@ module.exports = {
 
         const Table = Database.prepare(`SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = '${tableName}';`).get();
 
-        if(!Table['count(*)']) {
-            Database.prepare(`CREATE TABLE ${tableName} (${tableArrString.join(', ')});`).run();
+        if(!Table["count(*)"]) {
+            Database.prepare(`CREATE TABLE ${tableName} (${tableArrString.join(", ")});`).run();
             Database.pragma("synchronous = 1");
             Database.pragma("journal_mode = wal");
         }
@@ -120,6 +121,7 @@ module.exports = {
      * @type {SetDataFunc}
      * @param {tableName} tableName The name of the table.
      * @param {databaseObject} data Data that will be inserted into the table.
+     * @returns {void}
      */
     SetData: function(tableName, data) {
         const columnNames = [];
@@ -130,25 +132,26 @@ module.exports = {
             columnNames.forEach((name, i, array) => {
                 array[i] = `${name} = ${data[name]}`;
             });
-            Database.prepare(`UPDATE ${tableName} SET ${columnNames.join(', ')} WHERE id = ?`).run(data.id);
+            Database.prepare(`UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`).run(data.id);
             return;
         }
 
-        Database.prepare(`INSERT INTO ${tableName} (${columnNames.join(', ')}) VALUES (@${columnNames.join(', @')});`).run(data);
+        Database.prepare(`INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (@${columnNames.join(", @")});`).run(data);
         return;
     },
 
     /**
      * @param {tableName} tableName The name of the table.
      * @param {string} id Based on this id, the database will delete that data.
+     * @returns {void}
      */
-    DeleteData: function(tableName, id) { return Database.prepare(`DELETE FROM ${tableName} WHERE id = ? ;`).run(id); }
-}
+    DeleteData: function(tableName, id) { Database.prepare(`DELETE FROM ${tableName} WHERE id = ? ;`).run(id); return; }
+};
 
 module.exports.config = {
     DayBits: 250,
     DayBitsStreakBonus: 750,
     WumpusRoleCost: 5500,
-    WumpusRoleId: '611682394185138176',
+    WumpusRoleId: "611682394185138176",
     DayInMilliSeconds: 86400000
-}
+};

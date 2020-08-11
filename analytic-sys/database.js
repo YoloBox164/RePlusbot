@@ -1,14 +1,14 @@
-const DatabaseTableSchema = require('./database.json');
+const DatabaseTableSchema = require("./database.json");
 
-const sqlite = require('better-sqlite3');
-const Database = new sqlite('./analytic-sys/database/voicelogs.sqlite');
+const sqlite = require("better-sqlite3");
+const Database = new sqlite("./analytic-sys/database/voicelogs.sqlite");
 
-const colors = require('colors/safe');
+const colors = require("colors/safe");
 
-const Tools = require('../utils/tools.js');
+const Tools = require("../utils/tools");
 
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 /**
  * @typedef {Object} logs
@@ -17,15 +17,15 @@ const Tools = require('../utils/tools.js');
  * @property {number} timestampt
 */
 
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 /** @typedef {(logs)} databaseObject */
 
 /** @typedef {('logs')} tableName */
 
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 module.exports = {
 
@@ -36,16 +36,16 @@ module.exports = {
      * @returns {sqlite.Statement} The table
      */
     Prepare: function(tableName) {
-        var tableArrString = [];
-        var tableArr = DatabaseTableSchema[`${tableName}`];
-        for(var i = 0; i < tableArr.length; i++) {
+        const tableArrString = [];
+        const tableArr = DatabaseTableSchema[`${tableName}`];
+        for(let i = 0; i < tableArr.length; i++) {
             tableArrString.push(`${tableArr[i].name} ${tableArr[i].type}`);
         }
 
         const Table = Database.prepare(`SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = '${tableName}';`).get();
 
-        if(!Table['count(*)']) {
-            Database.prepare(`CREATE TABLE ${tableName} (${tableArrString.join(', ')});`).run();
+        if(!Table["count(*)"]) {
+            Database.prepare(`CREATE TABLE ${tableName} (${tableArrString.join(", ")});`).run();
             Database.pragma("synchronous = 1");
             Database.pragma("journal_mode = wal");
         }
@@ -60,7 +60,7 @@ module.exports = {
      */
 
     GetData: function(userId) {
-        var tableData = Database.prepare("SELECT * FROM logs WHERE userId = ? ;").all(userId);
+        let tableData = Database.prepare("SELECT * FROM logs WHERE userId = ? ;").all(userId);
         if(!tableData) tableData = [];
         return tableData;
     },
@@ -73,4 +73,4 @@ module.exports = {
     AddData: function(data) {
         return Database.prepare("INSERT INTO logs (userId, channelId, timestampt) VALUES (@userId, @channelId, @timestampt);").run(data);
     }
-}
+};
