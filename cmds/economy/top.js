@@ -256,16 +256,16 @@ function GetBitsTop10Chart(bot, message) {
     const UserBits = [];
 
     /** @type {import("../../database").Currency[]} */
-    const UserDatas = Database.SQLiteDB.prepare("SELECT * FROM currency ORDER BY bits DESC LIMIT 10").all();
-
-    UserDatas.forEach(userData => {
-        const gm = message.guild.member(userData.id);
-        const user = bot.users.resolve(userData.id);
-        if(gm) UserNames.push(gm.displayName);
-        else if(user) UserNames.push(user.tag);
-        else if(userData.tag) UserNames.push(userData.tag);
-        else UserNames.push(userData.id);
-        UserBits.push(userData.bits);
+    Database.Connection.query("SELECT * FROM Currency ORDER BY bits DESC LIMIT 10").then(userDatas => {
+        userDatas.forEach(userData => {
+            const gm = message.guild.member(userData.id);
+            const user = bot.users.resolve(userData.id);
+            if(gm) UserNames.push(gm.displayName);
+            else if(user) UserNames.push(user.tag);
+            else if(userData.tag) UserNames.push(userData.tag);
+            else UserNames.push(userData.id);
+            UserBits.push(userData.bits);
+        });
     });
 
     const Chart = new QuickChart();
