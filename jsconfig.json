@@ -1,5 +1,1 @@
-{ 
-    "moduleResolution": "node",
-    "checkJs": true,
-    "experimentalDecorators": true
-}
+{ "checkJs": true }

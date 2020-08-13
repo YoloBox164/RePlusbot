@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const Bot = new Discord.Client();
+const Bot = new Discord.Client(/* { partials: ["CHANNEL", "GUILD_MEMBER", "MESSAGE", "REACTION", "USER"] }*/);
 
 const Config = require("./config.json");
 process.env.mode = Config.mode;
@@ -49,14 +49,10 @@ Bot.login(Config.TOKEN).catch(console.error);
 const statuses = [">help", "Node.Js", "Made By CsiPA0723#0423", "Discord.js", "Better-Sqlite3"];
 
 Bot.once("ready", async () => {
-    console.log(colors.yellow("---[ Preparing Databases ]---\n"));
-    Database.Prepare("currency");
-    Database.Prepare("users");
-    Database.Prepare("wumpus");
-    Database.Prepare("warnings");
-    console.log(colors.yellow("\n---[ Preparing Databases ]---\n"));
+    Database.Connect();
+    AnalyticSys.Init();
 
-    /* INIT hardcode channels and guilds */
+    /* INIT hardcoded channels and guilds */
     mainGuild = Bot.guilds.resolve("572873520732831754");
     logChannel = mainGuild.channels.resolve(Settings.Channels.modLogId);
     devLogChannel = Bot.guilds.resolve("427567526935920655").channels.resolve("647420812722307082");
@@ -77,9 +73,6 @@ Bot.once("ready", async () => {
     Bot.mainGuild = mainGuild;
     Bot.logChannel = logChannel;
     Bot.devLogChannel = devLogChannel;
-
-    // Init Analytic system
-    AnalyticSys.Init();
 
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));
     logChannel.send(EmbedTemplates.Online(`**MODE:** \`${Config.mode}\``));
@@ -160,7 +153,7 @@ Bot.once("ready", async () => {
     }, 60000);
 });
 
-Bot.on("presenceUpdate", async (oldMember, newMember) => CheckWumpus(newMember));
+Bot.on("presenceUpdate", async (oldPresence, newPresence) => CheckWumpus(newPresence));
 
 Bot.on("messageReactionAdd", (messageReaction, user) => {
     SecSys.Regist.CheckReaction(messageReaction, user);
@@ -237,7 +230,7 @@ Bot.on("messageDelete", (message) => { MovieSys.CheckDeletedMsg(message); });
 
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
-    if(message.channel.id == Settings.Channels.upvoteId) {
+    if(Settings.Channels.upvoteIds.includes(message.channel.id)) {
         const match = message.content.match(RegexpPatterns.LinkFinder);
         if(!match && message.attachments.size === 0) return;
         const voteup = message.guild.emojis.cache.get(Settings.emojis.voteupId);
@@ -357,25 +350,25 @@ function clean(text) {
     else return text;
 }
 
-/** @param {import("discord.js").GuildMember} member Discord guild member */
-function CheckWumpus(member) {
-    const wumpusData = Database.GetData("wumpus", member.id);
+/** @param {import("discord.js").Presence} presence Discord guild member */
+function CheckWumpus(presence) {
+    const wumpusData = Database.GetData("wumpus", presence.userID);
     if(!wumpusData) return;
 
     if(!wumpusData.hasRole) {
-        Database.DeleteData("wumpus", member.id);
+        Database.DeleteData("wumpus", presence.userID);
         return;
     }
 
-    if(wumpusData.perma && !member.roles.cache.has(Database.config.WumpusRoleId)) {
-        Database.DeleteData("wumpus", member.id);
+    if(wumpusData.perma && !presence.roles.cache.has(Database.config.WumpusRoleId)) {
+        Database.DeleteData("wumpus", presence.userID);
         return;
     }
 
-    const currencyData = Database.GetData("currency", member.id);
+    const currencyData = Database.GetData("currency", presence.userID);
     if(!currencyData) return;
 
-    if(member.roles.has(Database.config.WumpusRoleId) && !wumpusData.perma) {
+    if(presence.roles.has(Database.config.WumpusRoleId) && !wumpusData.perma) {
         const now = new Date(Date.now());
         const year = now.getFullYear();
         const month = now.getMonth();
@@ -391,13 +384,13 @@ function CheckWumpus(member) {
                 Database.SetData("currency", currencyData);
                 wumpusData.roleTime = MonthDateRange.end + Database.config.DayInMilliSeconds;
                 Database.SetData("wumpus", wumpusData);
-                if(!member.roles.has(Database.config.WumpusRoleId)) member.roles.add(Database.config.WumpusRoleId);
+                if(!presence.roles.has(Database.config.WumpusRoleId)) presence.roles.add(Database.config.WumpusRoleId);
             } else {
-                Database.DeleteData("wumpus", member.id);
-                member.removeRole(Database.config.WumpusRoleId, "Did not have enough bits.");
+                Database.DeleteData("wumpus", presence.userID);
+                presence.removeRole(Database.config.WumpusRoleId, "Did not have enough bits.");
             }
-        } else if(!member.roles.has(Database.config.WumpusRoleId)) {member.roles.add(Database.config.WumpusRoleId);}
-    } else if(!member.roles.has(Database.config.WumpusRoleId)) {member.roles.add(Database.config.WumpusRoleId);}
+        } else if(!presence.roles.has(Database.config.WumpusRoleId)) {presence.roles.add(Database.config.WumpusRoleId);}
+    } else if(!presence.roles.has(Database.config.WumpusRoleId)) {presence.roles.add(Database.config.WumpusRoleId);}
 }
 
 /**
@@ -443,7 +436,7 @@ async function ShutdownCmds(message, args) {
 async function shutdown(message, text) {
     await logChannel.send(`\`${text}\``);
     await message.channel.send(`\`${text}\``);
-    Database.SQLiteDB.close();
+    Database.Connection.end();
     AnalyticSys.Shut();
     console.log(text);
     Bot.destroy();

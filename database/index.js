@@ -1,18 +1,13 @@
-/** @type {Object<string, Object<string, string>>} */
-const DatabaseTableSchema = require("./database.json");
-
-const SQLite = require("better-sqlite3");
-const Database = new SQLite("./database/database.sqlite"); // Path relative to bot.js
-
-const colors = require("colors/safe");
-
+const Config = require("../config.json");
+const mariadb = require("mariadb");
 const Tools = require("../utils/tools");
+const Colors = require("colors/safe");
 
 // ////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////
 
 /**
- * @typedef {Object} currency
+ * @typedef {Object} Currency
  * @property {string} id
  * @property {number} bits
  * @property {number} claimTime
@@ -22,19 +17,24 @@ const Tools = require("../utils/tools");
 // /////////////////////////////////
 
 /**
- * @typedef {Object} users
+ * @typedef {Object} Users
  * @property {string} id
+ * @property {string} tag
  * @property {number} exp
  * @property {number} spams
+ * @property {number} blLinks
  * @property {number} kicks
  * @property {number} bans
  * @property {number} warns
+ * @property {number} allTime
+ * @property {number} messages
+ * @property {number} commandUses
 */
 
 // /////////////////////////////////
 
 /**
- * @typedef {Object} wumpus
+ * @typedef {Object} Wumpus
  * @property {string} id
  * @property {boolean} perma
  * @property {boolean} hasRole
@@ -44,7 +44,7 @@ const Tools = require("../utils/tools");
 // /////////////////////////////////
 
 /**
- * @typedef {Object} warnings
+ * @typedef {Object} Warnings
  * @property {number} id
  * @property {string} userid
  * @property {string} warning
@@ -54,25 +54,25 @@ const Tools = require("../utils/tools");
 // ////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////
 
-/** @typedef {(currency|users|wumpus|warnings)} databaseObject */
+/** @typedef {(Currency|Users|Wumpus|Warnings)} databaseObject */
 
-/** @typedef {('currency'|'users'|'wumpus'|'warnings')} tableName */
+/** @typedef {('Currency'|'Users'|'Wumpus'|'Warnings')} tableName */
 
 /** @typedef GetDataFunc
  *  @type {{
-        (table: 'currency', id: string): currency;
-        (table: 'users', id: string): users;
-        (table: 'wumpus', id: string): wumpus;
-        (table: 'warnings', id: string): warnings;
+        (table: 'Currency', id: string): Promise<Currency>;
+        (table: 'Users', id: string):  Promise<Users>;
+        (table: 'Wumpus', id: string):  Promise<Wumpus>;
+        (table: 'Warnings', id: string):  Promise<Warnings>;
     }}
 */
 
 /** @typedef SetDataFunc
  *  @type {{
-        (table: 'currency', data: Object<currency>): void;
-        (table: 'users', data: Object<users>): void;
-        (table: 'wumpus', data: Object<wumpus>): void;
-        (table: 'warnings', data: Object<warnings>): void;
+        (table: 'Currency', data: Currency): Promise<any>;
+        (table: 'Users', data: Users): Promise<any>;
+        (table: 'Wumpus', data: Wumpus): Promise<any>;
+        (table: 'Warnings', data: Warnings): Promise<any>;
     }}
 */
 
@@ -80,72 +80,87 @@ const Tools = require("../utils/tools");
 // ////////////////////////////////////////////////////
 
 module.exports = {
-
-    SQLiteDB: Database,
-
-    /**
-     * @param {tableName} tableName The name of the table to Prepare for use
-     * @returns {sqlite.Statement} The table
-     */
-    Prepare: function(tableName) {
-        const tableArrString = [];
-        const tableColumns = DatabaseTableSchema[`${tableName}`];
-        for(const name in tableColumns) {
-            if (tableColumns[name]) {
-                const type = tableColumns[name];
-                tableArrString.push(`${name} ${type}`);
-            }
-        }
-
-        const Table = Database.prepare(`SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = '${tableName}';`).get();
-
-        if(!Table["count(*)"]) {
-            Database.prepare(`CREATE TABLE ${tableName} (${tableArrString.join(", ")});`).run();
-            Database.pragma("synchronous = 1");
-            Database.pragma("journal_mode = wal");
-        }
-
-        console.log(colors.cyan(`DB: ${Tools.FirstCharUpperCase(tableName)} Table is Ready!`));
-        return Table;
+    async Connect() {
+        const promise = new Promise((resolve, reject) => {
+            mariadb.createConnection({
+                host: Config.mariaDb.host,
+                user: Config.mariaDb.user,
+                password: Config.mariaDb.password,
+                database: Config.mariaDb.database,
+                bigNumberStrings: true
+            }).then((conn) => {
+                console.log(Colors.green(`Connected to database! (Connection: Normal) (id: ${conn.threadId})`));
+                module.exports.Connection = conn;
+                resolve(conn);
+            }).catch((err) => { reject(err); });
+        });
+        return promise;
     },
 
     /**
+     * @async
      * @type {GetDataFunc}
      * @param {tableName} tableName The name of the table.
      * @param {string} id The searched id.
-     * @returns {databaseObject} Table Data.
      */
-    GetData: function(tableName, id) { return Database.prepare(`SELECT * FROM ${tableName} WHERE id = ? ;`).get(id); },
-
-    /**
-     * @type {SetDataFunc}
-     * @param {tableName} tableName The name of the table.
-     * @param {databaseObject} data Data that will be inserted into the table.
-     * @returns {void}
-     */
-    SetData: function(tableName, data) {
-        const columnNames = [];
-        for(const name in data) columnNames.push(name);
-
-        const userData = this.GetData(tableName, data.id);
-        if(data && data.id && userData) {
-            columnNames.forEach((name, i, array) => {
-                array[i] = `${name} = ${data[name]}`;
-            });
-            Database.prepare(`UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`).run(data.id);
-            return;
-        }
-
-        Database.prepare(`INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (@${columnNames.join(", @")});`).run(data);
-        return;
+    async GetData(tableName, id) {
+        if(!module.exports.Connection) return;
+        tableName = Tools.FirstCharUpperCase(tableName);
+        const promise = new Promise((resolve, reject) => {
+            module.exports.Connection.query(`SELECT * FROM ${tableName} WHERE id = ${id};`).then(rows => {
+                resolve(rows[0]);
+            }).catch(err => reject(err));
+        });
+        return promise;
     },
 
     /**
+     * @async
+     * @type {SetDataFunc}
+     * @param {tableName} tableName The name of the table.
+     * @param {databaseObject} data Data that will be inserted into the table.
+     * @returns {Promise<any>}
+     */
+    async SetData(tableName, data) {
+        if(!module.exports.Connection) return;
+        tableName = Tools.FirstCharUpperCase(tableName);
+        const columnNames = [];
+        const columnDatas = [];
+        for(const name in data) {
+            if(data[name]) {
+                columnNames.push(name);
+                if(name == "tag") columnDatas.push(`'${(data[name])}'`);
+                else columnDatas.push((data[name]));
+            }
+        }
+
+        this.GetData(tableName, data.id).then(userData => {
+            if(data && data.id && userData) {
+                columnNames.forEach((name, i, array) => {
+                    if(name == "tag") {
+                        array[i] = `${name} = '${data[name]}'`;
+                    }
+                    array[i] = `${name} = ${data[name]}`;
+                });
+                return module.exports.Connection.query(`UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`, [data.id]);
+            }
+        }).catch(err => { throw err; });
+
+
+        return module.exports.Connection.query(`INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`);
+    },
+
+    /**
+     * @async
      * @param {tableName} tableName The name of the table.
      * @param {string} id Based on this id, the database will delete that data.
-     * @returns {void}
+     * @returns {Promise<any>}
      */
-    DeleteData: function(tableName, id) { Database.prepare(`DELETE FROM ${tableName} WHERE id = ? ;`).run(id); return; }
+    async DeleteData(tableName, id) {
+        if(!module.exports.Connection) return;
+        tableName = Tools.FirstCharUpperCase(tableName);
+        return module.exports.Connection.query(`DELETE FROM ${tableName} WHERE id = ${id};`);
+    }
 };
 
 module.exports.config = {

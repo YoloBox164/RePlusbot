@@ -5,7 +5,7 @@ module.exports = {
     /**
      * @param {import("discord.js").Message} message
      * @param {import("discord.js").MessageEmbed} embed
-     * @param {import("../../../database").currency} currencyData
+     * @param {import("../../../database").Currency} currencyData
      * @param {number} timeNow
     */
     func: (message, embed, currencyData, timeNow) => {

@@ -1,17 +1,15 @@
-const DatabaseTableSchema = require("./database.json");
+const Config = require("../config.json");
+const mariadb = require("mariadb");
+const Colors = require("colors/safe");
 
-const sqlite = require("better-sqlite3");
-const Database = new sqlite("./analytic-sys/database/voicelogs.sqlite");
-
-const colors = require("colors/safe");
-
-const Tools = require("../utils/tools");
+const MonthInMs = 2592000000;
 
 // ////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////
 
 /**
- * @typedef {Object} logs
+ * @typedef {Object} VoiceLogs
+ * @property {number} id
  * @property {string} userId
  * @property {(string|null)} channelId
  * @property {number} timestampt
@@ -20,57 +18,66 @@ const Tools = require("../utils/tools");
 // ////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////
 
-/** @typedef {(logs)} databaseObject */
+/** @typedef {(VoiceLogs)} databaseObject */
 
-/** @typedef {('logs')} tableName */
+/** @typedef {('VoiceLogs')} tableName */
 
 // ////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////
+
 
 module.exports = {
-
-    SQLiteDb: Database,
-
-    /**
-     * @param {tableName} tableName The name of the table to Prepare for use
-     * @returns {sqlite.Statement} The table
-     */
-    Prepare: function(tableName) {
-        const tableArrString = [];
-        const tableArr = DatabaseTableSchema[`${tableName}`];
-        for(let i = 0; i < tableArr.length; i++) {
-            tableArrString.push(`${tableArr[i].name} ${tableArr[i].type}`);
-        }
-
-        const Table = Database.prepare(`SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = '${tableName}';`).get();
-
-        if(!Table["count(*)"]) {
-            Database.prepare(`CREATE TABLE ${tableName} (${tableArrString.join(", ")});`).run();
-            Database.pragma("synchronous = 1");
-            Database.pragma("journal_mode = wal");
-        }
-
-        console.log(colors.cyan(`DB: ${Tools.FirstCharUpperCase(tableName)} Table is Ready!`));
-        return Table;
+    async Connect() {
+        const promise = new Promise((resolve, reject) => {
+            mariadb.createConnection({
+                host: Config.mariaDb.host,
+                user: Config.mariaDb.user,
+                password: Config.mariaDb.password,
+                database: Config.mariaDb.database,
+                bigNumberStrings: true
+            }).then((conn) => {
+                console.log(Colors.green(`Connected to database! (Connection: Analytic) (id: ${conn.threadId})`));
+                module.exports.Connection = conn;
+                resolve(conn);
+            }).catch((err) => { reject(err); });
+        });
+        return promise;
     },
 
     /**
+     * @async
      * @param {string} userId The searched userid.
-     * @returns {Array<databaseObject>} Table Data.
+     * @returns {Promise<Array<databaseObject>>} Table Data.
      */
-
-    GetData: function(userId) {
-        let tableData = Database.prepare("SELECT * FROM logs WHERE userId = ? ;").all(userId);
-        if(!tableData) tableData = [];
-        return tableData;
+    async GetData(userId) {
+        if(!module.exports.Connection) return;
+        const promise = new Promise((resolve, reject) => {
+            module.exports.Connection.query("SELECT * FROM VoiceLogs WHERE userId = ? ORDER BY id DESC LIMIT 2;", [userId]).then(rows => {
+                resolve([rows[0], rows[1]]);
+            }).catch(err => reject(err));
+        });
+        return promise;
     },
 
     /**
      * @param {databaseObject} data Data that will be inserted into the table.
-     * @returns {sqlite.Statement}
      */
+    AddData(data) {
+        if(!this.Connection) return;
+        const { userId, channelId, timestampt } = data;
+        this.Connection.query("INSERT INTO VoiceLogs (userId, channelId, timestampt) VALUES (?, ?, ?);", [userId, channelId, timestampt]);
+        return;
 
-    AddData: function(data) {
-        return Database.prepare("INSERT INTO logs (userId, channelId, timestampt) VALUES (@userId, @channelId, @timestampt);").run(data);
+    },
+
+    /**
+     * @param {tableName} tableName The name of the table.
+     * @param {string} id Based on this id, the database will delete that data.
+     * @returns {void}
+     */
+    DeleteData() {
+        if(!this.Connection) return;
+        this.Connection.query(`DELETE FROM VoiceLogs WHERE timestampt <= ${Date.now() - MonthInMs};`).catch(err => {throw err;});
+        return;
     }
 };

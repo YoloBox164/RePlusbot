@@ -5,7 +5,7 @@ module.exports = {
     /**
      * @param {import("discord.js").Message} message
      * @param {import("discord.js").MessageEmbed} embed
-     * @param {import("../../../database").currency} currencyData
+     * @param {import("../../../database").Currency} currencyData
     */
     func: (message, embed, currencyData) => {
         embed.addField("Shop Menü", `🇦\tWumpus+ rang \t${Database.config.WumpusRoleCost} bits/hó`);

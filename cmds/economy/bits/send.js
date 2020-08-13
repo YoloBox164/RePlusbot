@@ -8,7 +8,7 @@ module.exports = {
      * @param {string[]} args
      * @param {import("discord.js").MessageEmbed} embed
      * @param {import("discord.js").MessageEmbed} errorEmbed
-     * @param {import("../../../database").currency} currencyData
+     * @param {import("../../../database").Currency} currencyData
     */
     func: (message, args, embed, errorEmbed, currencyData) => {
         const target = Tools.GetMember(message, args.slice(1));

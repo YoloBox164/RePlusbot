@@ -30,7 +30,7 @@ module.exports = {
             else userData.warns += 1;
             Database.SetData("users", userData);
 
-            /** @type {import('../../database').warnings} */
+            /** @type {import('../../database').Warnings} */
             const warning = {
                 userid: targetMember.id,
                 warning: reason,

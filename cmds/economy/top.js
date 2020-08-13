@@ -255,7 +255,7 @@ function GetBitsTop10Chart(bot, message) {
     /** @type {number[]} */
     const UserBits = [];
 
-    /** @type {import("../../database").currency[]} */
+    /** @type {import("../../database").Currency[]} */
     const UserDatas = Database.SQLiteDB.prepare("SELECT * FROM currency ORDER BY bits DESC LIMIT 10").all();
 
     UserDatas.forEach(userData => {

@@ -1,40 +1,12 @@
 const Discord = require("discord.js");
-const colors = require("colors/safe");
 const fs = require("fs");
 
-const Database = require("./database");
+const AnalyticDatabase = require("./database");
+const Database = require("../database");
 
-const usersPath = "./analytic-sys/database/users/"; // Path is relative to bot.js
-
-/**
- * @typedef voiceLogData
- * @type {object}
- * @property {number} id
- * @property {string} userId
- * @property {?string} channelId
- * @property {number} timestampt
-*/
+const usersPath = "./analytic-sys/users/"; // Path is relative to bot.js
 
 /**
- * @typedef userTextChannelData
- * @type {object}
- * @property {string} id
- * @property {string} name
- * @property {number} messages
- * @property {number} commandUses
- *
- * @typedef userVoiceChannelData
- * @type {object}
- * @property {string} id
- * @property {string} name
- * @property {number} time
- * @property {number} lastJoinTimestampt
- *
- * @typedef warning
- * @type {object}
- * @property {string} text
- * @property {number} time
- *
  * @typedef userData
  * @type {object}
  * @property {string} tag
@@ -54,72 +26,67 @@ undefined => id | join
 id => null | leave
 */
 
-module.exports.Init = () => {
-    console.log(colors.yellow("Initializing Analytic System..."));
-    Database.Prepare("logs");
-    console.log(colors.yellow("Analytic System Ready!"));
-};
+module.exports = {
+    Init() {
+        AnalyticDatabase.Connect().then(() => {
+            GetAllUserData().then(allData => {
+                allData.forEach((data, userId) => {
+                    /** @type {import("../database").Users} */
+                    const userData = {
+                        id: userId,
+                        allTime: data.stats.allTime,
+                        commandUses: data.stats.commandUses,
+                        messages: data.stats.messages,
+                        tag: data.tag
+                    };
+                    Database.SetData("Users", userData).then(rows => console.log(rows)).catch(console.error);
+                });
+            });
+        });
+    },
+    Shut() { AnalyticDatabase.Connection.end(); },
 
-module.exports.Shut = () => {
-    Database.SQLiteDb.close();
+    /**
+     * @param {import("discord.js").VoiceState} oldVoiceState
+     * @param {import("discord.js").VoiceState} newVoiceState
+    */
+    voiceState(oldVoiceState, newVoiceState) {
+        VoiceLogger(oldVoiceState, newVoiceState);
+
+        const userId = newVoiceState.id;
+        Database.GetData("Users", userId).then(userData => {
+            if(userData.tag !== oldVoiceState.member.user.tag) {
+                userData.tag = oldVoiceState.member.user.tag;
+            }
+            AnalyticDatabase.GetData(userId).then(last2Data => { // Data[0] New Data | Data[1] Old Data
+                console.log(last2Data);
+                if(last2Data.length < 2) return;
+                // only if leaving or changing channels
+                if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
+                    const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
+                    userData.stats.allTime += pastTime;
+                }
+                Database.SetData("Users", userData);
+            });
+        }).catch(err => {throw err;});
+    },
+
+    /**
+     * @param {import("discord.js").Message} message
+     * @param {boolean} isCommandTrue
+    */
+    messageCountPlus(message, isCommandTrue) {
+        const userId = message.author.id;
+        const userData = GetUserData(userId);
+        userData.stats.messages += 1;
+        if(isCommandTrue) userData.stats.commandUses += 1;
+        WriteUserData(userId, userData);
+    }
 };
 
 /**
- * @param {Discord.VoiceState} oldVoiceState
- * @param {Discord.VoiceState} newVoiceState
-*/
-module.exports.voiceState = (oldVoiceState, newVoiceState) => {
-    VoiceLogger(oldVoiceState, newVoiceState);
-
-    const userId = newVoiceState.id;
-    const userData = GetUserData(userId);
-    userData.tag = oldVoiceState.member.user.tag;
-
-    const query = "SELECT * FROM logs WHERE userId = ? ORDER BY id DESC LIMIT 2;";
-    /** @type {Array<voiceLogData>}*/
-    const last2Data = Database.SQLiteDb.prepare(query).all(userId); // Data[0] New Data | Data[1] Old Data
-    if(last2Data.length < 2) return;
-    // only if leaving or changing channels
-    if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
-        const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
-        userData.stats.allTime += pastTime;
-    }
-
-    // If Joining or Changing channels
-    if(newVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
-        userData.lastVoiceChannel = {
-            id: newVoiceState.channelID,
-            joinedTimestampt: last2Data[0].timestampt,
-            leavedTimestampt: -1
-        };
-    }
-    // if leaving channel
-    else if(oldVoiceState.channelID && !newVoiceState.channelID) {
-        userData.lastVoiceChannel = {
-            id: oldVoiceState.channelID,
-            joinedTimestampt: last2Data[1].timestampt,
-            leavedTimestampt: last2Data[0].timestampt
-        };
-    }
-
-    WriteUserData(userId, userData);
-};
-
-/**
- * @param {Discord.Message} message
- * @param {boolean} isCommandTrue
-*/
-module.exports.messageCountPlus = (message, isCommandTrue) => {
-    const userId = message.author.id;
-    const userData = GetUserData(userId);
-    userData.stats.messages += 1;
-    if(isCommandTrue) userData.stats.commandUses += 1;
-    WriteUserData(userId, userData);
-};
-
-/**
- * @param {Discord.VoiceState} oldVoiceState
- * @param {Discord.VoiceState} newVoiceState
+ * @param {import("discord.js").VoiceState} oldVoiceState
+ * @param {import("discord.js").VoiceState} newVoiceState
 */
 function VoiceLogger(oldVoiceState, newVoiceState) {
     if(oldVoiceState.channelID == newVoiceState.channelID) return;
@@ -129,17 +96,17 @@ function VoiceLogger(oldVoiceState, newVoiceState) {
     voiceLog.userId = newVoiceState.id;
     voiceLog.timestampt = Date.now();
 
-    Database.AddData(voiceLog);
+    AnalyticDatabase.AddData(voiceLog);
 }
 
-/** @returns {Promise<Discord.Collection<string, userData>>} */
+/** @returns {Promise<import("discord.js").Collection<string, userData>>} */
 function GetAllUserData() {
     /** @type {Promise<Discord.Collection<string, userData>>} */
     const promise = new Promise((resolve, reject) => {
         /** @type {Discord.Collection<string, userData>} */
         const users = new Discord.Collection();
         fs.readdir(usersPath, (err, files) => {
-            if(err) throw err;
+            if(err) reject(err);
 
             const jsonfiles = files.filter(f => f.split(".").pop() === "json");
             if(jsonfiles.length <= 0) return;
