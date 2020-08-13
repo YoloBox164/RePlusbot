@@ -40,7 +40,8 @@ module.exports = {
         }
     },
     name: "searchrole",
-    dev: true
+    dev: true,
+    args: true
 };
 
 /**

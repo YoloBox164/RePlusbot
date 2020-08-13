@@ -1,6 +1,5 @@
 const Discord = require("discord.js");
 
-const AnalyticSys = require("../../analytic-sys");
 const Tools = require("../../utils/tools");
 const Database = require("../../database");
 const QuickChart = require("quickchart-js");
@@ -15,30 +14,34 @@ const ChartHeight = 400;
 
 module.exports = {
     /**
-     * @async
      * @param {import("discord.js").Message} message Discord message.
      */
-    execute: async (message) => {
+    execute: (message) => {
         message.channel.send("Készülödik...").then(async msg => {
-            const allUserData = await AnalyticSys.GetAllUserData();
-            const VoiceEmbed = new Discord.MessageEmbed()
-                .setTitle("Top 10 legtöbb időt volt a hangszobákban")
-                .setColor(Discord.Constants.Colors.BLURPLE)
-                .setImage(await (GetVoiceTop10Chart(allUserData, message.client, message).getShortUrl()));
+            await GetVoiceTop10Chart(message.client, message).then(async chart => {
+                const VoiceEmbed = new Discord.MessageEmbed()
+                    .setTitle("Top 10 legtöbb időt volt a hangszobákban")
+                    .setColor(Discord.Constants.Colors.BLURPLE)
+                    .setImage(await chart.getShortUrl());
+                message.channel.send(VoiceEmbed);
+            });
 
-            const MsgEmbed = new Discord.MessageEmbed()
-                .setTitle("Top 10 legtöbb üzenetet elküldött emberek a szerveren")
-                .setColor(Discord.Constants.Colors.BLURPLE)
-                .setImage(await (GetMsgTop10Chart(allUserData, message.client, message).getShortUrl()));
+            await GetMsgTop10Chart(message.client, message).then(async chart => {
+                const MsgEmbed = new Discord.MessageEmbed()
+                    .setTitle("Top 10 legtöbb üzenetet elküldött emberek a szerveren")
+                    .setColor(Discord.Constants.Colors.BLURPLE)
+                    .setImage(await chart.getShortUrl());
+                message.channel.send(MsgEmbed);
+            });
 
-            const BitsEmbbed = new Discord.MessageEmbed()
-                .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
-                .setColor(message.guild.member(message.client.user).displayHexColor)
-                .setImage(await (GetBitsTop10Chart(message.client, message).getShortUrl()));
+            await GetBitsTop10Chart(message.client, message).then(async chart => {
+                const BitsEmbbed = new Discord.MessageEmbed()
+                    .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
+                    .setColor(message.guild.member(message.client.user).displayHexColor)
+                    .setImage(await chart.getShortUrl());
+                message.channel.send(BitsEmbbed);
 
-            message.channel.send(VoiceEmbed);
-            message.channel.send(MsgEmbed);
-            message.channel.send(BitsEmbbed);
+            });
 
             if(msg.deletable) msg.delete({ reason: "Finished waiting." });
         });
@@ -52,278 +55,267 @@ module.exports = {
 };
 
 /**
- *
- * @param {Discord.Collection<string, import("../../analytic-sys").userData>} allUserData
- * @param {Discord.Client} bot
- * @param {Discord.Message} message
- * @returns {QuickChart}
+ * @async
+ * @param {import("discord.js").Client} bot
+ * @param {import("discord.js").Message} message
+ * @returns {Promise<QuickChart>}
  */
-function GetVoiceTop10Chart(allUserData, bot, message) {
-    const sortedCollection = allUserData.sort((a, b) => b.stats.allTime - a.stats.allTime);
-    /** @type {Discord.Collection<string, import("../../analytic-sys").userData} */
-    const UserData = new Discord.Collection();
-    let counter = 0;
-    sortedCollection.forEach((userData, userId) => {
-        if (counter < 10) {
-            counter++;
-            UserData.set(userId, userData);
-        }
-    });
+async function GetVoiceTop10Chart(bot, message) {
+    /** @type {Promise<QuickChart>}*/
+    const promise = new Promise((resolve, reject) => {
+        Database.Connection.query("SELECT * FROM Users ORDER BY allTime DESC LIMIT 10").then(function(/** @type {import("../../database").Users[]} */ userDatas) {
+            /** @type {string[]} */
+            const UserNames = [];
+            /** @type {number[]} */
+            const UserTimes = [];
 
-    const UserNames = [];
-    const UserTimes = [];
+            userDatas.forEach((userData) => {
+                const gm = message.guild.member(userData.id);
+                const user = bot.users.resolve(userData.id);
+                if(gm) UserNames.push(gm.displayName);
+                else if(user) UserNames.push(user.tag);
+                else if(userData.tag) UserNames.push(userData.tag);
+                else UserNames.push(userData.id);
+                UserTimes.push(userData.allTime);
+            });
 
-    UserData.forEach((userData, userId) => {
-        const gm = message.guild.member(userId);
-        const user = bot.users.resolve(userId);
-        if(gm) UserNames.push(gm.displayName);
-        else if(user) UserNames.push(user.tag);
-        else if(userData.tag) UserNames.push(userData.tag);
-        else UserNames.push(userId);
-        UserTimes.push(userData.stats.allTime);
-    });
-
-    const Chart = new QuickChart();
-    Chart.setConfig({
-        type: "horizontalBar",
-        data: {
-            labels: UserNames,
-            datasets: [{
-                label: "Eltöltött idő a hangszobákban",
-                backgroundColor: BarBgColor,
-                borderColor: BarBorderColor,
-                borderWidth: 1,
-                data: UserTimes
-            }]
-        },
-        options: {
-            responsive: true,
-            legend: {
-                position: "top",
-                labels: {
-                    fontColor: ChartFontColor
-                }
-            },
-            title: {
-                display: true,
-                text: "Top 10 legtöbb időt volt a hangszobákban",
-                fontColor: ChartFontColor
-            },
-            plugins: {
-                datalabels: {
-                    display: true,
-                    anchor: "end",
-                    align: "right",
-                    color: ChartFontColor,
-                    font: {
-                        weight: "bold"
+            const Chart = new QuickChart();
+            resolve(Chart.setConfig({
+                type: "horizontalBar",
+                data: {
+                    labels: UserNames,
+                    datasets: [{
+                        label: "Eltöltött idő a hangszobákban",
+                        backgroundColor: BarBgColor,
+                        borderColor: BarBorderColor,
+                        borderWidth: 1,
+                        data: UserTimes
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        position: "top",
+                        labels: {
+                            fontColor: ChartFontColor
+                        }
                     },
-                    clamp: true,
-                    formatter: Tools.RedableTime
-                }
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
+                    title: {
                         display: true,
-                        labelString: "Óra",
-                        fontFamily: "Mono",
-                        fontSize: 14,
-                        fontColor: ChartFontColor,
-                        fontStyle: "bold"
+                        text: "Top 10 legtöbb időt volt a hangszobákban",
+                        fontColor: ChartFontColor
                     },
-                    ticks: {
-                        fontColor: ChartBgColor,
-                        suggestedMax: GetSuggestedMax(Math.max(...UserTimes))
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            anchor: "end",
+                            align: "right",
+                            color: ChartFontColor,
+                            font: {
+                                weight: "bold"
+                            },
+                            clamp: true,
+                            formatter: Tools.RedableTime
+                        }
                     },
-                    gridLines: {
-                        display: false
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Óra",
+                                fontFamily: "Mono",
+                                fontSize: 14,
+                                fontColor: ChartFontColor,
+                                fontStyle: "bold"
+                            },
+                            ticks: {
+                                fontColor: ChartBgColor,
+                                suggestedMax: GetSuggestedMax(Math.max(...UserTimes))
+                            },
+                            gridLines: {
+                                display: false
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                fontColor: ChartFontColor,
+                                fontStyle: "bold"
+                            }
+                        }]
                     }
-                }],
-                yAxes: [{
-                    ticks: {
-                        fontColor: ChartFontColor,
-                        fontStyle: "bold"
-                    }
-                }]
-            }
-        }
-    }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight);
-
-    return Chart;
+                }
+            }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight));
+        }).catch(err => reject(err));
+    });
+    return promise;
 }
 
 /**
- *
- * @param {Discord.Collection<string, import("../../analytic-sys").userData>} allUserData
- * @param {Discord.Client} bot
- * @param {Discord.Message} message
- * @returns {QuickChart}
+ * @async
+ * @param {import("discord.js").Client} bot
+ * @param {import("discord.js").Message} message
+ * @returns {Promise<QuickChart>}
  */
-function GetMsgTop10Chart(allUserData, bot, message) {
-    const sortedCollection = allUserData.sort((a, b) => b.stats.messages - a.stats.messages);
-    /** @type {Discord.Collection<string, import("../../analytic-sys").userData} */
-    const UserData = new Discord.Collection();
-    let counter = 0;
-    sortedCollection.forEach((userData, userId) => {
-        if (counter < 10) {
-            counter++;
-            UserData.set(userId, userData);
-        }
-    });
+async function GetMsgTop10Chart(bot, message) {
+    /** @type {Promise<QuickChart>}*/
+    const promise = new Promise((resolve, reject) => {
+        Database.Connection.query("SELECT * FROM Users ORDER BY messages DESC LIMIT 10").then(function(/** @type {import("../../database").Users[]} */ userDatas) {
+            /** @type {string[]} */
+            const UserNames = [];
+            /** @type {number[]} */
+            const UserMsgCounts = [];
 
-    const UserNames = [];
-    const UserMsgCounts = [];
+            userDatas.forEach((userData) => {
+                const gm = message.guild.member(userData.id);
+                const user = bot.users.resolve(userData.id);
+                if(gm) UserNames.push(gm.displayName);
+                else if(user) UserNames.push(user.tag);
+                else if(userData.tag) UserNames.push(userData.tag);
+                else UserNames.push(userData.id);
+                UserMsgCounts.push(userData.messages);
+            });
 
-    UserData.forEach((userData, userId) => {
-        const gm = message.guild.member(userId);
-        const user = bot.users.resolve(userId);
-        if(gm) UserNames.push(gm.displayName);
-        else if(user) UserNames.push(user.tag);
-        else if(userData.tag) UserNames.push(userData.tag);
-        else UserNames.push(userId);
-        UserMsgCounts.push(userData.stats.messages);
-    });
-
-    const Chart = new QuickChart();
-    Chart.setConfig({
-        type: "horizontalBar",
-        data: {
-            labels: UserNames,
-            datasets: [{
-                label: "Küldött üzenetek száma",
-                backgroundColor: BarBgColor,
-                borderColor: BarBorderColor,
-                borderWidth: 1,
-                data: UserMsgCounts
-            }]
-        },
-        options: {
-            responsive: true,
-            legend: {
-                position: "top",
-                labels: {
-                    fontColor: ChartFontColor
-                }
-            },
-            title: {
-                display: true,
-                text: "Top 10 legtöbb üzenetet elküldött emberek a szerveren",
-                fontColor: ChartFontColor
-            },
-            plugins: {
-                datalabels: {
-                    display: true,
-                    anchor: "end",
-                    align: "right",
-                    color: ChartFontColor,
-                    font: {
-                        weight: "bold"
+            const Chart = new QuickChart();
+            resolve(Chart.setConfig({
+                type: "horizontalBar",
+                data: {
+                    labels: UserNames,
+                    datasets: [{
+                        label: "Küldött üzenetek száma",
+                        backgroundColor: BarBgColor,
+                        borderColor: BarBorderColor,
+                        borderWidth: 1,
+                        data: UserMsgCounts
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        position: "top",
+                        labels: {
+                            fontColor: ChartFontColor
+                        }
                     },
-                    clamp: true
+                    title: {
+                        display: true,
+                        text: "Top 10 legtöbb üzenetet elküldött emberek a szerveren",
+                        fontColor: ChartFontColor
+                    },
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            anchor: "end",
+                            align: "right",
+                            color: ChartFontColor,
+                            font: {
+                                weight: "bold"
+                            },
+                            clamp: true
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                fontColor: ChartFontColor,
+                                suggestedMax: GetSuggestedMax(Math.max(...UserMsgCounts))
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                fontColor: ChartFontColor,
+                                fontStyle: "bold"
+                            }
+                        }]
+                    }
                 }
-            },
-            scales: {
-                xAxes: [{
-                    ticks: {
-                        fontColor: ChartFontColor,
-                        suggestedMax: GetSuggestedMax(Math.max(...UserMsgCounts))
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        fontColor: ChartFontColor,
-                        fontStyle: "bold"
-                    }
-                }]
-            }
-        }
-    }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight);
-
-    return Chart;
+            }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight));
+        }).catch(err => reject(err));
+    });
+    return promise;
 }
 
 /**
- * @param {Discord.Client} bot
- * @param {Discord.Message} message
- * @returns {QuickChart}
+ * @async
+ * @param {import("discord.js").Client} bot
+ * @param {import("discord.js").Message} message
+ * @returns {Promise<QuickChart>}
  */
-function GetBitsTop10Chart(bot, message) {
-    /** @type {string[]} */
-    const UserNames = [];
-    /** @type {number[]} */
-    const UserBits = [];
+async function GetBitsTop10Chart(bot, message) {
+    /** @type {Promise<QuickChart>}*/
+    const promise = new Promise((resolve, reject) => {
+        Database.Connection.query("SELECT * FROM Currency ORDER BY bits DESC LIMIT 10").then(function(/** @type {import("../../database").Currency[]} */ userDatas) {
+            /** @type {string[]} */
+            const UserNames = [];
+            /** @type {number[]} */
+            const UserBits = [];
+            userDatas.forEach(userData => {
+                const gm = message.guild.member(userData.id);
+                const user = bot.users.resolve(userData.id);
+                if(gm) UserNames.push(gm.displayName);
+                else if(user) UserNames.push(user.tag);
+                else if(userData.tag) UserNames.push(userData.tag);
+                else UserNames.push(userData.id);
+                UserBits.push(userData.bits);
+            });
 
-    /** @type {import("../../database").Currency[]} */
-    Database.Connection.query("SELECT * FROM Currency ORDER BY bits DESC LIMIT 10").then(userDatas => {
-        userDatas.forEach(userData => {
-            const gm = message.guild.member(userData.id);
-            const user = bot.users.resolve(userData.id);
-            if(gm) UserNames.push(gm.displayName);
-            else if(user) UserNames.push(user.tag);
-            else if(userData.tag) UserNames.push(userData.tag);
-            else UserNames.push(userData.id);
-            UserBits.push(userData.bits);
-        });
-    });
-
-    const Chart = new QuickChart();
-    Chart.setConfig({
-        type: "horizontalBar",
-        data: {
-            labels: UserNames,
-            datasets: [{
-                label: "Bitek",
-                backgroundColor: BarBgColor,
-                borderColor: BarBorderColor,
-                borderWidth: 1,
-                data: UserBits
-            }]
-        },
-        options: {
-            responsive: true,
-            legend: {
-                position: "top",
-                labels: {
-                    fontColor: ChartFontColor
-                }
-            },
-            title: {
-                display: true,
-                text: "Top 10 legtöbb bit birtokában lévő felhasználó",
-                fontColor: ChartFontColor
-            },
-            plugins: {
-                datalabels: {
-                    display: true,
-                    anchor: "end",
-                    align: "right",
-                    color: ChartFontColor,
-                    font: {
-                        weight: "bold"
+            const Chart = new QuickChart();
+            resolve(Chart.setConfig({
+                type: "horizontalBar",
+                data: {
+                    labels: UserNames,
+                    datasets: [{
+                        label: "Bitek",
+                        backgroundColor: BarBgColor,
+                        borderColor: BarBorderColor,
+                        borderWidth: 1,
+                        data: UserBits
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        position: "top",
+                        labels: {
+                            fontColor: ChartFontColor
+                        }
                     },
-                    clamp: true
+                    title: {
+                        display: true,
+                        text: "Top 10 legtöbb bit birtokában lévő felhasználó",
+                        fontColor: ChartFontColor
+                    },
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            anchor: "end",
+                            align: "right",
+                            color: ChartFontColor,
+                            font: {
+                                weight: "bold"
+                            },
+                            clamp: true
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                fontColor: ChartFontColor,
+                                suggestedMax: GetSuggestedMax(Math.max(...UserBits))
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                fontColor: ChartFontColor,
+                                fontStyle: "bold"
+                            }
+                        }]
+                    }
                 }
-            },
-            scales: {
-                xAxes: [{
-                    ticks: {
-                        fontColor: ChartFontColor,
-                        suggestedMax: GetSuggestedMax(Math.max(...UserBits))
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        fontColor: ChartFontColor,
-                        fontStyle: "bold"
-                    }
-                }]
-            }
-        }
-    }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight);
-
-    return Chart;
+            }).setBackgroundColor(ChartBgColor).setWidth(ChartWidth).setHeight(ChartHeight));
+        }).catch(err => reject(err));
+    });
+    return promise;
 }
 
 /**

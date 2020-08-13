@@ -134,18 +134,25 @@ module.exports = {
             }
         }
 
-        this.GetData(tableName, data.id).then(userData => {
-            if(data && data.id && userData) {
-                columnNames.forEach((name, i, array) => {
-                    if(name == "tag") array[i] = `${name} = '${data[name]}'`;
-                    else array[i] = `${name} = ${data[name]}`;
-                });
-                return module.exports.Connection.query(`UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`, [data.id]);
-            }
-        }).catch(err => { throw err; });
-
-
-        return module.exports.Connection.query(`INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`);
+        const promise = new Promise((resolve, reject) => {
+            this.GetData(tableName, data.id).then(userData => {
+                if(data && data.id && userData) {
+                    columnNames.forEach((name, i, array) => {
+                        if(name == "tag") array[i] = `${name} = '${data[name]}'`;
+                        else array[i] = `${name} = ${data[name]}`;
+                    });
+                    resolve(module.exports.Connection.query(
+                        `UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`,
+                        [data.id]
+                    ));
+                } else {
+                    resolve(module.exports.Connection.query(
+                        `INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`
+                    ));
+                }
+            }).catch(reject);
+        });
+        return promise;
     },
 
     /**

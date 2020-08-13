@@ -1,24 +1,7 @@
 const Discord = require("discord.js");
-const fs = require("fs");
-
 const AnalyticDatabase = require("./database");
 const Database = require("../database");
 
-const usersPath = "./analytic-sys/users/"; // Path is relative to bot.js
-
-/**
- * @typedef userData
- * @type {object}
- * @property {string} tag
- * @property {Object} lastVoiceChannel
- * @property {string} lastVoiceChannel.id
- * @property {number} lastVoiceChannel.joinedTimestampt
- * @property {number} lastVoiceChannel.leavedTimestampt
- * @property {Object} stats
- * @property {number} stats.allTime
- * @property {number} stats.messages
- * @property {number} stats.commandUses
- */
 
 /*
 oldChannelId => newChannelId
@@ -61,10 +44,34 @@ module.exports = {
     */
     messageCountPlus(message, isCommandTrue) {
         const userId = message.author.id;
-        const userData = GetUserData(userId);
-        userData.stats.messages += 1;
-        if(isCommandTrue) userData.stats.commandUses += 1;
-        WriteUserData(userId, userData);
+        Database.GetData("Users", userId).then(userData => {
+            if(!userData) {
+                userData = {
+                    id: userId,
+                    tag: message.author.tag,
+                    messages: 1,
+                    commandUses: 1
+                };
+            } else {
+                userData.messages += 1;
+                if(isCommandTrue) userData.commandUses += 1;
+            }
+            Database.SetData("Users", userData);
+        }).catch(err => {throw err;});
+    },
+
+    /** @returns {Promise<import("discord.js").Collection<string, import("../database").Users>>} */
+    GetAllUserData() {
+        /** @type {Promise<Discord.Collection<string, import("../database").Users>>} */
+        const promise = new Promise((resolve, reject) => {
+            /** @type {Discord.Collection<string, import("../database").Users>} */
+            const users = new Discord.Collection();
+            Database.Connection.query("SELECT * FROM Users").then(rows => {
+                rows.forEach(row => { users.set(row.id, row); });
+                resolve(users);
+            }).catch(reject);
+        });
+        return promise;
     }
 };
 
@@ -75,87 +82,10 @@ module.exports = {
 function VoiceLogger(oldVoiceState, newVoiceState) {
     if(oldVoiceState.channelID == newVoiceState.channelID) return;
 
-    const voiceLog = Log();
-    voiceLog.channelId = newVoiceState.channelID;
-    voiceLog.userId = newVoiceState.id;
-    voiceLog.timestampt = Date.now();
-
+    const voiceLog = {
+        channelId: newVoiceState.channelID,
+        userId: newVoiceState.id,
+        timestampt: Date.now()
+    };
     AnalyticDatabase.AddData(voiceLog);
-}
-
-/** @returns {Promise<import("discord.js").Collection<string, userData>>} */
-function GetAllUserData() {
-    /** @type {Promise<Discord.Collection<string, userData>>} */
-    const promise = new Promise((resolve, reject) => {
-        /** @type {Discord.Collection<string, userData>} */
-        const users = new Discord.Collection();
-        fs.readdir(usersPath, (err, files) => {
-            if(err) reject(err);
-
-            const jsonfiles = files.filter(f => f.split(".").pop() === "json");
-            if(jsonfiles.length <= 0) return;
-
-            jsonfiles.forEach(file => {
-                if(fs.existsSync(usersPath + file)) {
-                    const userId = file.split(".")[0];
-                    /** @type {userData} */
-                    const userData = JSON.parse(fs.readFileSync(usersPath + file));
-                    users.set(userId, userData);
-                }
-            });
-            resolve(users);
-        });
-    });
-    return promise;
-}
-module.exports.GetAllUserData = GetAllUserData;
-
-/**
- * @param {string} userId
- * @returns {userData}
-*/
-function GetUserData(userId) {
-    let userData = User();
-    if(fs.existsSync(usersPath + `${userId}.json`)) {
-        userData = JSON.parse(fs.readFileSync(usersPath + `${userId}.json`));
-    }
-    return userData;
-}
-module.exports.GetUserData = GetUserData;
-
-/**
- * @param {string} userId
- * @param {userData} userData
-*/
-function WriteUserData(userId, userData) {
-    fs.writeFileSync(usersPath + `${userId}.json`, JSON.stringify(userData, null, 4), err => {throw err;});
-}
-module.exports.WriteUserData = WriteUserData;
-
-/** @returns {voiceLogData} */
-function Log() {
-    const log = {
-        userId: "",
-        channelId: "",
-        timestampt: 0
-    };
-    return log;
-}
-
-/** @returns {userData} */
-function User() {
-    const user = {
-        tag: "",
-        lastVoiceChannel: {
-            id: "",
-            joinedTimestampt: 0,
-            leavedTimestampt: 0
-        },
-        stats: {
-            allTime: 0,
-            messages: 0,
-            commandUses: 0
-        }
-    };
-    return user;
 }

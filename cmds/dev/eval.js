@@ -22,7 +22,8 @@ module.exports = {
         }
     },
     name: "eval",
-    dev: true
+    dev: true,
+    args: true
 };
 
 function clean(text) {
