@@ -27,23 +27,7 @@ id => null | leave
 */
 
 module.exports = {
-    Init() {
-        AnalyticDatabase.Connect().then(() => {
-            GetAllUserData().then(allData => {
-                allData.forEach((data, userId) => {
-                    /** @type {import("../database").Users} */
-                    const userData = {
-                        id: userId,
-                        allTime: data.stats.allTime,
-                        commandUses: data.stats.commandUses,
-                        messages: data.stats.messages,
-                        tag: data.tag
-                    };
-                    Database.SetData("Users", userData).then(rows => console.log(rows)).catch(console.error);
-                });
-            });
-        });
-    },
+    Init() { AnalyticDatabase.Connect(); },
     Shut() { AnalyticDatabase.Connection.end(); },
 
     /**
