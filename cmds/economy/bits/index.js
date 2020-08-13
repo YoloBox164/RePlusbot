@@ -21,45 +21,46 @@ module.exports = {
         while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += database.config.DayInMilliSeconds;
         fs.writeFile("./storage/daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
 
-        let currencyData = database.GetData("currency", message.author.id);
-        if(!currencyData) {
-            currencyData = {
-                id: message.author.id,
-                bits: 0,
-                claimTime: 0,
-                streak: 0
-            };
-        }
+        database.GetData("currency", message.author.id).then(currencyData => {
+            if(!currencyData) {
+                currencyData = {
+                    id: message.author.id,
+                    bits: 0,
+                    claimTime: 0,
+                    streak: 0
+                };
+            }
 
-        const embed = new Discord.MessageEmbed()
-            .setAuthor(message.member.displayName, message.author.displayAvatarURL())
-            .setColor(message.member.displayHexColor)
-            .setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. nap)`);
+            const embed = new Discord.MessageEmbed()
+                .setAuthor(message.member.displayName, message.author.displayAvatarURL())
+                .setColor(message.member.displayHexColor)
+                .setDescription(`Bits: ${currencyData.bits} (Streak: ${currencyData.streak}. nap)`);
 
-        const errorEmbed = new Discord.MessageEmbed()
-            .setColor(message.member.displayHexColor);
+            const errorEmbed = new Discord.MessageEmbed()
+                .setColor(message.member.displayHexColor);
 
-        if(!args[0]) {
-            embed.addField("Parancsok",
-                `${Buy.help}
-                ${Send.help}
-                ${Daily.help}
-                ${Add.help}
-                ${Remove.help}`
-            );
-            embed.addField("Bits Streak", `Szerezd meg a napi biteidet 5 napon keresztűl és kapni fogsz bónusz ${database.config.DayBitsStreakBonus} Bitet!`);
-            message.channel.send({ embed: embed });
-        } else if(args[0] === "buy") {
-            Buy.func(message, embed, currencyData, daily);
-        } else if(args[0] === "add") {
-            Add.func(message, args, embed, errorEmbed);
-        } else if(args[0] === "remove") {
-            Remove.func(message, args, embed, errorEmbed);
-        } else if(args[0] === "send") {
-            Send.func(message, args, embed, errorEmbed, currencyData);
-        } else if(args[0] === "daily") {
-            Daily.func(message, embed, currencyData, timeNow);
-        }
+            if(!args[0]) {
+                embed.addField("Parancsok",
+                    `${Buy.help}
+                    ${Send.help}
+                    ${Daily.help}
+                    ${Add.help}
+                    ${Remove.help}`
+                );
+                embed.addField("Bits Streak", `Szerezd meg a napi biteidet 5 napon keresztűl és kapni fogsz bónusz ${database.config.DayBitsStreakBonus} Bitet!`);
+                message.channel.send({ embed: embed });
+            } else if(args[0] === "buy") {
+                Buy.func(message, embed, currencyData, daily);
+            } else if(args[0] === "add") {
+                Add.func(message, args, embed, errorEmbed);
+            } else if(args[0] === "remove") {
+                Remove.func(message, args, embed, errorEmbed);
+            } else if(args[0] === "send") {
+                Send.func(message, args, embed, errorEmbed, currencyData);
+            } else if(args[0] === "daily") {
+                Daily.func(message, embed, currencyData, timeNow);
+            }
+        }).catch(err => {throw err;});
     },
     args:true,
     name: "bits",

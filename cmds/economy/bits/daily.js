@@ -1,6 +1,8 @@
 const Database = require("../../../database");
 const daily = require("../../../storage/daily.json");
 
+const help = "`>bits daily` => Szerezd meg a napi biteidet.";
+
 module.exports = {
     /**
      * @param {import("discord.js").Message} message
@@ -30,5 +32,5 @@ module.exports = {
             message.channel.send("Ma már megkaptad a napi biteidet, próbáld holnap.");
         }
     },
-    help: "`>bits daily` => Szerezd meg a napi biteidet."
+    help: help
 };

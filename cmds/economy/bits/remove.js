@@ -2,6 +2,8 @@ const Settings = require("../../../settings.json");
 const Database = require("../../../database");
 const Tools = require("../../../utils/tools");
 
+const help = "(Staff) `>bits remove <felhasználó> [mennyiség]` (Ha nincsen felhasználó megadva akkor te leszel.)";
+
 module.exports = {
     /**
      * @param {import("discord.js").Message} message
@@ -16,7 +18,7 @@ module.exports = {
 
         const target = Tools.GetMember(message, args.slice(1));
         if(!target) {
-            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.help}`);
+            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${help}`);
             return message.channel.send({ embed: errorEmbed });
         }
 
@@ -26,7 +28,7 @@ module.exports = {
         } else if(!isNaN(args[2])) {
             bits = parseInt(args[2]);
         } else {
-            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.help}`);
+            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${help}`);
             return message.channel.send({ embed: errorEmbed });
         }
         let targetCurrencyData = Database.GetData("currency", target.id);
@@ -46,5 +48,5 @@ module.exports = {
         embed.setDescription(`Eltávolítottál ${bits} bitet ${target} sikeresen.`);
         message.channel.send({ embed: embed });
     },
-    help: "(Staff) `>bits remove <felhasználó> [mennyiség]` (Ha nincsen felhasználó megadva akkor te leszel.)"
+    help: help
 };

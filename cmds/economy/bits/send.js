@@ -1,6 +1,7 @@
 const Database = require("../../../database");
 const Tools = require("../../../utils/tools");
 
+const help = "`>bits send [felhasználó] [mennyiség]` => Küldj más felhasználónak bitet.";
 
 module.exports = {
     /**
@@ -13,12 +14,12 @@ module.exports = {
     func: (message, args, embed, errorEmbed, currencyData) => {
         const target = Tools.GetMember(message, args.slice(1));
         if(!target) {
-            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${this.help}`);
+            errorEmbed.setDescription(`Nem találtam ilyen felhasználót.\n\n\`Segítség\` => ${help}`);
             return message.channel.send({ embed: errorEmbed });
         }
 
         if(!args[2] || isNaN(args[2])) {
-            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${this.help}`);
+            errorEmbed.setDescription(`Mennyiség nem volt megadva.\n\n\`Segítség\` => ${help}`);
             return message.channel.send({ embed: errorEmbed });
         }
         if(currencyData.bits == 0) {
@@ -47,5 +48,5 @@ module.exports = {
         embed.setDescription(`Bits: ${currencyData.bits}`);
         message.channel.send(`Utalás sikeres.\n${bits} bit átkerült ${target.displayName} számlájára`, { embed: embed });
     },
-    help: "`>bits send [felhasználó] [mennyiség]` => Küldj más felhasználónak bitet."
+    help: help
 };

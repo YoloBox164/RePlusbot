@@ -1,6 +1,8 @@
 const Database = require("../../../database");
 const daily = require("../../../storage/daily.json");
 
+const help = "`>bits buy` => Vásárlói menüt megnyitja";
+
 module.exports = {
     /**
      * @param {import("discord.js").Message} message
@@ -51,5 +53,5 @@ module.exports = {
             }).catch(console.error);
         }).catch(console.error);
     },
-    help: "`>bits buy` => Vásárlói menüt megnyitja"
+    help: help
 };
