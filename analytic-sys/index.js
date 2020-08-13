@@ -31,7 +31,7 @@ module.exports = {
                 // only if leaving or changing channels
                 if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
                     const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
-                    userData.stats.allTime += pastTime;
+                    userData.allTime += pastTime;
                 }
                 Database.SetData("Users", userData);
             });
