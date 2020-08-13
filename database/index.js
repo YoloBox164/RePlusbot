@@ -137,10 +137,8 @@ module.exports = {
         this.GetData(tableName, data.id).then(userData => {
             if(data && data.id && userData) {
                 columnNames.forEach((name, i, array) => {
-                    if(name == "tag") {
-                        array[i] = `${name} = '${data[name]}'`;
-                    }
-                    array[i] = `${name} = ${data[name]}`;
+                    if(name == "tag") array[i] = `${name} = '${data[name]}'`;
+                    else array[i] = `${name} = ${data[name]}`;
                 });
                 return module.exports.Connection.query(`UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`, [data.id]);
             }
