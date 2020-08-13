@@ -26,7 +26,6 @@ module.exports = {
                 userData.tag = oldVoiceState.member.user.tag;
             }
             AnalyticDatabase.GetData(userId).then(last2Data => { // Data[0] New Data | Data[1] Old Data
-                console.log(last2Data);
                 if(last2Data.length < 2) return;
                 // only if leaving or changing channels
                 if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
