@@ -29,13 +29,7 @@ const MonthInMs = 2592000000;
 module.exports = {
     async Connect() {
         const promise = new Promise((resolve, reject) => {
-            mariadb.createConnection({
-                host: Config.mariaDb.host,
-                user: Config.mariaDb.user,
-                password: Config.mariaDb.password,
-                database: Config.mariaDb.database,
-                bigNumberStrings: true
-            }).then((conn) => {
+            mariadb.createConnection(Config.mariaDb).then((conn) => {
                 console.log(Colors.green(`Connected to database! (Connection: Analytic) (id: ${conn.threadId})`));
                 module.exports.Connection = conn;
                 resolve(conn);
