@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const Bot = new Discord.Client(/* { partials: ["CHANNEL", "GUILD_MEMBER", "MESSAGE", "REACTION", "USER"] }*/);
+const Bot = new Discord.Client({ partials: [/* "CHANNEL",*/ "GUILD_MEMBER", "MESSAGE", "REACTION", "USER"] });
 
 const Config = require("./config.json");
 process.env.mode = Config.mode;
@@ -25,6 +25,7 @@ const daily = require("./storage/daily.json");
 const SecSys = require("./sec-sys");
 const AnalyticSys = require("./analytic-sys");
 const MovieSys = require("./movie-sys");
+const XpSys = require("./xp-sys");
 
 const fs = require("fs");
 const colors = require("colors/safe");
@@ -155,14 +156,17 @@ Bot.once("ready", async () => {
 
 Bot.on("presenceUpdate", async (oldPresence, newPresence) => CheckWumpus(newPresence));
 
-Bot.on("messageReactionAdd", (messageReaction, user) => {
-    SecSys.Regist.CheckReaction(messageReaction, user);
-    MovieSys.CheckReaction(messageReaction, user);
+Bot.on("messageReactionAdd", async (reaction, user) => {
+    if(reaction.partial) await reaction.fetch();
+    if(user.partial) await reaction.fetch();
+    SecSys.Regist.CheckReaction(reaction, user);
+    MovieSys.CheckReaction(reaction, user);
 });
 
 Bot.on("message", async message => {
     if(message.author.bot) return;
     if(message.channel.type === "dm") return;
+    if(message.partial) await message.fetch();
 
     if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(message.member, Settings.StaffIds)) {
         if(SecSys.Automod.LinkFilter.Check(message)) return;
@@ -178,26 +182,17 @@ Bot.on("message", async message => {
     }
 
     SecSys.Regist.CheckMsg(message);
-
-    AnalyticSys.messageCountPlus(message, false);
     upvoteSys(message);
-
-    if(message.mentions.has(Bot.user)) message.channel.send("`>help` » Ha kell segítség használatomhoz.");
-
-    if(message.content.startsWith(">:")) return;
-    if(message.content.startsWith("> ")) return;
 
     if(message.content.startsWith(Bot.devPrefix) && message.author.id === Bot.devId) {
         const { command, args } = makeArgs(message, Bot.devPrefix);
-        if(command == "sh") {
-            ShutdownCmds(message, args);
-            return;
-        }
 
         const cmd = Bot.CommandHandler.commands.get(command);
         if(cmd && cmd.dev) cmd.execute(message, args);
-
+        XpSys.GiveExp(message, true);
     } else if(message.content.startsWith(Bot.prefix)) {
+        if(message.content.startsWith(">:")) return;
+        if(message.content.startsWith("> ")) return;
         const { command, args } = makeArgs(message, Bot.prefix);
 
         const cmd = Bot.CommandHandler.commands.get(command) ||
@@ -210,7 +205,12 @@ Bot.on("message", async message => {
         } else {
             message.channel.send("`>help` » Ha kell segítség használatomhoz.");
         }
-        AnalyticSys.messageCountPlus(message, true);
+        XpSys.GiveExp(message, true);
+    } else if(message.mentions.has(Bot.user)) {
+        message.channel.send("`>help` » Ha kell segítség használatomhoz.");
+        XpSys.GiveExp(message, false);
+    } else {
+        XpSys.GiveExp(message, false);
     }
 });
 
@@ -219,14 +219,15 @@ Bot.on("messageUpdate", (oldMessage, newMessage) => {
     if(newMessage.channel.type === "dm") return;
 
     if(Config.mode === "development" || !Tools.MemberHasOneOfTheRoles(newMessage.member, Settings.StaffIds)) {
-        let isMsgDeleted = false;
-        if(!isMsgDeleted) isMsgDeleted = SecSys.Automod.LinkFilter.Check(newMessage);
-        if(!isMsgDeleted) isMsgDeleted = SecSys.Automod.WordFilter.Check(newMessage);
-        if(isMsgDeleted) return;
+        if(SecSys.Automod.LinkFilter.Check(newMessage)) return;
+        if(SecSys.Automod.WordFilter.Check(newMessage)) return;
     }
 });
 
-Bot.on("messageDelete", (message) => { MovieSys.CheckDeletedMsg(message); });
+Bot.on("messageDelete", async (message) => {
+    if(message.partial) await message.fetch();
+    MovieSys.CheckDeletedMsg(message);
+});
 
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
@@ -245,7 +246,7 @@ function upvoteSys(message) {
  * @returns {{command:string, args: Array<string>}}
  */
 function makeArgs(message, prefix) {
-    const messageArray = message.content.split(/\s+\n+|\s+|\n+/g);
+    const messageArray = message.content.split(/\s+/g);
     const args = messageArray.slice(1);
     const command = messageArray[0].toLowerCase().slice(prefix.length);
 
@@ -289,6 +290,7 @@ function inviteLogHandler(invite, text) {
 }
 
 Bot.on("guildMemberAdd", async member => {
+    if(member.partial) member.fetch();
     const logMsg = `${member.user.bot ? "`BOT`" : "`User`"}: ${member.displayName} (${member.id}) joined the server at \`${Bot.logDate(member.joinedTimestamp)}\``;
 
     if(member.guild == mainGuild) {
@@ -300,6 +302,7 @@ Bot.on("guildMemberAdd", async member => {
 });
 
 Bot.on("guildMemberRemove", async member => {
+    if(member.partial) member.fetch();
     const banEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_BAN_ADD" }).then(audit => audit.entries.first());
     const kickEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_KICK" }).then(audit => audit.entries.first());
     const pruneEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_PRUNE" }).then(audit => audit.entries.first());
@@ -391,54 +394,4 @@ function CheckWumpus(presence) {
             }
         } else if(!presence.roles.has(Database.config.WumpusRoleId)) {presence.roles.add(Database.config.WumpusRoleId);}
     } else if(!presence.roles.has(Database.config.WumpusRoleId)) {presence.roles.add(Database.config.WumpusRoleId);}
-}
-
-/**
- * @param {import("discord.js").Message} message
- * @param {Array<string>} args
- */
-async function ShutdownCmds(message, args) {
-    const reloads = ["reloadcmds", "reload", "r"];
-    const shutdowns = ["shutdown", "shut", "s"];
-    const updates = ["update", "upd", "up"];
-    const restarts = ["restart", "res", "rs"];
-    const switchmodes = ["switchmode", "switch", "sw"];
-
-    const command = args[0];
-    if(!command) return;
-
-    if(reloads.includes(command)) {
-        Bot.CommandHandler.loadCmds();
-        logChannel.send("`Reloading commands`");
-        console.log("Reloading commands");
-        message.channel.send("Commands successfully reloaded!");
-    } else if(shutdowns.includes(command)) {
-        await shutdown(message, "Shutting down");
-    } else if(updates.includes(command)) {
-        await shutdown(message, "Updating");
-    } else if(restarts.includes(command)) {
-        await shutdown(message, "Restarting");
-    } else if(switchmodes.includes(command)) {
-        await shutdown(message, "Switching to mode: " + (Config.mode == "development" ? "production." : "development."));
-    } else if(["twitch", "tw"].includes(command)) {
-        if(Config.mode === "production") return;
-        // console.log("Reloading twitch webhook");
-        delete require.cache[require.resolve("./twitch.js")];
-        const twitch = require("./twitch.js");
-        twitch.CheckSub();
-    }
-}
-
-/**
- * @param {import("discord.js").Message} message
- * @param {string} text
- */
-async function shutdown(message, text) {
-    await logChannel.send(`\`${text}\``);
-    await message.channel.send(`\`${text}\``);
-    Database.Connection.end();
-    AnalyticSys.Shut();
-    console.log(text);
-    Bot.destroy();
-    process.exit(0);
 }

@@ -15,7 +15,6 @@ module.exports = {
      * @param {Array<string>} args The message.content in an array without the command.
      */
     execute: (message, args) => {
-        if(process.env.mode === "development" && message.author.id !== message.client.devId) return message.channel.send("Ez a parancs nem elérhető fejlesztői módban neked.");
         const timeNow = Date.now();
 
         while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += database.config.DayInMilliSeconds;
@@ -60,7 +59,7 @@ module.exports = {
             } else if(args[0] === "daily") {
                 Daily.func(message, embed, currencyData, timeNow);
             }
-        }).catch(err => {throw err;});
+        }).catch(console.error);
     },
     args:true,
     name: "bits",

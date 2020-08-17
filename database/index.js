@@ -21,6 +21,7 @@ const Colors = require("colors/safe");
  * @property {string} id
  * @property {string} tag
  * @property {number} exp
+ * @property {number} level
  * @property {number} spams
  * @property {number} blLinks
  * @property {number} kicks

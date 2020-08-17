@@ -71,7 +71,7 @@ module.exports = {
      */
     DeleteData() {
         if(!this.Connection) return;
-        this.Connection.query(`DELETE FROM VoiceLogs WHERE timestampt <= ${Date.now() - MonthInMs};`).catch(err => {throw err;});
+        this.Connection.query(`DELETE FROM VoiceLogs WHERE timestampt <= ${Date.now() - MonthInMs};`).catch(console.error);
         return;
     }
 };

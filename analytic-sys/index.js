@@ -34,29 +34,7 @@ module.exports = {
                 }
                 Database.SetData("Users", userData);
             });
-        }).catch(err => {throw err;});
-    },
-
-    /**
-     * @param {import("discord.js").Message} message
-     * @param {boolean} isCommandTrue
-    */
-    messageCountPlus(message, isCommandTrue) {
-        const userId = message.author.id;
-        Database.GetData("Users", userId).then(userData => {
-            if(!userData) {
-                userData = {
-                    id: userId,
-                    tag: message.author.tag,
-                    messages: 1,
-                    commandUses: 1
-                };
-            } else {
-                userData.messages += 1;
-                if(isCommandTrue) userData.commandUses += 1;
-            }
-            Database.SetData("Users", userData);
-        }).catch(err => {throw err;});
+        }).catch(console.error);
     },
 
     /** @returns {Promise<import("discord.js").Collection<string, import("../database").Users>>} */

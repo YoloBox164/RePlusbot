@@ -91,6 +91,7 @@ function loadCmd(path) {
 
     commands.set(props.name, new Command(props.execute, {
         args: props.args,
+        dev: props.dev,
         name: props.name,
         aliases: props.aliases,
         desc: props.desc,

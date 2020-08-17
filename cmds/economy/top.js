@@ -48,7 +48,7 @@ module.exports = {
     },
 
     args: false,
-    name: "top",
+    name: "top10",
     aliases: [],
     desc: "A top 10 legaktívabb felhasználók",
     usage: ">top"

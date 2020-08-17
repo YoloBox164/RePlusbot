@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const Database = require("../../database");
 const Tools = require("../../utils/tools");
+const XpSys = require("../../xp-sys");
 
 module.exports = {
     /**
@@ -25,11 +26,16 @@ module.exports = {
 
             if(!warningStringArr[0]) warningStringArr[0] = "Nincs";
 
+            const attach = new Discord.MessageAttachment(await XpSys.GetCanvas(userData, targetMember), "exp.png");
+
+            const avatarURL = targetMember.user.displayAvatarURL({ format: "png", size: 4096 });
             const embed = new Discord.MessageEmbed()
-                .setAuthor(targetMember.user.tag, targetMember.user.displayAvatarURL({ format: "png", size: 4096 }))
-                .setThumbnail(targetMember.user.displayAvatarURL({ format: "png", size: 4096 }))
+                .setAuthor(targetMember.user.tag, avatarURL)
+                .setThumbnail(avatarURL)
                 .setTitle("Felhasználói információ:")
                 .setColor(targetMember.displayHexColor)
+                .setImage("attachment://exp.png")
+                .attachFiles(attach)
                 .setDescription(
                     `**Név:** *${targetMember}*
                     **Státusz:** \`${targetMember.presence.status.toUpperCase()}\`
