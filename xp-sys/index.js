@@ -1,10 +1,13 @@
 const Databse = require("../database");
 const { MessageAttachment } = require("discord.js");
+const { Collection } = require("discord.js");
 
 const maxExpPerMsg = 5;
 const minExpPerMsg = 1;
 
 const randomExp = () => { return Math.floor(Math.random() * maxExpPerMsg) + minExpPerMsg; };
+
+const cooldown = new Collection();
 
 module.exports = {
 
@@ -29,16 +32,19 @@ module.exports = {
                 userData.messages += 1;
                 if(isCommandTrue) userData.commandUses += 1;
 
-                userData.exp = userData.exp + randomExp();
-                const { level } = this.GetLevel(userData.exp);
-                if(level > userData.level) {
-                    userData.level = level;
-                    const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
-                    message.channel.send(`Gratulálok ${message.member}, szintet léptél!`, attach);
+                if(!cooldown.has(userData.id)) {
+                    userData.exp = userData.exp + randomExp();
+                    const { level } = this.GetLevel(userData.exp);
+                    if(level > userData.level) {
+                        userData.level = level;
+                        const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
+                        message.channel.send(`Gratulálok ${message.member}, szintet léptél!`, attach);
+                    }
                 }
             }
 
             Databse.SetData("Users", userData);
+            cooldown.set(userData.id, setTimeout(() => cooldown.delete(userData.id)), 60000); // 1 mins
         }).catch(console.error);
     },
 
