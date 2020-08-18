@@ -32,7 +32,7 @@ module.exports = {
 
             /** @type {import('../../database').Warnings} */
             const warning = {
-                userid: targetMember.id,
+                userId: targetMember.id,
                 warning: reason,
                 time: Date.now()
             };

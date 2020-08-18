@@ -47,7 +47,7 @@ const Colors = require("colors/safe");
 /**
  * @typedef {Object} Warnings
  * @property {number} id
- * @property {string} userid
+ * @property {string} userId
  * @property {string} warning
  * @property {number} time
 */
@@ -122,31 +122,44 @@ module.exports = {
         tableName = Tools.FirstCharUpperCase(tableName);
         const columnNames = [];
         const columnDatas = [];
+
+        /** @type {Array<{
+                Field: string,
+                Type: string,
+                Null: "YES"|"NO",
+                Key: "PRI"|"",
+                Default: any,
+                Extra: any
+            }>}
+        */
+        const columnDefs = await module.exports.Connection.query(`DESCRIBE ${tableName}`);
         for(const name in data) {
             if(data[name]) {
                 columnNames.push(name);
-                if(name == "tag") columnDatas.push(`'${(data[name])}'`);
+                const columnDef = columnDefs.find(cdef => cdef.Field == name);
+                if(columnDef.Type === "text") columnDatas.push(`'${(data[name])}'`);
                 else columnDatas.push((data[name]));
             }
         }
-
         const promise = new Promise((resolve, reject) => {
-            this.GetData(tableName, data.id).then(userData => {
-                if(data && data.id && userData) {
-                    columnNames.forEach((name, i, array) => {
-                        if(name == "tag") array[i] = `${name} = '${data[name]}'`;
-                        else array[i] = `${name} = ${data[name]}`;
-                    });
-                    resolve(module.exports.Connection.query(
-                        `UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`,
-                        [data.id]
-                    ));
-                } else {
-                    resolve(module.exports.Connection.query(
-                        `INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`
-                    ));
-                }
-            }).catch(reject);
+            if(data && data.id) {
+                this.GetData(tableName, data.id).then(userData => {
+                    if(userData) {
+                        columnNames.forEach((name, i, array) => {
+                            if(name == "tag") array[i] = `${name} = '${data[name]}'`;
+                            else array[i] = `${name} = ${data[name]}`;
+                        });
+                        resolve(module.exports.Connection.query(
+                            `UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`,
+                            [data.id]
+                        ));
+                    }
+                }).catch(reject);
+            } else {
+                resolve(module.exports.Connection.query(
+                    `INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`
+                ));
+            }
         });
         return promise;
     },

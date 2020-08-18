@@ -35,6 +35,10 @@ module.exports = {
                     userData.level = level;
                     const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
                     message.channel.send(`Gratulálok ${message.member}, szintet léptél!`, attach);
+                } else if(level < userData.level) {
+                    userData.level = level;
+                    const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
+                    message.channel.send(`Jaj nee ${message.member}, szintet veszítettél!`, attach);
                 }
             }
 

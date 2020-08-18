@@ -16,7 +16,7 @@ module.exports = {
         let roles = roleArr.join(" | ");
         if(!roles) roles = "Nincsen rangja.";
 
-        Database.Connection.query("SELECT * FROM Warnings WHERE userid = ?;", [targetMember.id]).then(async warnings => {
+        Database.Connection.query("SELECT * FROM Warnings WHERE userId = ?;", [targetMember.id]).then(async warnings => {
             const warningStringArr = [];
             for(const { warning, time } of warnings) {
                 warningStringArr.push(`'${warning}' (${message.client.logDate(time)})`);

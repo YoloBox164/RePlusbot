@@ -39,6 +39,8 @@ let mainGuild = undefined;
 /** @type {Discord.TextChannel} */
 let logChannel = undefined;
 /** @type {Discord.TextChannel} */
+let automodLogChannel = undefined;
+/** @type {Discord.TextChannel} */
 let devLogChannel = undefined;
 
 // First load of commands -- Future TODO implement Discord.js's Commando.js!!
@@ -56,6 +58,7 @@ Bot.once("ready", async () => {
     /* INIT hardcoded channels and guilds */
     mainGuild = Bot.guilds.resolve("572873520732831754");
     logChannel = mainGuild.channels.resolve(Settings.Channels.modLogId);
+    automodLogChannel = mainGuild.channels.resolve(Settings.Channels.automodLogId);
     devLogChannel = Bot.guilds.resolve("427567526935920655").channels.resolve("647420812722307082");
 
     // Caching msg in the regist channel
@@ -73,6 +76,7 @@ Bot.once("ready", async () => {
     // Passing the channels and guilds to the bot.
     Bot.mainGuild = mainGuild;
     Bot.logChannel = logChannel;
+    Bot.automodLogChannel = automodLogChannel;
     Bot.devLogChannel = devLogChannel;
 
     console.log(colors.bold(`Revolt Bot READY! (${Config.mode})`));

@@ -40,7 +40,7 @@ module.exports = {
 
     /**
      * @async
-     * @param {string} userId The searched userid.
+     * @param {string} userId The searched userId.
      * @returns {Promise<Array<databaseObject>>} Table Data.
      */
     async GetData(userId) {
