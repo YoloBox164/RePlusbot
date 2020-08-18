@@ -218,7 +218,10 @@ Bot.on("message", async message => {
     }
 });
 
-Bot.on("messageUpdate", (oldMessage, newMessage) => {
+Bot.on("messageUpdate", async (oldMessage, newMessage) => {
+    if(oldMessage.partial) await oldMessage.fetch();
+    if(newMessage.partial) await newMessage.fetch();
+
     if(newMessage.author.bot) return;
     if(newMessage.channel.type === "dm") return;
 
