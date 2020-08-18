@@ -122,10 +122,13 @@ module.exports = {
     CheckContent: (message) => {
         if(message.content.startsWith(">")) return false;
         if(message.content.startsWith(message.client.devPrefix)) return false;
+        if(message.content.startsWith("ch!")) return false;
+        if(message.content.startsWith("m!")) return false;
 
         let userData = userContentCollection.get(message.author.id);
 
-        if(userData && message.content.toLowerCase().trim() === userData.lastMessage.content.toLowerCase().trim()) {
+        if(userData && message.content !== ""
+          && message.content.toLowerCase().trim() === userData.lastMessage.content.toLowerCase().trim()) {
             message.delete({ reason: "Has the same content as the previous message" }).catch(console.error);
             const embed = EmbedTemplates.SpamDelete(message, "Az üzenet tartalma megegyezett az előző üzenetével.");
             message.client.automodLogChannel.send({ embed: embed });
