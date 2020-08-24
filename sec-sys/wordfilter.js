@@ -21,8 +21,8 @@ GetRegExpWords();
  * * \* 0 or more
 */
 const regexpTemplates = {
-    StartAndMindle: "\\b(?:#+\\s*)+",
-    End: "#+\\b"
+    StartAndMindle: "(?:#+\\s*)+",
+    End: "#+"
 };
 
 module.exports = {
