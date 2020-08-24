@@ -15,7 +15,7 @@ module.exports = {
         roleArr.pop();
         let roles = roleArr.join(" | ");
         if(!roles) roles = "Nincsen rangja.";
-
+        const msg = message.channel.send("Adatok rendezése...");
         Database.Connection.query("SELECT * FROM Warnings WHERE userId = ?;", [targetMember.id]).then(async warnings => {
             const warningStringArr = [];
             for(const { warning, time } of warnings) {
@@ -34,8 +34,8 @@ module.exports = {
                 .setThumbnail(avatarURL)
                 .setTitle("Felhasználói információ:")
                 .setColor(targetMember.displayHexColor)
-                .setImage("attachment://exp.png")
                 .attachFiles(attach)
+                .setImage("attachment://exp.png")
                 .setDescription(
                     `**Név:** *${targetMember}*
                     **Státusz:** \`${targetMember.presence.status.toUpperCase()}\`
@@ -52,7 +52,8 @@ module.exports = {
                     
                     Hangszobákban töltött idő: ${Tools.RedableTime(userData.allTime)}`
                 );
-            message.channel.send({ embed: embed });
+            (await msg).channel.send({ embed: embed });
+            (await msg).delete({ reason: "Done waiting." });
         });
     },
     args: true,
