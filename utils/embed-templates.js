@@ -43,7 +43,6 @@ module.exports = {
      * @returns {Discord.MessageEmbed}
      */
     MsgDelete: (message, reason) => {
-        console.log(global.mainGuild);
         const embed = new Discord.MessageEmbed()
             .setColor("ORANGE")
             .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
