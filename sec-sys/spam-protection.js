@@ -124,6 +124,7 @@ module.exports = {
         if(message.content.startsWith(message.client.devPrefix)) return false;
         if(message.content.startsWith("ch!")) return false;
         if(message.content.startsWith("m!")) return false;
+        if(message.content.startsWith("m?")) return false;
 
         let userData = userContentCollection.get(message.author.id);
 
