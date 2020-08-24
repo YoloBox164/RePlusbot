@@ -81,8 +81,8 @@ async function GetCanvas(userData, targetMember) {
     context.lineWidth = 4;
     context.strokeStyle = "#b3b3b3";
     context.beginPath();
-    context.moveTo(420, 150);
-    context.lineTo(420, 270);
+    context.moveTo(440, 150);
+    context.lineTo(440, 270);
     context.closePath();
     context.stroke();
 
