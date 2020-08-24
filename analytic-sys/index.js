@@ -22,17 +22,18 @@ module.exports = {
 
         const userId = newVoiceState.id;
         Database.GetData("Users", userId).then(userData => {
-            if(userData.tag !== oldVoiceState.member.user.tag) {
-                userData.tag = oldVoiceState.member.user.tag;
-            }
             AnalyticDatabase.GetData(userId).then(last2Data => { // Data[0] New Data | Data[1] Old Data
+                if(!last2Data) return;
                 if(last2Data.length < 2) return;
                 // only if leaving or changing channels
                 if(oldVoiceState.channelID && oldVoiceState.channelID != newVoiceState.channelID) {
                     const pastTime = last2Data[0].timestampt - last2Data[1].timestampt;
                     userData.allTime += pastTime;
+                    if(userData.tag !== oldVoiceState.member.user.tag) {
+                        userData.tag = oldVoiceState.member.user.tag;
+                    }
+                    Database.SetData("Users", userData);
                 }
-                Database.SetData("Users", userData);
             });
         }).catch(console.error);
     },
