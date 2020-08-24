@@ -170,7 +170,6 @@ function UpdateDatabase(message, userSpamData) {
             warns = userData.warns;
         }
         if(spams === 3) {
-            message.channel.send(`**${message.member}, ez a 3. spamed. Most egy hivatalos figyelmeztetést kapsz, ami a profilodon is meg fog látszani. Ha a következőkben folytatod a spamelést akkor ki leszel rúgva (kick) a szerveről.**`);
             warns++;
             /** @type {import("../database").Warnings} */
             const warning = {
@@ -178,7 +177,11 @@ function UpdateDatabase(message, userSpamData) {
                 time: Date.now(),
                 warning: "Háromszori spamelés után járó figyelmeztetés!"
             };
-            Database.SetData("Warnings", warning);
+            Database.SetData("Warnings", warning).then(() => {
+                message.channel.send(`**${message.member}, ez a 3. spamed. Most egy hivatalos figyelmeztetést kapsz, ami a profilodon is meg fog látszani. Ha a következőkben folytatod a spamelést akkor ki leszel rúgva (kick) a szerveről.**`);
+                const warnEmbed = EmbedTemplates.Warning(message, message.member, message.guild.member(message.client.user), warning.warning);
+                message.client.automodLogChannel.send({ embed: warnEmbed });
+            });
         }
         Database.SetData("Users", {
             id: message.author.id,
