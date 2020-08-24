@@ -31,6 +31,14 @@ module.exports = {
         const promise = new Promise((resolve, reject) => {
             mariadb.createConnection(Config.mariaDb).then((conn) => {
                 console.log(Colors.green(`Connected to database! (Connection: Analytic) (id: ${conn.threadId})`));
+                conn.on("error", async (err) => {
+                    if(err.code === "ER_SOCKET_UNEXPECTED_CLOSE") {
+                        console.log(`Caught ER_SOCKET_UNEXPECTED_CLOSE (Connection: Analytic) (id: ${conn.threadId})`);
+                        module.exports.Connection = await module.exports.Connect();
+                    } else {
+                        throw err;
+                    }
+                });
                 module.exports.Connection = conn;
                 resolve(conn);
             }).catch((err) => { reject(err); });

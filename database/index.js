@@ -88,7 +88,7 @@ module.exports = {
                 console.log(Colors.green(`Connected to database! (Connection: Normal) (id: ${conn.threadId})`));
                 conn.on("error", async (err) => {
                     if(err.code === "ER_SOCKET_UNEXPECTED_CLOSE") {
-                        console.log("Caught ER_SOCKET_UNEXPECTED_CLOSE");
+                        console.log(`Caught ER_SOCKET_UNEXPECTED_CLOSE (Connection: Normal) (id: ${conn.threadId})`);
                         module.exports.Connection = await module.exports.Connect();
                     } else {
                         throw err;
