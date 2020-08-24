@@ -1,8 +1,14 @@
 const Databse = require("../database");
-const { MessageAttachment } = require("discord.js");
+const { MessageAttachment, Collection } = require("discord.js");
 
 const maxExpPerMsg = 5;
 const minExpPerMsg = 1;
+
+/** 2 minutes */
+const cooldownTime = 120000;
+
+/** @type {import("discord.js").Collection<string, {timeout: NodeJS.Timeout}} */
+const cooldowns = new Collection();
 
 const randomExp = () => { return Math.floor(Math.random() * maxExpPerMsg) + minExpPerMsg; };
 
@@ -15,34 +21,46 @@ module.exports = {
      * @param {boolean} isCommandTrue
      */
     GiveExp(message, isCommandTrue) {
+        const cooldownData = cooldowns.get(message.author.id);
         Databse.GetData("Users", message.author.id).then(async userData => {
-            if(!userData) {
-                userData = {
-                    id: message.author.id,
-                    tag: message.author.tag,
-                    messages: 1,
-                    commandUses: 0,
-                    level: 1,
-                    exp: randomExp()
-                };
-            } else {
-                userData.messages += 1;
-                if(isCommandTrue) userData.commandUses += 1;
+            if(cooldownData) return;
+            let messages = 1;
+            let commandUses = 0;
+            let userLevel = 1;
+            let exp = randomExp();
 
-                userData.exp = userData.exp + randomExp();
-                const { level } = this.GetLevel(userData.exp);
-                if(level > userData.level) {
-                    userData.level = level;
-                    const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
-                    message.channel.send(`Gratulálok ${message.member}, szintet léptél!`, attach);
-                } else if(level < userData.level) {
-                    userData.level = level;
-                    const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
-                    message.channel.send(`Jaj nee ${message.member}, szintet veszítettél!`, attach);
-                }
+            if(userData) {
+                messages += userData.messages;
+                commandUses = userData.commandUses;
+                userLevel = userData.level;
+                exp += userData.exp;
             }
 
-            Databse.SetData("Users", userData);
+            if(isCommandTrue) commandUses++;
+
+            const { level } = this.GetLevel(userData.exp);
+            if(level > userLevel) {
+                userLevel = level;
+                const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
+                message.channel.send(`Gratulálok ${message.member}, szintet léptél!`, attach);
+            } else if(level < userLevel) {
+                userLevel = level;
+                const attach = new MessageAttachment(await this.GetCanvas(userData, message.member), "exp.png");
+                message.channel.send(`Jaj nee ${message.member}, szintet veszítettél!`, attach);
+            }
+
+            Databse.SetData("Users", {
+                id: message.author.id,
+                tag: message.author.tag,
+                messages: messages,
+                commandUses: commandUses,
+                level: userLevel,
+                exp: exp
+            }).then(() => {
+                cooldowns.set(message.author.id, {
+                    timeout: setTimeout(() => cooldowns.delete(message.author.id), cooldownTime)
+                });
+            }).catch(console.error);
         }).catch(console.error);
     },
 
