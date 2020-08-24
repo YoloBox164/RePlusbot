@@ -100,27 +100,6 @@ Bot.once("ready", async () => {
         }
     }
 
-    /* bot.setInterval(() => {
-        const MUTES = JSON.parse(fs.readFileSync("./mute.json"));
-        for(i in MUTES) {
-            var mutedMember = MUTES[i];
-            if(mutedMember.time < Date.now()) {
-                var member = mainGuild.members.resolve(mutedMember.id);
-                member.removeRole(SETTINGS.MuteRoleId);
-                target.setMute(false).catch(console.error);
-                delete MUTES[`${mutedMember.id}`];
-                fs.writeFile("./mute.json", JSON.stringify(MUTES, null, 4), err => {
-                    if(err) throw err;
-                    console.log(`Unmuted ${member.displayName}`);
-                    logChannel.send(`Unmuted ${member.displayName}`)
-                });
-            } else {
-                member.roles.add(SETTINGS.MuteRoleId);
-                target.setMute(true).catch(console.error);
-            }
-        }
-    }, 10000);*/
-
     Bot.setInterval(async () => {
         const Giveaways = JSON.parse(fs.readFileSync("./storage/giveaways.json"));
         for(const i in Giveaways) {
