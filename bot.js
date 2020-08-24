@@ -211,7 +211,6 @@ Bot.on("messageUpdate", async (oldMessage, newMessage) => {
 });
 
 Bot.on("messageDelete", async (message) => {
-    if(message.partial) await message.fetch();
     MovieSys.CheckDeletedMsg(message);
 });
 
