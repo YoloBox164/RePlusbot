@@ -88,7 +88,7 @@ Bot.once("ready", async () => {
         Bot.setInterval(() => {
             const status = statuses[Math.floor(Math.random() * statuses.length)];
             Bot.user.setPresence({ activity: { name: `you | ${status}`, type: "WATCHING" }, status: "online" });
-        }, 30000);
+        }, 30000); // Half a minute
     }
 
     /** Removing mutes or restarting mute timers */
@@ -134,7 +134,16 @@ Bot.once("ready", async () => {
                 });
             }
         }
-    }, 60000);
+    }, 60000); // every minute
+
+    // if every voice channel is empty delete all voiceLogs
+    Bot.setInterval(() => {
+        /** @type {import("discord.js").Collection<string, import("discord.js").VoiceChannel>} */
+        const voiceChannels = Bot.mainGuild.channels.cache.filter(ch => ch.type === "voice");
+        if(voiceChannels.every(vch => vch.members.size === 0)) {
+            AnalyticSys.Database.DeleteData();
+        }
+    }, 3600000); // every 2 hours
 });
 
 Bot.on("presenceUpdate", async (oldPresence, newPresence) => CheckWumpus(newPresence));

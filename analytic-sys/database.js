@@ -2,8 +2,6 @@ const Config = require("../config.json");
 const mariadb = require("mariadb");
 const Colors = require("colors/safe");
 
-const MonthInMs = 2592000000;
-
 // ////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////
 
@@ -28,6 +26,7 @@ const MonthInMs = 2592000000;
 
 module.exports = {
     async Connect() {
+        /** @type {Promise<import("mariadb").Connection>} */
         const promise = new Promise((resolve, reject) => {
             mariadb.createConnection(Config.mariaDb).then((conn) => {
                 console.log(Colors.green(`Connected to database! (Connection: Analytic) (id: ${conn.threadId})`));
@@ -65,21 +64,20 @@ module.exports = {
      * @param {databaseObject} data Data that will be inserted into the table.
      */
     AddData(data) {
-        if(!this.Connection) return;
+        if(!module.exports.Connection) return;
         const { userId, channelId, timestampt } = data;
-        this.Connection.query("INSERT INTO VoiceLogs (userId, channelId, timestampt) VALUES (?, ?, ?);", [userId, channelId, timestampt]);
+        module.exports.Connection.query("INSERT INTO VoiceLogs (userId, channelId, timestampt) VALUES (?, ?, ?);", [userId, channelId, timestampt]);
         return;
 
     },
 
     /**
-     * @param {tableName} tableName The name of the table.
-     * @param {string} id Based on this id, the database will delete that data.
+     * @desc Removes all data from VoiceLogs table
      * @returns {void}
      */
     DeleteData() {
-        if(!this.Connection) return;
-        this.Connection.query(`DELETE FROM VoiceLogs WHERE timestampt <= ${Date.now() - MonthInMs};`).catch(console.error);
+        if(!module.exports.Connection) return;
+        module.exports.Connection.query("TRUNCATE TABLE VoiceLogs;").catch(console.error);
         return;
     }
 };

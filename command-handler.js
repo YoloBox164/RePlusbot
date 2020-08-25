@@ -49,11 +49,15 @@ class CommandHandler {
 
             counter += files.length;
 
+            /** @type {string[]} */
+            const cmdNames = [];
+
             for(const file of files) {
                 files.forEach((v, i, a) => a[i] = v.split(".").shift());
-                this.categories.set(category, files);
-                loadCmd(`${PathToCmds}/${category}/${file}`);
+                const cmd = loadCmd(`${PathToCmds}/${category}/${file}`);
+                cmdNames.push(cmd.name);
             }
+            this.categories.set(category, cmdNames);
             console.log(colors.cyan(`Successfully loaded ${category} commands!\n`));
         }
         console.log(colors.green.bold(`Successfully loaded all the ${counter} commands!\n`));
@@ -76,7 +80,10 @@ class CommandHandler {
 
 module.exports = new CommandHandler();
 
-/** @param {string} path */
+/**
+ * @param {string} path
+ * @returns {import("./typings").cmd}
+*/
 function loadCmd(path) {
     delete require.cache[require.resolve(path)];
 
@@ -98,6 +105,7 @@ function loadCmd(path) {
         usage: props.usage,
         pathToCmd: path
     }));
+    return props;
 }
 
 /* Old Command Loader

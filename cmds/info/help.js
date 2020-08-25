@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const Tools = require("../../utils/tools");
 
 const CategoryTranslation = {
     analytic: "Analitikus",
@@ -23,26 +24,30 @@ module.exports = {
         const commands = bot.CommandHandler.commands;
         const categories = bot.CommandHandler.categories;
 
-        const embed = new Discord.MessageEmbed()
+        let embed = new Discord.MessageEmbed()
             .setTitle("Parancs Lista")
             .setColor(message.guild.member(bot.user).displayHexColor)
             .setDescription("**`>help <parancs>` » Leírja az adott parancsot.**")
             .addField("Szímbólumok jelentése:", "<opcionális> | [kötelező]", true);
 
         if(args[0]) {
-            const cmd = commands.get(args[0].toLowerCase()) || commands.get(bot.aliasCmds.get(args[0].toLowerCase()));
+            const cmd = commands.get(args[0].toLowerCase()) || commands.find(c => c.aliases && c.aliases.includes(args[0].toLowerCase()));
             if(cmd) {
-                embed.addField(cmd.help.name,
-                    `**Parancs:** *${cmd.help.cmd}*
-                    **Leírás:** *${cmd.help.desc}*
-                    **Használat:** \`${cmd.help.usage}\`${cmd.help.alias[0] ? "\n**Álnevek:** `>" + cmd.help.alias.join(" | >") + "`" : ""}`
-                );
+                embed = new Discord.MessageEmbed()
+                    .setTitle(Tools.FirstCharUpperCase(cmd.name))
+                    .setColor(message.guild.member(bot.user).displayHexColor)
+                    .setDescription(`\`\`\`md\n# ${cmd.desc}\`\`\``)
+                    .addField("Használat:", `\`\`\`${cmd.usage}\`\`\``);
+                if(cmd.aliases && cmd.aliases.length > 0) {
+                    embed.addField("Más néven:", `\`>${cmd.aliases.join("` `>")}\``);
+                }
+                embed.addField("Szímbólumok jelentése:", "<opcionális> | [kötelező]", true);
                 message.channel.send({ embed: embed });
             } else {message.channel.send("Nem találtam ilyen parancsot.");}
         } else {
             categories.forEach((cmdNames, category) => {
                 if(category !== "dev" && category !== "test") {
-                    embed.addField(`${CategoryTranslation[category]} ─ ${cmdNames.length}`, `\`${cmdNames.join("` | `")}\``);
+                    embed.addField(`${CategoryTranslation[category]} ─ ${cmdNames.length}`, `\`${cmdNames.join("` `")}\``);
                 }
             });
             message.channel.send({ embed: embed });
