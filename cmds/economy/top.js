@@ -37,7 +37,7 @@ module.exports = {
             await GetBitsTop10Chart(message.client, message).then(async chart => {
                 const BitsEmbbed = new Discord.MessageEmbed()
                     .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
-                    .setColor(message.guild.member(message.client.user).displayHexColor)
+                    .setColor("#78b159")
                     .setImage(await chart.getShortUrl());
                 message.channel.send(BitsEmbbed);
 

@@ -40,6 +40,7 @@ const Colors = require("colors/safe");
  * @property {boolean} perma
  * @property {boolean} hasRole
  * @property {number} roleTime
+ * @property {boolean} hasCustomEmoji
 */
 
 // /////////////////////////////////
@@ -189,6 +190,7 @@ module.exports.config = {
     DayBits: 250,
     DayBitsStreakBonus: 750,
     WumpusRoleCost: 5500,
+    CustomEmojiCost: 2500,
     WumpusRoleId: "611682394185138176",
     DayInMilliSeconds: 86400000
 };

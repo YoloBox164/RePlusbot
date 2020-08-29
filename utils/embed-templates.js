@@ -18,7 +18,7 @@ module.exports = {
             .addField("Id:", `${targetMember.id}`)
             .addField("Oka:", `${reason}`)
             .addField("Adó:", `${issuer.displayName} (${issuer.user.tag} | ${issuer.id})`)
-            .setFooter(`${message.createdAt.toLocaleString()}`);
+            .setTimestamp(Date.now());
         return embed;
     },
     /**
@@ -33,7 +33,8 @@ module.exports = {
             .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Törlés Oka:", reason)
-            .setFooter(`USER_ID: ${message.author.id} • ${message.createdAt.toLocaleString()}`);
+            .setFooter(`USER_ID: ${message.author.id}`)
+            .setTimestamp(Date.now());
         return embed;
     },
     /**
@@ -49,7 +50,8 @@ module.exports = {
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Üzenet:", message.content)
             .addField("Törlés Oka:", reason)
-            .setFooter(`USER_ID: ${message.author.id} • ${message.createdAt.toLocaleString()}`);
+            .setFooter(`USER_ID: ${message.author.id}`)
+            .setTimestamp(Date.now());
         return embed;
     },
     /**
@@ -63,7 +65,8 @@ module.exports = {
             .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL)
             .setTitle("Üdv a szerveren!")
             .setThumbnail(guild.iconURL({ size: 4096, format: "jpg" }))
-            .setDescription(`${member} érezd jól magad!`);
+            .setDescription(`${member} érezd jól magad!`)
+            .setTimestamp(member.joinedAt);
         return embed;
     },
     /**
@@ -78,7 +81,8 @@ module.exports = {
             .setDescription(`${message.member} szeretne csatlakozni a közösségünkbe!`)
             .addField("Üzenet:", message.content)
             .addField("URL:", message.url)
-            .setFooter(`USER_ID: ${message.author.id} • ${message.createdAt.toLocaleString()}`);
+            .setFooter(`USER_ID: ${message.author.id}`)
+            .setTimestamp(message.createdAt);
         return embed;
     },
     /**
@@ -91,7 +95,7 @@ module.exports = {
             .setColor("RED")
             .setTitle("ERROR")
             .setDescription(code)
-            .setFooter(`${new Date().toLocaleString()}`);
+            .setTimestamp(Date.now());
         return embed;
     },
     /**
@@ -104,7 +108,7 @@ module.exports = {
             .setColor("GREEN")
             .setTitle("Online")
             .setDescription(mode)
-            .setFooter(`${new Date().toLocaleString()}`);
+            .setTimestamp(Date.now());
         return embed;
     },
     /**
@@ -117,7 +121,7 @@ module.exports = {
             .setColor("YELLOW")
             .setTitle("Shutting Down")
             .setDescription(mode)
-            .setFooter(`${new Date().toLocaleString()}`);
+            .setTimestamp(Date.now());
         return embed;
     }
 };

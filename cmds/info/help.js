@@ -36,8 +36,9 @@ module.exports = {
                 embed = new Discord.MessageEmbed()
                     .setTitle(Tools.FirstCharUpperCase(cmd.name))
                     .setColor(message.guild.member(bot.user).displayHexColor)
+                    .setTimestamp(Date.now())
                     .setDescription(`\`\`\`md\n# ${cmd.desc}\`\`\``)
-                    .addField("Használat:", `\`\`\`${cmd.usage}\`\`\``);
+                    .addField("Használat:", `\`\`\`md\n${cmd.usage}\`\`\``);
                 if(cmd.aliases && cmd.aliases.length > 0) {
                     embed.addField("Más néven:", `\`>${cmd.aliases.join("` `>")}\``);
                 }
