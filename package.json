@@ -20,6 +20,7 @@
     "license": "ISC",
     "homepage": "https://bitbucket.org/CsiPA0723/arevoltbot#readme",
     "dependencies": {
+        "@discordjs/opus": "^0.3.2",
         "canvas": "^2.6.1",
         "colors": "^1.4.0",
         "convert-units": "^2.3.4",
@@ -31,7 +32,8 @@
         "mariadb": "^2.4.2",
         "mathjs": "^6.6.4",
         "moment": "^2.24.0",
-        "quickchart-js": "^1.0.2"
+        "quickchart-js": "^1.0.2",
+        "ytdl-core": "^3.2.2"
     },
     "devDependencies": {
         "@types/node": "^14.6.0",
