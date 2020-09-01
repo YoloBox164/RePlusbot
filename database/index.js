@@ -82,7 +82,7 @@ const Colors = require("colors/safe");
 // ////////////////////////////////////////////////////
 
 module.exports = {
-    async Connect() {
+    Connect: async function() {
         /** @type {Promise<import("mariadb").Connection>} */
         const promise = new Promise((resolve, reject) => {
             mariadb.createConnection(Config.mariaDb).then((conn) => {
@@ -108,13 +108,13 @@ module.exports = {
      * @param {tableName} tableName The name of the table.
      * @param {string} id The searched id.
      */
-    async GetData(tableName, id) {
+    GetData: async function(tableName, id) {
         if(!module.exports.Connection) return;
         tableName = Tools.FirstCharUpperCase(tableName);
         const promise = new Promise((resolve, reject) => {
             module.exports.Connection.query(`SELECT * FROM ${tableName} WHERE id = ${id};`).then(rows => {
                 resolve(rows[0]);
-            }).catch(err => reject(err));
+            }).catch(reject);
         });
         return promise;
     },
@@ -126,8 +126,10 @@ module.exports = {
      * @param {databaseObject} data Data that will be inserted into the table.
      * @returns {Promise<any>}
      */
-    async SetData(tableName, data) {
-        if(!module.exports.Connection) return;
+    SetData: async function(tableName, data) {
+        if(!module.exports.Connection) throw new Error("There is not any connection to the database.");
+        if(typeof data !== "object") throw new Error("Data must be an object!");
+        if(!data.id && !data.userId) throw new Error("Data must have a valid id or a userId property that is not null or undefined!");
         tableName = Tools.FirstCharUpperCase(tableName);
         const columnNames = [];
         const columnDatas = [];
@@ -151,24 +153,21 @@ module.exports = {
             }
         }
         const promise = new Promise((resolve, reject) => {
-            if(data && data.id) {
-                this.GetData(tableName, data.id).then(userData => {
-                    if(userData) {
-                        columnNames.forEach((name, i, array) => {
-                            if(name == "tag") array[i] = `${name} = '${data[name]}'`;
-                            else array[i] = `${name} = ${data[name]}`;
-                        });
-                        resolve(module.exports.Connection.query(
-                            `UPDATE ${tableName} SET ${columnNames.join(", ")} WHERE id = ?`,
-                            [data.id]
-                        ));
+            this.GetData(tableName, data.id).then(userData => {
+                if(userData) {
+                    const columnSets = [];
+                    for (let i = 0; i < columnNames.length; i++) {
+                        columnSets.push(`${columnNames[i]} = ${columnDatas[i]}`);
                     }
-                }).catch(reject);
-            } else {
-                resolve(module.exports.Connection.query(
-                    `INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`
-                ));
-            }
+                    module.exports.Connection.query(
+                        `UPDATE ${tableName} SET ${columnSets.join(", ")} WHERE id = ${data.id};`
+                    ).then(resolve).catch(reject);
+                } else {
+                    module.exports.Connection.query(
+                        `INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`
+                    ).then(resolve).catch(reject);
+                }
+            }).catch(reject);
         });
         return promise;
     },
@@ -179,7 +178,7 @@ module.exports = {
      * @param {string} id Based on this id, the database will delete that data.
      * @returns {Promise<any>}
      */
-    async DeleteData(tableName, id) {
+    DeleteData: async function(tableName, id) {
         if(!module.exports.Connection) return;
         tableName = Tools.FirstCharUpperCase(tableName);
         return module.exports.Connection.query(`DELETE FROM ${tableName} WHERE id = ${id};`);

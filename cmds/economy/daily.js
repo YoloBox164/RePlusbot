@@ -5,7 +5,7 @@ const daily = require("../../storage/daily.json");
 module.exports = {
     /** @param {import("discord.js").Message} message Discord message. */
     execute: function(message) {
-        Database.GetData("Currency", message.author.id).then((currencyData) => {
+        Database.GetData("Currency", message.author.id).then(currencyData => {
             const timeNow = Date.now();
             if(!currencyData) {
                 currencyData = {
@@ -40,13 +40,13 @@ module.exports = {
                     embed.addField("Bits Streak", `Jééj! ${Database.config.DayBitsStreakBonus} bónusz bitet kaptál!`);
                 }
 
-                Database.SetData("currency", currencyData).then(() => {
+                Database.SetData("Currency", currencyData).then(() => {
                     message.channel.send("Sikeresen megszerezted a napi biteidet.", { embed: embed });
-                });
+                }).catch(console.error);
             } else {
                 message.channel.send("Ma már megkaptad a napi biteidet, próbáld holnap.");
             }
-        });
+        }).catch(console.error);
 
     },
     args: false,

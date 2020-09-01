@@ -25,6 +25,10 @@ module.exports = {
                     claimTime: 0,
                     streak: 0
                 };
+                Database.SetData("Currency", currencyData);
+            }
+            if(currencyData.claimTime <= daily.NextDayInMilliSeconds - (Database.config.DayInMilliSeconds * 2)) {
+                currencyData.streak = 0;
             }
             const embed = new MessageEmbed()
                 .setAuthor(message.member.displayName, message.author.displayAvatarURL())
