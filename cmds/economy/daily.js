@@ -1,12 +1,15 @@
 const { MessageEmbed } = require("discord.js");
 const Database = require("../../database");
 const daily = require("../../storage/daily.json");
+const fs = require("fs");
 
 module.exports = {
     /** @param {import("discord.js").Message} message Discord message. */
     execute: function(message) {
         Database.GetData("Currency", message.author.id).then(currencyData => {
             const timeNow = Date.now();
+            while(daily.NextDayInMilliSeconds < timeNow) daily.NextDayInMilliSeconds += Database.config.DayInMilliSeconds;
+            fs.writeFile("./storage/daily.json", JSON.stringify(daily, null, 4), err => { if(err) throw err; });
             if(!currencyData) {
                 currencyData = {
                     id: message.author.id,
