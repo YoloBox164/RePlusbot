@@ -198,7 +198,7 @@ Bot.on("message", async message => {
             message.channel.send("`>help` » Ha kell segítség használatomhoz.");
         }
         XpSys.GiveExp(message, true);
-    } else if(message.mentions.has(Bot.user)) {
+    } else if(message.mentions.has(Bot.user, { ignoreEveryone: true, ignoreRoles: true })) {
         message.channel.send("`>help` » Ha kell segítség használatomhoz.");
         XpSys.GiveExp(message, false);
     } else {
@@ -284,42 +284,75 @@ function inviteLogHandler(invite, text) {
 }
 
 Bot.on("guildMemberAdd", async member => {
-    if(member.partial) member.fetch();
-    const logMsg = `${member.user.bot ? "`BOT`" : "`User`"}: ${member.displayName} (${member.id}) joined the server at \`${Bot.logDate(member.joinedTimestamp)}\``;
+    if(member.partial) await member.fetch();
 
-    if(member.guild == mainGuild) {
-        if(member.user.bot) member.roles.add(Settings.Roles.AutoBotId);
-        logChannel.send(logMsg);
-    } else {devLogChannel.send(logMsg);}
+    const identifyer = member.user.bot ? "Bot" : "User";
+    const embed = new Discord.MessageEmbed()
+        .setColor("GREEN")
+        .setTimestamp(Date.now())
+        .setTitle(`${identifyer} Joined The Server`)
+        .addFields([
+            { name: identifyer, value: `${member}`, inline: false },
+            { name: `${identifyer} Tag`, value: `\`\`\`${member.user.tag}\`\`\``, inline: true },
+            { name: `${identifyer} Id`, value: `\`\`\`xl\n${member.id}\`\`\``, inline: true }
+        ]);
 
-    console.log(colors.green(logMsg.replace(/`/g, "")));
+    if(member.guild == mainGuild) logChannel.send(embed);
+    else devLogChannel.send(embed);
+
+    console.log(colors.green(`${identifyer}: ${member.displayName} (ID: ${member.id}) joined the server at \`${Bot.logDate(member.joinedTimestamp)}\``));
 });
 
 Bot.on("guildMemberRemove", async member => {
-    if(member.partial) member.fetch();
+    if(member.partial) await member.fetch();
+    const identifyer = member.user.bot ? "Bot" : "User";
+    const embed = new Discord.MessageEmbed()
+        .setColor("RED")
+        .setTimestamp(Date.now())
+        .setTitle(`${identifyer} Leaved From The Server`)
+        .addFields([
+            { name: identifyer, value: `${member}`, inline: false },
+            { name: `${identifyer} Tag`, value: `\`\`\`${member.user.tag}\`\`\``, inline: true },
+            { name: `${identifyer} Id`, value: `\`\`\`xl\n${member.id}\`\`\``, inline: true }
+        ]);
     const banEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_BAN_ADD" }).then(audit => audit.entries.first());
     const kickEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_KICK" }).then(audit => audit.entries.first());
     const pruneEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_PRUNE" }).then(audit => audit.entries.first());
 
-    let text, reason = "N/A";
+    let text = "leaved the server";
+    let reason = "N/A";
     if(banEntry && banEntry.target.id === member.id) {
-        text = "was banned by " + member.guild.members.resolve(banEntry.executor.id).displayName;
+        const issuer = member.guild.members.resolve(banEntry.executor.id);
+        embed.setTitle(`${identifyer} Banned From The Server`);
+        embed.addFields([
+            { name: "By", value: `${issuer}`, inline: false },
+            { name: "Reason", value: `${banEntry.reason ? `\`\`\`md\n# ${banEntry.reason}\`\`\`` : "N/A"}`, inline: false }
+        ]);
+        text = `was banned by ${issuer.displayName}`;
         if(banEntry.reason) reason = banEntry.reason;
     } else if(kickEntry && kickEntry.target.id === member.id) {
-        text = "was kicked by " + member.guild.members.resolve(kickEntry.executor.id).displayName;
+        const issuer = member.guild.members.resolve(kickEntry.executor.id);
+        embed.setTitle(`${identifyer} Kicked From The Server`);
+        embed.addFields([
+            { name: "By", value: `${issuer}`, inline: false },
+            { name: "Reason", value: `${kickEntry.reason ? `\`\`\`md\n# ${kickEntry.reason}\`\`\`` : "N/A"}`, inline: false }
+        ]);
+        text = `was kicked by ${issuer.displayName}`;
         if(kickEntry.reason) reason = kickEntry.reason;
     } else if (pruneEntry && pruneEntry.target.id === member.id) {
-        text = "was pruned by" + member.guild.members.resolve(pruneEntry.executor.id).displayName;
+        const issuer = member.guild.members.resolve(pruneEntry.executor.id);
+        embed.setTitle(`${identifyer} Pruned From The Server`);
+        embed.addFields([
+            { name: "By", value: `${issuer}`, inline: false },
+            { name: "Reason", value: `${pruneEntry.reason ? `\`\`\`md\n# ${pruneEntry.reason}\`\`\`` : "N/A"}`, inline: false }
+        ]);
+        text = `was pruned by ${issuer.displayName}`;
         if(pruneEntry.reason) reason = pruneEntry.reason;
-    } else {
-        text = "leaved the server";
     }
 
-    const logMsg = `${member.user.bot ? "`BOT`" : "`User`"}: ${member.displayName} (Id:  \`${member.id}\`) ${text} at \`${Bot.logDate()}\` | Reason: ${reason}`;
-
-    if(member.guild == mainGuild) logChannel.send(logMsg);
-    else devLogChannel.send(logMsg);
-    console.log(colors.red(logMsg.replace(/`/g, "")));
+    if(member.guild == mainGuild) logChannel.send(embed);
+    else devLogChannel.send(embed);
+    console.log(colors.red(`${identifyer}: ${member.displayName} (Id: ${member.id}) ${text} at ${Bot.logDate()} | Reason: ${reason}`));
 });
 
 Bot.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => AnalyticSys.voiceState(oldVoiceState, newVoiceState));
@@ -347,25 +380,31 @@ function clean(text) {
     else return text;
 }
 
-/** @param {import("discord.js").Presence} presence Discord guild member */
-function CheckWumpus(presence) {
-    const wumpusData = Database.GetData("wumpus", presence.userID);
+/**
+ * @async
+ * @param {import("discord.js").Presence} presence Discord guild member
+ */
+async function CheckWumpus(presence) {
+    const wumpusData = await Database.GetData("Wumpus", presence.userID);
     if(!wumpusData) return;
 
+    const member = presence.member;
+    const hasWumpusRole = member.roles.resolve(Database.config.WumpusRoleId) ? true : false;
     if(!wumpusData.hasRole) {
-        Database.DeleteData("wumpus", presence.userID);
+        if(hasWumpusRole) member.roles.remove(Database.config.WumpusRoleId);
+        await Database.DeleteData("Wumpus", presence.userID);
         return;
     }
 
-    if(wumpusData.perma && !presence.roles.cache.has(Database.config.WumpusRoleId)) {
-        Database.DeleteData("wumpus", presence.userID);
+    if(wumpusData.perma && !hasWumpusRole) {
+        await Database.DeleteData("Wumpus", presence.userID);
         return;
     }
 
-    const currencyData = Database.GetData("currency", presence.userID);
+    const currencyData = await Database.GetData("Currency", presence.userID);
     if(!currencyData) return;
 
-    if(presence.roles.has(Database.config.WumpusRoleId) && !wumpusData.perma) {
+    if(hasWumpusRole && !wumpusData.perma) {
         const now = new Date(Date.now());
         const year = now.getFullYear();
         const month = now.getMonth();
@@ -377,15 +416,23 @@ function CheckWumpus(presence) {
         }
         if(wumpusData.roleTime < MonthDateRange.start + (Database.config.DayInMilliSeconds * 2)) {
             if(currencyData.bits >= Database.config.WumpusRoleCost) {
-                currencyData.bits -= Database.config.WumpusRoleCost;
-                Database.SetData("currency", currencyData);
+                let sub = Database.config.WumpusRoleCost;
+                if(wumpusData.hasCustomEmoji) {
+                    if(currencyData.bits >= Database.config.WumpusRoleCost + Database.config.CustomEmojiCost) {
+                        sub += Database.config.CustomEmojiCost;
+                    } else {
+                        wumpusData.hasCustomEmoji = false;
+                    }
+                }
+                currencyData.bits -= sub;
+                await Database.SetData("Currency", currencyData);
                 wumpusData.roleTime = MonthDateRange.end + Database.config.DayInMilliSeconds;
-                Database.SetData("wumpus", wumpusData);
-                if(!presence.roles.has(Database.config.WumpusRoleId)) presence.roles.add(Database.config.WumpusRoleId);
+                await Database.SetData("Wumpus", wumpusData);
+                if(!hasWumpusRole) member.roles.add(Database.config.WumpusRoleId);
             } else {
-                Database.DeleteData("wumpus", presence.userID);
-                presence.removeRole(Database.config.WumpusRoleId, "Did not have enough bits.");
+                await Database.DeleteData("Wumpus", presence.userID);
+                member.roles.remove(Database.config.WumpusRoleId, "Did not have enough bits.");
             }
-        } else if(!presence.roles.has(Database.config.WumpusRoleId)) {presence.roles.add(Database.config.WumpusRoleId);}
-    } else if(!presence.roles.has(Database.config.WumpusRoleId)) {presence.roles.add(Database.config.WumpusRoleId);}
+        } else if(!hasWumpusRole) {member.roles.add(Database.config.WumpusRoleId);}
+    } else if(!hasWumpusRole) {member.roles.add(Database.config.WumpusRoleId);}
 }

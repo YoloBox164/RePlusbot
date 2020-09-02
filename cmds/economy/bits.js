@@ -10,7 +10,7 @@ const Send = require("./send");
 const Shop = require("./shop");
 
 module.exports = {
-    /** @param {import("../../typings").CustomMessage} message Discord message. */
+    /** @param {import("discord.js").Message} message Discord message. */
     execute: (message) => {
         const timeNow = Date.now();
 
