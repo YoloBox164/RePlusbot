@@ -219,9 +219,7 @@ Bot.on("messageUpdate", async (oldMessage, newMessage) => {
     }
 });
 
-Bot.on("messageDelete", async (message) => {
-    MovieSys.CheckDeletedMsg(message);
-});
+Bot.on("messageDelete", async (message) => { MovieSys.CheckDeletedMsg(message); });
 
 /** @param {Discord.Message} message */
 function upvoteSys(message) {
@@ -255,32 +253,40 @@ Bot.on("inviteDelete", invite => inviteLogHandler(invite, "Deleted"));
  *  @param {string} text
  */
 function inviteLogHandler(invite, text) {
-    /** @type {Discord.Guild} */
     const guild = invite.guild;
     const botMember = guild.member(Bot.user);
     const inviterMember = guild.member(invite.inviter);
 
-    const createMsg = `**Inviter:** ${inviterMember} Id: ${inviterMember ? inviterMember.id : null}
-        **Code:** ${invite.code}
-        **URL:** ${invite.url}
-        **Channel:** ${invite.channel}\n
-        **Created At:** ${invite.createdTimestamp ? Bot.logDate(invite.createdTimestamp) : null}
-        **Expires At:** ${invite.createdTimestamp ? Bot.logDate(invite.expiresTimestamp) : null}\n
-        **Max Age:** ${invite.maxAge} ms
-        **Max Uses:** ${invite.maxUses}
-        **Target User:** ${invite.targetUser} | Is From Stream: ${invite.targetUserType == 1 ? "True" : "False"}
-        **Temporary:** ${invite.temporary}`;
-
-    const deleteMsg = `**Code:** ${invite.code}
-        **URL:** ${invite.url}
-        **Channel:** ${invite.channel}`;
-
     const embed = new Discord.MessageEmbed()
         .setColor(botMember.displayHexColor)
-        .setTitle(`Invite ${text}`)
-        .setDescription(text === "Created" ? createMsg : deleteMsg);
+        .setTitle(`Invite ${text}`);
 
-    logChannel.send({ embed: embed });
+    if(text === "Created") {
+        embed.addFields([
+            { name: "Inviter", value: `${inviterMember}`, inline: false },
+            { name: "Inviter Tag", value: `\`\`\`${inviterMember.user.tag}\`\`\``, inline: true },
+            { name: "Inviter ID", value: `\`\`\`xl\n${inviterMember ? inviterMember.id : null}\`\`\``, inline: true },
+            { name: "Code", value: `\`\`\`${invite.code}\`\`\``, inline: false },
+            { name: "URL", value: `${invite.url}`, inline: false },
+            { name: "Channel", value: `${invite.channel}`, inline: false },
+            { name: "Created At", value: `\`\`\`${invite.createdTimestamp ? Bot.logDate(invite.createdTimestamp) : null}\`\`\``, inline: true },
+            { name: "Expires At", value: `\`\`\`${invite.createdTimestamp ? Bot.logDate(invite.expiresTimestamp) : null}\`\`\``, inline: true },
+            { name: "\u200b", value: "\u200b", inline: false },
+            { name: "Max Age", value: `\`\`\`xl\n${invite.maxAge} ms\`\`\``, inline: true },
+            { name: "Max Uses", value: `\`\`\`xl\n${invite.maxUses}\`\`\``, inline: true },
+            { name: "\u200b", value: "\u200b", inline: false },
+            { name: "Target User", value: `\`\`\`xl\n${invite.targetUser} | Is From Stream: ${invite.targetUserType == 1 ? "True" : "False"}\`\`\``, inline: true },
+            { name: "Temporary", value: `\`\`\`xl\n${invite.temporary}\`\`\``, inline: true }
+        ]);
+    } else {
+        embed.addFields([
+            { name: "Code", value: `\`\`\`${invite.code}\`\`\``, inline: false },
+            { name: "URL", value: `${invite.url}`, inline: false },
+            { name: "Channel", value: `${invite.channel}`, inline: false }
+        ]);
+    }
+
+    logChannel.send(embed);
 }
 
 Bot.on("guildMemberAdd", async member => {
