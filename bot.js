@@ -395,7 +395,7 @@ async function CheckWumpus(presence) {
     if(!wumpusData) return;
 
     const member = presence.member;
-    const hasWumpusRole = member.roles.resolve(Database.config.WumpusRoleId) ? true : false;
+    const hasWumpusRole = member.roles.cache.has(Database.config.WumpusRoleId);
     if(!wumpusData.hasRole) {
         if(hasWumpusRole) member.roles.remove(Database.config.WumpusRoleId);
         await Database.DeleteData("Wumpus", presence.userID);
