@@ -63,7 +63,7 @@ module.exports = {
 async function GetVoiceTop10Chart(bot, message) {
     /** @type {Promise<QuickChart>}*/
     const promise = new Promise((resolve, reject) => {
-        Database.Connection.query("SELECT * FROM Users ORDER BY allTime DESC LIMIT 10").then(function(/** @type {import("../../database").Users[]} */ userDatas) {
+        Database.Connection.query("SELECT * FROM Users ORDER BY allTime DESC LIMIT 10;").then(function(/** @type {import("../../database").Users[]} */ userDatas) {
             /** @type {string[]} */
             const UserNames = [];
             /** @type {number[]} */
@@ -160,7 +160,7 @@ async function GetVoiceTop10Chart(bot, message) {
 async function GetMsgTop10Chart(bot, message) {
     /** @type {Promise<QuickChart>}*/
     const promise = new Promise((resolve, reject) => {
-        Database.Connection.query("SELECT * FROM Users ORDER BY messages DESC LIMIT 10").then(function(/** @type {import("../../database").Users[]} */ userDatas) {
+        Database.Connection.query("SELECT * FROM Users ORDER BY messages DESC LIMIT 10;").then(function(/** @type {import("../../database").Users[]} */ userDatas) {
             /** @type {string[]} */
             const UserNames = [];
             /** @type {number[]} */
@@ -244,7 +244,7 @@ async function GetMsgTop10Chart(bot, message) {
 async function GetBitsTop10Chart(bot, message) {
     /** @type {Promise<QuickChart>}*/
     const promise = new Promise((resolve, reject) => {
-        Database.Connection.query("SELECT * FROM Currency ORDER BY bits DESC LIMIT 10").then(function(/** @type {import("../../database").Currency[]} */ userDatas) {
+        Database.Connection.query("SELECT * FROM Currency ORDER BY bits DESC LIMIT 10;").then(function(/** @type {import("../../database").Currency[]} */ userDatas) {
             /** @type {string[]} */
             const UserNames = [];
             /** @type {number[]} */
