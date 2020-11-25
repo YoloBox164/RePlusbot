@@ -25,10 +25,10 @@ class LevelSystem {
             let exp = randomExp();
 
             if(userData) {
-                messages += userData.messages;
-                commandUses = userData.commandUses;
-                userLevel = userData.level;
-                exp += userData.exp;
+                messages += userData.messages || 0 ;
+                commandUses = userData.commandUses || 0;
+                userLevel = userData.level || 1;
+                exp += userData.exp || 0;
             }
 
             if(isCommandTrue) commandUses++;
