@@ -1,4 +1,4 @@
 @echo off
-title ARevoltBot
-node bot.js
+title RevoltBotV2
+npm run build && npm run start
 cmd /k

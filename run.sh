@@ -1,1 +1,1 @@
-sudo node ./bot.js
+sudo npm run build && npm run start
