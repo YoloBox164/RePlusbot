@@ -19,8 +19,7 @@ class Dog implements BaseCommand {
             const msg = await message.channel.send("Lekérés...");
             const link = "https://api.thedogapi.com/v1/images/search?mime_types=gif";
 
-            const response = await got(link);
-            const data = JSON.parse(response.body);
+            const data: any = await got(link).json();
 
             const embed = new MessageEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL())
