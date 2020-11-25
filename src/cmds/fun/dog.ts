@@ -18,8 +18,8 @@ class Dog implements BaseCommand {
         try {
             const msg = await message.channel.send("Lekérés...");
 
-            const data = await got("https://api.thedogapi.com/v1/images/search?mime_types=gif");
-            console.log(data);
+            const data = await got("https://api.thedogapi.com/v1/images/search?mime_types=gif").json();
+
             const embed = new MessageEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL())
                 .setDescription(`[LINK](${data[0].url})`)
@@ -29,7 +29,7 @@ class Dog implements BaseCommand {
     
             return message.channel.send({ embed: embed }).then(() => msg.delete());
         } catch (error) {
-            return Promise.reject(error);
+            return Promise.reject(new Error(error));
         }
     }
     
