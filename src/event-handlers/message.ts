@@ -9,7 +9,7 @@ import SecuritySys from "../systems/security";
 import Config from "../config.json";
 
 export default async (message: Message) => {
-    if(message.partial) await message.fetch().catch((err) => console.error(new Error(err)));
+    if(message.partial) await message.fetch().catch(console.error);
     if(message.author.bot) return;
     if(message.channel.type === "dm") return;
 
@@ -21,7 +21,7 @@ export default async (message: Message) => {
     }
 
     if(Config.mode === "development" || !MemberHasOneOfTheRoles(message.member, StaffIds)) {
-        if(await SecuritySys.Automod.LinkFilter.Check(message).catch((err) => console.error(new Error(err)))) return;
+        if(await SecuritySys.Automod.LinkFilter.Check(message).catch(console.error)) return;
         if(SecuritySys.Automod.WordFilter.Check(message)) return;
         if(SecuritySys.Automod.SpamProtection.CheckTime(message)) return;
         if(SecuritySys.Automod.SpamProtection.CheckContent(message)) return;
@@ -37,7 +37,7 @@ export default async (message: Message) => {
         const cmd = commands.get(command);
 
         if(cmd && cmd.isDev) cmd.execute(message, args);
-        LevelSystem.GiveExp(message, true).catch((err) => console.error(new Error(err)));
+        LevelSystem.GiveExp(message, true).catch(console.error);
     } else if(checkPrefix(message.content, message.client.prefix)) {
         const { command, args } = makeArgs(message, message.client.prefix);
         const cmd = commands.get(command) || commands.find(c => c.aliases && c.aliases.includes(command));
@@ -55,12 +55,12 @@ export default async (message: Message) => {
                     message.client.logChannel.send(embedTemplates.Error(`\`\`\`xl\n${Clean(error)}\n\`\`\``));
                 });
             }
-            LevelSystem.GiveExp(message, true).catch((err) => console.error(new Error(err)));
+            LevelSystem.GiveExp(message, true).catch(console.error);
         } else message.channel.send(embedTemplates.Cmd.Help(message.client));
     } else if(message.mentions.has(message.client.user, { ignoreEveryone: true, ignoreRoles: true })) {
         message.channel.send(embedTemplates.Cmd.Help(message.client));
-        LevelSystem.GiveExp(message, false).catch((err) => console.error(new Error(err)));
-    } else LevelSystem.GiveExp(message, false).catch((err) => console.error(new Error(err)));
+        LevelSystem.GiveExp(message, false).catch(console.error);
+    } else LevelSystem.GiveExp(message, false).catch(console.error);
 }
 
 function checkPrefix(text: string, prefix: string): boolean {

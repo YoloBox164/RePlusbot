@@ -57,7 +57,7 @@ export async function Check(message: Message) {
                     message.channel.send(`**${message.member}, ez a 3. fekete listán lévő oldal amit elküldtél. Most egy hivatalos figyelmeztetést kapsz, ami a profilodon is meg fog látszani. Ha a következőkben folytatod akkor ki leszel rúgva (kick) a szerveről.**`);
                     const warnEmbed = EmbedTemplates.Warning(message.member, message.guild.member(message.client.user), warning.warning);
                     message.client.automodLogChannel.send({ embed: warnEmbed });
-                }).catch((err) => console.error(new Error(err)));
+                }).catch(console.error);
             }
             Database.SetData("Users", {
                 id: message.author.id,
@@ -65,8 +65,8 @@ export async function Check(message: Message) {
                 blLinks: blLinks,
                 warns: warns,
                 exp: exp
-            }).catch((err) => console.error(new Error(err)));
-        }).catch((err) => console.error(new Error(err)));
+            }).catch(console.error);
+        }).catch(console.error);
 
         const logEmbed = EmbedTemplates.MsgDelete(message, reason);
         message.client.automodLogChannel.send({ embed: logEmbed });

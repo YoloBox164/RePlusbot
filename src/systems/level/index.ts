@@ -83,7 +83,7 @@ class LevelSystem {
                     commandUses: 0,
                     tag: targetMember.user.tag,
                 }
-                Database.SetData("Users", userData).catch(err => console.error(new Error(err)));
+                Database.SetData("Users", userData).catch(console.error);
             }
 
             const width = 800;
@@ -178,7 +178,7 @@ class LevelSystem {
             let userCurrency = await Database.GetData("Currency", targetMember.id);
             if(!userCurrency) {
                 userCurrency = { id: targetMember.id, bits: 0 };
-                Database.SetData("Currency", userCurrency).catch(err => console.error(new Error(err)));
+                Database.SetData("Currency", userCurrency).catch(console.error);
             }
             const bitsText = `Bitek: ${userCurrency.bits}`;
             context.fillText(bitsText, 480, 210);

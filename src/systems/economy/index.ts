@@ -197,11 +197,11 @@ class Economy {
             const hasWumpusRole = member.roles.cache.has(Roles.WumpusId);
 
             if(!wumpusData && hasWumpusRole) {
-                return member.roles.remove(Roles.WumpusId).catch((err) => console.error(new Error(err)));
+                return member.roles.remove(Roles.WumpusId).catch(console.error);
             } else if(!wumpusData && !hasWumpusRole) return Promise.resolve();
 
             if(wumpusData.perma && !hasWumpusRole) {
-                return member.roles.add(Roles.WumpusId).catch((err) => console.error(new Error(err)));
+                return member.roles.add(Roles.WumpusId).catch(console.error);
             } else if(wumpusData.perma && hasWumpusRole) return Promise.resolve(wumpusData);
 
             const timestampt = Date.now();
