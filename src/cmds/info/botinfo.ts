@@ -30,7 +30,7 @@ class BotInfo implements BaseCommand {
                 **Felhasználók száma:** *${bot.users.cache.size}*\n
                 **Futási idő:** *${Tools.ParseMillisecondsIntoReadableTime(bot.uptime)}*`
             )
-            .setThumbnail(bot.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true })
+            .setThumbnail(bot.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
             .setColor(message.guild.member(bot.user).displayHexColor);
 
         return message.channel.send({ embed: embed }).then(() => msg.delete());

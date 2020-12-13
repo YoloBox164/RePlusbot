@@ -41,7 +41,7 @@ class Add implements BaseCommand {
 
         return Economy.Add(target, amount).then((currencyData) => {
             const embed = new MessageEmbed()
-                .setAuthor(message.member.displayName, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true })
+                .setAuthor(message.member.displayName, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
                 .setTimestamp(Date.now())
                 .setColor("#78b159")
                 .setTitle("Bits")

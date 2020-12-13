@@ -48,7 +48,7 @@ class Exchange implements BaseCommand {
             const embed = new Discord.MessageEmbed()
                 .setThumbnail("https://www.exchangerate-api.com/img/logo-square.png")
                 .setTitle(`${fr} => ${to}`)
-                .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true })
+                .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
                 .setColor(message.guild.member(message.client.user).displayHexColor)
                 .addField("Eredmény", `${res["rate"] * val} ${symbol}`);
     
