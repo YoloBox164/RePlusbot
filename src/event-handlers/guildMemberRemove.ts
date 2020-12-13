@@ -25,7 +25,7 @@ export default async (member: GuildMember) => {
     
     let { embed, text, reason } = createEmbed(member, entry, type);
 
-    if(member.guild === member.client.mainGuild) member.client.logChannel.send(embed);
+    if(member.guild.id === member.client.mainGuild.id) member.client.logChannel.send(embed);
     else member.client.devLogChannel.send(embed);
 
     console.log(`${identifyer}: ${member.displayName} (Id: ${member.id}) ${text} at ${member.client.logDate()} | Reason: ${reason}`.red);

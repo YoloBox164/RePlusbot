@@ -15,7 +15,7 @@ export default async (member: GuildMember) => {
             { name: `${identifyer} Id`, value: `\`\`\`xl\n${member.id}\`\`\``, inline: true }
         ]);
 
-    if(member.guild == member.client.mainGuild) member.client.logChannel.send(embed);
+    if(member.guild.id === member.client.mainGuild.id) member.client.logChannel.send(embed);
     else member.client.devLogChannel.send(embed);
 
     console.log(colors.green(`${identifyer}: ${member.displayName} (ID: ${member.id}) joined the server at \`${member.client.logDate(member.joinedTimestamp)}\``));
