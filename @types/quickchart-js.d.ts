@@ -2,6 +2,7 @@ declare module "quickchart-js" {
     import { ChartConfiguration } from "chart.js";
 
     export default class QuickChart {
+        constructor(apiKey?: string, accountId?: string);
         /**
          * **You must set this before generating a URL!**
          * ---
