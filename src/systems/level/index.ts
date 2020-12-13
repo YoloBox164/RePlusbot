@@ -43,7 +43,7 @@ class LevelSystem {
                 return Promise.resolve("ON_COOLDOWN");
             }
 
-            const { level } = this.GetLevel(userData.exp);
+            const { level } = this.GetLevel(exp);
             if(level > userLevel) {
                 userLevel = level;
                 const attach = new MessageAttachment(await this.GetImageBuffer(message.member), "exp.png");
