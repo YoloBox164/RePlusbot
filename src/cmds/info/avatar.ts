@@ -18,7 +18,7 @@ class Avatar implements BaseCommand {
         const msg = await message.channel.send("Avatár lehívása folyamatban...");
         const target = Tools.GetMember(message, args);
 
-        const avatarUrl = target.user.displayAvatarURL({ format: "png", size: 4096 });
+        const avatarUrl = target.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true });
 
         const embed = new MessageEmbed()
             .setTitle(`${target.displayName} avatárja`)

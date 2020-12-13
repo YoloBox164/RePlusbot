@@ -96,7 +96,7 @@ class LevelSystem {
             const bgImg = await loadImage("./assets/systems/level/bg_img.jpg");
             context.drawImage(bgImg, 0, 0, width, height);
         
-            const avatarURL = targetMember.user.displayAvatarURL({ format: "png", size: 4096 });
+            const avatarURL = targetMember.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true });
             const profileImage = await loadImage(avatarURL);
         
             // Background of the card

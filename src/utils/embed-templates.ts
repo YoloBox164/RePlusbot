@@ -18,7 +18,7 @@ export default {
     SpamDelete: (message: Message, reason: string): MessageEmbed => {
         const embed = new MessageEmbed()
             .setColor("ORANGE")
-            .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
+            .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Törlés Oka:", reason)
             .setFooter(`USER_ID: ${message.author.id}`)
@@ -29,7 +29,7 @@ export default {
     MsgDelete: (message: Message, reason: string): MessageEmbed => {
         const embed = new MessageEmbed()
             .setColor("ORANGE")
-            .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
+            .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
             .setDescription(`**${message.member} üzenete törölve a ${message.channel} szobából.**`)
             .addField("Üzenet:", message.content)
             .addField("Törlés Oka:", reason)
@@ -40,7 +40,7 @@ export default {
 
     Join: (guild: Guild, member: GuildMember): MessageEmbed => {
         const embed = new MessageEmbed()
-            .setAuthor(guild.owner.displayName, guild.owner.user.avatarURL())
+            .setAuthor(guild.owner.displayName, guild.owner.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
             .setTitle("Üdv a szerveren!")
             .setThumbnail(guild.iconURL({ size: 4096, format: "jpg" }))
             .setDescription(`${member} érezd jól magad!`)
@@ -51,7 +51,7 @@ export default {
     JoinRequest: (message: Message): MessageEmbed => {
         const embed = new MessageEmbed()
             .setColor("AQUA")
-            .setAuthor(message.author.tag, message.author.avatarURL({ size: 4096, format: "png" }))
+            .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
             .setDescription(`${message.member} szeretne csatlakozni a közösségünkbe!`)
             .addField("Üzenet:", message.content)
             .addField("URL:", message.url)

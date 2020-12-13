@@ -21,7 +21,7 @@ class Cat implements BaseCommand {
             const data = await got("https://api.thecatapi.com/v1/images/search?mime_types=gif").json();
 
             const embed = new MessageEmbed()
-                .setAuthor(message.author.tag, message.author.displayAvatarURL())
+                .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true })
                 .setDescription(`[LINK](${data[0].url})`)
                 .setFooter("thecatapi.com")
                 .setColor(message.guild.member(message.client.user).displayHexColor)

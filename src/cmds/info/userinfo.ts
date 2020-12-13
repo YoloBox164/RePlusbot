@@ -36,7 +36,7 @@ class UserInfo implements BaseCommand {
 
         const attach = new MessageAttachment(await LevelSystem.GetImageBuffer(targetMember), "exp.png");
 
-        const avatarURL = targetMember.user.displayAvatarURL({ format: "png", size: 4096 });
+        const avatarURL = targetMember.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true });
         const embed = new MessageEmbed()
             .setAuthor(targetMember.user.tag, avatarURL)
             .setThumbnail(avatarURL)
