@@ -40,7 +40,8 @@ client.on("ready", async () => {
     client.automodLogChannel = <TextChannel>client.channels.resolve(Settings.Channels.automodLogId);
     client.economyLogChannel = <TextChannel>client.channels.resolve(Settings.Channels.economyLogId);
     client.devLogChannel = <TextChannel>client.channels.resolve("647420812722307082");
-
+    client.mainGuild = client.logChannel.guild;
+    
     await Database.Connect().catch(console.error);
 
     AnalyticSys.Init(client);
