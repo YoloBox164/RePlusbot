@@ -42,7 +42,7 @@ class Economy {
 
             return Promise.resolve(userData);
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 
@@ -91,7 +91,7 @@ class Economy {
 
             return Promise.resolve<null>(null);
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 
@@ -142,7 +142,7 @@ class Economy {
             
             return Promise.resolve(userData);
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 
@@ -187,7 +187,7 @@ class Economy {
 
             return Promise.resolve({ fromUserData, toUserData, response });
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 
@@ -252,7 +252,7 @@ class Economy {
 
             return Promise.resolve();
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 

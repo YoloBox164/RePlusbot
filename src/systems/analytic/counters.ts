@@ -61,8 +61,9 @@ class CounterHandler {
             } else {
                 fs.writeFileSync(SaveJSONPath, "{}");
             }
+            return Promise.resolve();
         } catch (error) {
-            throw error;
+            return Promise.reject(error);
         }
     }
 }

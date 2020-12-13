@@ -40,30 +40,21 @@ class CommandHandler {
     }
 
     public reloadCmd(cmdName: string): Promise<string> {
-        const promise = new Promise<string>((resolve, reject) => {
-            if(!this.isCommandsLoaded) reject("Commands must be loaded to be able to use this function!");
-            if(commands.has(cmdName)) {
-                loadCmd(commands.get(cmdName).pathToCmd);
-            }
-            resolve("Done!");
-        });
-        return promise;
+        if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
+        if(commands.has(cmdName)) {
+            loadCmd(commands.get(cmdName).pathToCmd);
+        }
+        return Promise.resolve("DONE");
     }
 
     public get categories(): Promise<typeof categories> {
-        const promise = new Promise<typeof categories>((resolve, reject) => {
-            if(!this.isCommandsLoaded) reject("Commands must be loaded to be able to use this function!");
-            resolve(categories);
-        });
-        return promise;
+        if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
+        return Promise.resolve(categories);
     }
 
     public get commands(): Promise<typeof commands> {
-        const promise = new Promise<typeof commands>((resolve, reject) => {
-            if(!this.isCommandsLoaded) reject("Commands must be loaded to be able to use this function!");
-            resolve(commands);
-        });
-        return promise;
+        if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
+        return Promise.resolve(commands);
     }
 }
 

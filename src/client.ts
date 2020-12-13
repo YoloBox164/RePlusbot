@@ -41,7 +41,7 @@ client.on("ready", async () => {
     client.economyLogChannel = <TextChannel>client.channels.resolve(Settings.Channels.economyLogId);
     client.devLogChannel = <TextChannel>client.channels.resolve("647420812722307082");
 
-    await Database.Connect().catch((err) => console.error(new Error(err)));
+    await Database.Connect().catch(console.error);
 
     AnalyticSys.Init(client);
     SecSys.MuteHandler.Restart(client.mainGuild);
@@ -63,7 +63,7 @@ client.on("ready", async () => {
     }
 });
 
-client.login(Config.TOKEN).catch((err) => console.error(new Error(err)));
+client.login(Config.TOKEN).catch(console.error);
 
 process.on("uncaughtException", err => { errorHandling(err, "Uncaught Exception", true); });
 
@@ -71,7 +71,7 @@ process.on("unhandledRejection", err => { errorHandling(err, "Unhandled Rejectio
 
 async function errorHandling(err: Error | any, msg: string, toShutdown = false) {
     try {
-        console.error(new Error(err));
+        console.error(err);
         let logMsg = `\`${msg}\`\n\`\`\`xl\n${Clean(err)}\n\`\`\``;
         if(toShutdown) logMsg += `\n\`SHUTTING DOWN\` | \`${client.logDate()}\``;
         const embed = EmbedTemplates.Error(logMsg);
@@ -82,6 +82,6 @@ async function errorHandling(err: Error | any, msg: string, toShutdown = false) 
             client.setTimeout(() => { client.destroy(); }, 2000);
         }
     } catch (error) {
-        console.error(new Error(error));
+        console.error(error);
     }
 }

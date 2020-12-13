@@ -34,11 +34,8 @@ class EventHandler {
     }
 
     public get handlers(): Promise<typeof handlers> {
-        const promise = new Promise<typeof handlers>((resolve, reject) => {
-            if(!this.isEventsLoaded) reject("Event handlers must be loaded at least once!");
-            resolve(handlers);
-        });
-        return promise;
+        if(!this.isEventsLoaded) return Promise.reject(new Error("Event handlers must be loaded at least once!"));
+        return Promise.resolve(handlers);
     }
 }
 

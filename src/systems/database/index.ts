@@ -23,7 +23,7 @@ class Database {
 
             return Promise.resolve(this.Connection);
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 
@@ -42,7 +42,7 @@ class Database {
             const rows: Array<any> = await this.Connection.query(`SELECT * FROM ${tableName} WHERE id = ${id};`);
             return Promise.resolve(rows[0]);
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 
@@ -94,7 +94,7 @@ class Database {
                 return this.Connection.query(`INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${columnDatas.join(", ")});`);
             }
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
 

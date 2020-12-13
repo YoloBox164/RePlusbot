@@ -29,7 +29,7 @@ class Dog implements BaseCommand {
     
             return message.channel.send({ embed: embed }).then(() => msg.delete());
         } catch (error) {
-            return Promise.reject(new Error(error));
+            return Promise.reject(error);
         }
     }
     
