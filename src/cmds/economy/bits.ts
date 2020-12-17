@@ -6,7 +6,7 @@ import Add from "./add";
 import Daily from "./daily";
 import Remove from "./remove";
 import Send from "./send";
-//import Shop from "./shop";
+import Shop from "./shop";
 
 class Bits implements BaseCommand {
     pathToCmd: string;
@@ -33,7 +33,7 @@ class Bits implements BaseCommand {
                     {
                         name: "Parancsok",
                         value: `${Daily.usage}\`\`\`md\n# ${Daily.desc}\`\`\`
-                            ${/*Shop.usage*/"Shop"}\`\`\`md\n# ${/*Shop.desc*/"Shop"}\`\`\`
+                            ${Shop.usage}\`\`\`md\n# ${Shop.desc}\`\`\`
                             ${Send.usage}\`\`\`md\n# ${Send.desc}\`\`\`
                             ──═══════════════════════──\n
                             ${Add.usage}\`\`\`md\n# ${Add.desc}\`\`\`
