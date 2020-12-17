@@ -2,6 +2,7 @@ import { GuildMember, MessageEmbed, User } from "discord.js";
 import Tools from "../../utils/tools";
 import Database from "../database";
 import { Roles } from "../../settings.json";
+import { isNull } from "util";
 
 export enum ResponseTypes {
     "NONE",
@@ -63,7 +64,11 @@ class Economy {
 
                 await Database.SetData("Currency", userData);
 
-                this.Log("ADD", member, this.DAILY_AMOUNT, userData.bits);
+                this.Log("ADD", {
+                    member: member,
+                    amount: this.DAILY_AMOUNT,
+                    bits: userData.bits
+                }, "Daily claim.");
 
                 return Promise.resolve({ userData, streakDone: false });
             }
@@ -84,7 +89,11 @@ class Economy {
             
                 await Database.SetData("Currency", userData);
 
-                this.Log("ADD", member, streakDone ? this.DAILY_AMOUNT + this.DAILY_STREAK_BONUS : this.DAILY_AMOUNT, userData.bits);
+                this.Log("ADD", {
+                    member: member,
+                    amount: streakDone ? this.DAILY_AMOUNT + this.DAILY_STREAK_BONUS : this.DAILY_AMOUNT,
+                    bits: userData.bits
+                }, "Daily claim.");
 
                 return Promise.resolve({ userData, streakDone });
             }
@@ -95,7 +104,7 @@ class Economy {
         }
     }
 
-    public static async Add(member: GuildMember, amount: number) {
+    public static async Add(member: GuildMember, amount: number, reason?: string) {
         try {
             let userData = await Database.GetData("Currency", member.id);
 
@@ -113,7 +122,11 @@ class Economy {
     
             await Database.SetData("Currency", userData);
 
-            this.Log("ADD", member, amount, userData.bits);
+            this.Log("ADD", {
+                member: member,
+                amount: amount,
+                bits: userData.bits
+            }, reason);
 
             return Promise.resolve(userData);
         } catch (error) {
@@ -121,7 +134,7 @@ class Economy {
         }   
     }
 
-    public static async Remove(member: GuildMember, amount: number) {
+    public static async Remove(member: GuildMember, amount: number, reason?: string) {
         try {
             let userData = await Database.GetData("Currency", member.id);
             if(!userData) {
@@ -138,7 +151,11 @@ class Economy {
     
             await Database.SetData("Currency", userData);
 
-            this.Log("REMOVE", member, amount, userData.bits);
+            this.Log("REMOVE", {
+                member: member,
+                amount: amount,
+                bits: userData.bits
+            }, reason);
             
             return Promise.resolve(userData);
         } catch (error) {
@@ -146,7 +163,7 @@ class Economy {
         }
     }
 
-    public static async Transfer(fromMember: GuildMember, toMember: GuildMember, amount: number) {
+    public static async Transfer(fromMember: GuildMember, toMember: GuildMember, amount: number, reason?: string) {
         try {
             let fromUserData =  await Database.GetData("Currency", fromMember.id);
             let toUserData = await Database.GetData("Currency", toMember.id);
@@ -182,7 +199,13 @@ class Economy {
             Database.SetData("Currency", toUserData);
 
             if(response === ResponseTypes.DONE) {
-                this.Log("TRANSFER", fromMember, amount, fromUserData.bits, toMember, toUserData.bits);
+                this.Log("TRANSFER", {
+                    member: fromMember,
+                    amount: amount,
+                    bits: fromUserData.bits,
+                    toMember: toMember,
+                    toBits: toUserData.bits
+                }, reason);
             }
 
             return Promise.resolve({ fromUserData, toUserData, response });
@@ -193,15 +216,17 @@ class Economy {
 
     public static async CheckWumpus(member: GuildMember) {
         try {
+            const wumpusRole = await member.guild.roles.fetch(Roles.WumpusId);
+            if(!wumpusRole) return Promise.resolve<null>(null);
             const wumpusData = await Database.GetData("Wumpus", member.id);
             const hasWumpusRole = member.roles.cache.has(Roles.WumpusId);
 
             if(!wumpusData && hasWumpusRole) {
-                return member.roles.remove(Roles.WumpusId).catch(console.error);
-            } else if(!wumpusData && !hasWumpusRole) return Promise.resolve();
+                return member.roles.remove(Roles.WumpusId);
+            } else if(!wumpusData && !hasWumpusRole) return Promise.resolve<null>(null);
 
             if(wumpusData.perma && !hasWumpusRole) {
-                return member.roles.add(Roles.WumpusId).catch(console.error);
+                return member.roles.add(Roles.WumpusId);
             } else if(wumpusData.perma && hasWumpusRole) return Promise.resolve(wumpusData);
 
             const timestampt = Date.now();
@@ -209,15 +234,16 @@ class Economy {
             date.setMonth(date.getMonth() - 1);
             const monthLength = Tools.GetMonthLength(date.getFullYear(), date.getMonth());
 
-            if(wumpusData.roleTime + monthLength < timestampt) {
-                const currencyData = await Database.GetData("Currency", member.id)
+            if(wumpusData.roleTime + monthLength > timestampt && !hasWumpusRole) return member.roles.add(Roles.WumpusId);
+            else if(wumpusData.roleTime + monthLength < timestampt) {
+                const currencyData = await Database.GetData("Currency", member.id);
 
                 if(currencyData.bits >= this.WUMPUS_ROLE_COST) {
                     const embed = new MessageEmbed()
                         .setTimestamp(timestampt)
                         .setColor("#f47fff")
                         .setTitle("Wumpus")
-                        .setDescription(`${member} Wumpus+ havi kölcsége levonva!`);
+                        .setDescription(`${member} Wumpus+ havi költsége levonva!`);
                     let sub = this.WUMPUS_ROLE_COST;
                     embed.addField("Összeg", `\`\`\`${sub} bits\`\`\``);
                     if(wumpusData.hasCustomEmoji) {
@@ -250,13 +276,31 @@ class Economy {
                 }
             }
 
-            return Promise.resolve();
+            return Promise.resolve<null>(null);
         } catch (error) {
             return Promise.reject(error);
         }
     }
 
-    private static Log(type: "ADD"|"REMOVE"|"TRANSFER", member: GuildMember, amount: number, bits: number, toMember?: GuildMember, toBits?: number) {
+    private static Log(type: "ADD", options: {
+        member: GuildMember,
+        amount: number,
+        bits: number
+    }, reason?: string): any;
+    private static Log(type: "REMOVE", options: {
+        member: GuildMember,
+        amount: number,
+        bits: number
+    }, reason?: string): any;
+    private static Log(type: "TRANSFER", options: {
+        member: GuildMember,
+        amount: number,
+        bits: number,
+        toMember: GuildMember,
+        toBits: number
+    }, reason?: string): any;
+    private static Log(type: "ADD"|"REMOVE"|"TRANSFER", options: any, reason = "Nincs megadva.") {
+        const { member, amount, bits } = options;
         const embed = new MessageEmbed()
             .setTimestamp(Date.now())
             .setColor("#78b159")
@@ -264,10 +308,11 @@ class Economy {
             .addFields([
                 { name: "Felhasználó", value: `${member}`, inline: false },
                 { name: "Menyiség", value: `\`\`\`${amount} bits\`\`\``, inline: true },
-                { name: "Egyenleg", value: `\`\`\`${bits} bits\`\`\``, inline: true },
+                { name: "Egyenleg", value: `\`\`\`${bits} bits\`\`\``, inline: true }
             ]);
 
         if(type === "TRANSFER") {
+            const { toMember, toBits } = options;
             embed.fields[0] = {
                 name: "Felhasználók",
                 value: `${member} => ${toMember}`,
@@ -278,6 +323,8 @@ class Economy {
             embed.fields[2].inline = false;
             embed.addField(`${toMember.displayName} egyenlege`, `\`\`\`${toBits} bits\`\`\``, false);
         }
+
+        embed.addField("Ok",`\`\`\`${reason}\`\`\``, false);
 
         return member.client.economyLogChannel.send({ embed: embed });
     }
