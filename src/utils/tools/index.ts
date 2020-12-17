@@ -84,8 +84,7 @@ export function MemberHasOneOfTheRoles(member: GuildMember, roleIds: Array<strin
 export function GetMonthLength(year: number, month: number) {
     const startDate = moment([year, month]);
     const endDate = moment(startDate).endOf("month");
-
-    return endDate.unix() - startDate.unix() + 1;
+    return (endDate.unix() - startDate.unix() + 1) * 1000;
 }
 
 /** @returns hours:minutes:seconds - e.g.: 01:14:54 */
