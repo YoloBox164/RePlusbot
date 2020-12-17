@@ -40,9 +40,9 @@ class Shop implements BaseCommand {
     items: ShopItem[] = [];
 
     constructor() {
-        const files = fs.readdirSync(module.path + "\\items").filter(f => f.split(".").pop() === "js");
+        const files = fs.readdirSync(`${module.path}/items`).filter(f => f.split(".").pop() === "js");
         for (const file of files) {
-            const shopItem = <ShopItem>require(module.path + "\\items\\" + file).default;
+            const shopItem = <ShopItem>require(`${module.path}/items/${file}`).default;
             console.log("SHOP".red + ` - ${shopItem.name} loaded!`);
             if(shopItem instanceof ShopItem) this.items.push(shopItem);
             else console.warn(new Error(`File "${file}" does not have default export witch is instance of ShopItem class.`));
