@@ -21,7 +21,7 @@ class CommandHandler {
         let counter = 0;
         for(const category of fs.readdirSync(PathToCmds)) {
             console.log(colors.cyan(`Loading ${category} commands!`));
-            const files = fs.readdirSync(`${PathToCmds}/${category}/`).filter(f => f.split(".").pop() == "js");
+            const files = fs.readdirSync(`${PathToCmds}/${category}/`).filter(f => f.split(".").pop() == "js" || f.split(".").length < 2);
             counter += files.length;
 
             const cmdNames: string[] = [];
