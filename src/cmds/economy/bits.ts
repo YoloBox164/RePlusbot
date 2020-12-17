@@ -2,11 +2,6 @@ import { Message, MessageEmbed } from "discord.js";
 import BaseCommand from "../../structures/base-command";
 import Economy from "../../systems/economy";
 import { Prefix } from "../../settings.json";
-import Add from "./add";
-import Daily from "./daily";
-import Remove from "./remove";
-import Send from "./send";
-import Shop from "./shop";
 
 class Bits implements BaseCommand {
     pathToCmd: string;
@@ -21,6 +16,7 @@ class Bits implements BaseCommand {
 
     /** @param message Discord message. */
     public async execute(message: Message) {
+        const cmds = await message.client.CommandHandler.commands;
         return Economy.GetInfo(message.member).then(userData => {
             const embed = new MessageEmbed()
                 .setAuthor(message.member.displayName, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
@@ -32,12 +28,12 @@ class Bits implements BaseCommand {
                     { name: "Streak", value: `\`\`\`${userData.streak}. nap\`\`\``, inline: true },
                     {
                         name: "Parancsok",
-                        value: `${Daily.usage}\`\`\`md\n# ${Daily.desc}\`\`\`
-                            ${Shop.usage}\`\`\`md\n# ${Shop.desc}\`\`\`
-                            ${Send.usage}\`\`\`md\n# ${Send.desc}\`\`\`
+                        value: `${cmds.get("daily").usage}\`\`\`md\n# ${cmds.get("daily").desc}\`\`\`
+                            ${cmds.get("shop").usage}\`\`\`md\n# ${cmds.get("shop").desc}\`\`\`
+                            ${cmds.get("send").usage}\`\`\`md\n# ${cmds.get("send").desc}\`\`\`
                             ──═══════════════════════──\n
-                            ${Add.usage}\`\`\`md\n# ${Add.desc}\`\`\`
-                            ${Remove.usage}\`\`\`md\n# ${Remove.desc}\`\`\``,
+                            ${cmds.get("add").usage}\`\`\`md\n# ${cmds.get("add").desc}\`\`\`
+                            ${cmds.get("remove").usage}\`\`\`md\n# ${cmds.get("remove").desc}\`\`\``,
                         inline: false
                     },
                     {
