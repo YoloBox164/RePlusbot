@@ -1,5 +1,24 @@
 import { Client, TextChannel } from "discord.js";
-const client = new Client({ partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"] });
+const client = new Client({
+    partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"],
+    ws: { intents: [
+        "DIRECT_MESSAGES",
+        "DIRECT_MESSAGE_REACTIONS",
+        "DIRECT_MESSAGE_TYPING",
+        "GUILDS",
+        "GUILD_BANS",
+        "GUILD_EMOJIS",
+        "GUILD_INTEGRATIONS",
+        "GUILD_INVITES",
+        "GUILD_MEMBERS",
+        "GUILD_MESSAGES",
+        "GUILD_MESSAGE_REACTIONS",
+        "GUILD_MESSAGE_TYPING",
+        "GUILD_PRESENCES",
+        "GUILD_VOICE_STATES",
+        "GUILD_WEBHOOKS"
+    ]}
+});
 
 import path from "path";
 process.env.APP_ROOT = path.resolve(__dirname).split("\\").slice(0, -1).join("/");
