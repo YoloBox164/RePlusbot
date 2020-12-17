@@ -39,7 +39,7 @@ class Add implements BaseCommand {
             return message.channel.send(embed);
         }
 
-        return Economy.Add(target, amount).then((currencyData) => {
+        return Economy.Add(target, amount, "ADMIN ADD").then((currencyData) => {
             const embed = new MessageEmbed()
                 .setAuthor(message.member.displayName, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
                 .setTimestamp(Date.now())

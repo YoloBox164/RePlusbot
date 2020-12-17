@@ -40,7 +40,7 @@ class Remove implements BaseCommand {
             return message.channel.send(embed);
         }
         
-        return Economy.Remove(target, amount).then(userData => {
+        return Economy.Remove(target, amount, "ADMIN REMOVE").then(userData => {
             const embed = new MessageEmbed()
                 .setAuthor(message.member.displayName, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
                 .setTimestamp(Date.now())

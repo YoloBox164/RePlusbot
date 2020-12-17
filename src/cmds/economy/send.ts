@@ -48,7 +48,7 @@ class Send implements BaseCommand {
             return message.channel.send(embed);
         }
 
-        Economy.Transfer(message.member, target, amount).then(({fromUserData, toUserData, response}) => {
+        Economy.Transfer(message.member, target, amount, "Felhasználói utalás.").then(({fromUserData, toUserData, response}) => {
             if(response === ResponseTypes.INSUFFICIENT) {
                 const embed = embedTemplates.Cmd.ArgErrCustom(message.client, "Jelenleg 0 bited van ezért nem tudsz küldeni másnak.", this);
                 return message.channel.send(embed);
