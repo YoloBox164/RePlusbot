@@ -25,7 +25,7 @@ shopItem.runMethod = async (message: Message, args: string[]) => {
             wumpusData.hasCustomEmoji = true;
             Economy.Remove(message.member, Economy.CUSTOM_EMOJI_COST, "Saját emoji slot vásárlás.")
             await Database.SetData("Wumpus", wumpusData);
-            return message.channel.send("Sikeresen megvetted a Wumpus+ rangot.");
+            return message.channel.send("Sikeresen megvetted a Saját emoji hely foglalást.");
         } else return message.channel.send("Nincs elég bited.");
 
     } catch (error) {
