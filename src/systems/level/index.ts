@@ -1,8 +1,8 @@
-import Database from "../database";
+import Database, { Users } from "../database";
 import { MessageAttachment, Collection, Message, GuildMember } from "discord.js";
 import { createCanvas, loadImage } from "canvas";
 
-const maxExpPerMsg = 5;
+const maxExpPerMsg = 10;
 const minExpPerMsg = 1;
 
 /** 2 minutes */
@@ -14,7 +14,7 @@ const randomExp = () => { return Math.floor(Math.random() * maxExpPerMsg) + minE
 
 
 class LevelSystem {
-    public static async GiveExp(message: Message, isCommandTrue: boolean): Promise<"ON_COOLDOWN"|void> {
+    public static async GiveExp(message: Message, isCommandTrue: boolean): Promise<"ON_COOLDOWN"|any> {
         try {
             const userData = await Database.GetData("Users", message.author.id);
             const cooldownData = cooldowns.get(message.author.id);
@@ -61,10 +61,31 @@ class LevelSystem {
                 commandUses: commandUses,
                 level: userLevel,
                 exp: exp
-            }).then(() => {
+            }).then((results) => {
                 cooldowns.set(message.author.id, {
                     timeout: setTimeout(() => cooldowns.delete(message.author.id), cooldownTime)
                 });
+                return results;
+            });
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    public static async GiveExpVoice(userId: string, userData: Users, pastTime: number) {
+        try {
+            //Trying to complete userData
+            userData = await Database.GetData("Users", userId);
+
+            let exp = randomExp() * (userData.allTime % pastTime);
+            if(userData.exp) exp += userData.exp;
+
+            const { level } = this.GetLevel(exp);
+
+            return Database.SetData("Users", {
+                id: userId,
+                level: level,
+                exp: exp
             });
         } catch (error) {
             return Promise.reject(error);
