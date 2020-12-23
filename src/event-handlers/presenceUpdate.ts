@@ -4,9 +4,12 @@ import Economy from "../systems/economy";
 const cooldown = new Collection<Snowflake, NodeJS.Timeout>();
 
 export default (oldPresence: Presence | null, newPresence: Presence) => {
-    if(!cooldown.has(newPresence.member.id)) Economy.CheckWumpus(newPresence.member).then(() => {
-        cooldown.set(newPresence.member.id, setTimeout(() => {
-            cooldown.delete(newPresence.member.id)
+    const memberId = newPresence.member.id;
+    const member = newPresence.member;
+    
+    if(!cooldown.has(memberId)) Economy.CheckWumpus(member).then(() => {
+        cooldown.set(memberId, setTimeout(() => {
+            cooldown.delete(memberId)
         }, 3600000)); // 1 hour cooldown
     });
 }
