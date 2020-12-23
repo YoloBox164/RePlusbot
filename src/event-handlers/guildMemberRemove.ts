@@ -31,10 +31,8 @@ export default async (member: GuildMember) => {
     console.log(`${identifyer}: ${member.displayName} (Id: ${member.id}) ${text} at ${member.client.logDate()} | Reason: ${reason}`.red);
 }
 
-function createEmbed(member: GuildMember, entry: GuildAuditLogsEntry | null, type: Types) {
+function createEmbed(member: GuildMember, entry: GuildAuditLogsEntry|null, type: Types) {
     const identifyer = member.user.bot ? "Bot" : "User";
-
-    const issuer = member.guild.members.resolve(entry.executor.id);
 
     const embed = new MessageEmbed()
         .setColor("RED")
@@ -50,6 +48,8 @@ function createEmbed(member: GuildMember, entry: GuildAuditLogsEntry | null, typ
     let reason = "N/A";
 
     if(entry) {
+        const issuer = member.guild.members.resolve(entry.executor.id);
+
         embed.addFields([
             { name: "By", value: `${issuer}`, inline: false },
             { name: "Reason", value: `${entry.reason ? `\`\`\`md\n# ${entry.reason}\`\`\`` : "N/A"}`, inline: false }
