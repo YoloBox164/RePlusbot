@@ -1,5 +1,6 @@
 import { Client, Collection, GuildMember, VoiceChannel, VoiceState } from "discord.js";
-import Database from "../database";
+import Database, { Users } from "../database";
+import LevelSystem from "../level";
 import CounterHandler from "./counters";
 
 /*
@@ -79,12 +80,7 @@ class AnalyticSystem {
         const userId = newState.id;
         const userTag = newState.member.user.tag;
 
-        if(userAction === UserAction.JOIN || userAction === UserAction.CHANGE) {
-            const newGroups = this.GroupUsers(newState.channel);
-            this.CheckGroups(newGroups, now);
-        }
-
-        if(userAction === UserAction.LEAVE || userAction === UserAction.CHANGE) {
+        if(userAction === UserAction.LEAVE) {
             const oldGroups = this.GroupUsers(oldState.channel);
             this.CheckGroups(oldGroups, now);
 
@@ -92,9 +88,13 @@ class AnalyticSystem {
                 this.counterHandler.Stop(userId, now);
                 this.CalcVoiceTime(userId, userTag).catch(console.error);
             }
-        }
+        } else if(userAction === UserAction.CHANGE) {
+            const oldGroups = this.GroupUsers(oldState.channel);
+            this.CheckGroups(oldGroups, now);
 
-        if(userAction === UserAction.UPDATE) {
+            const newGroups = this.GroupUsers(newState.channel);
+            this.CheckGroups(newGroups, now);
+        } else if(userAction === UserAction.JOIN || userAction === UserAction.UPDATE) {
             const newGroups = this.GroupUsers(newState.channel);
             this.CheckGroups(newGroups, now);
         }
@@ -172,6 +172,9 @@ class AnalyticSystem {
                 id: userId,
                 tag: userTag,
                 allTime: allTime
+            }).then((results) => {
+                LevelSystem.GiveExpVoice(userId, <Users>{id: userId, tag: userTag, allTime: allTime}, pastTime);
+                return results;
             });
         } catch (error) {
             return Promise.reject(error);
