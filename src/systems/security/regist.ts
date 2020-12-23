@@ -38,7 +38,7 @@ export function CheckReaction(reaction: MessageReaction, user: User) {
             if(reaction.message.deletable) reaction.message.delete();
             const embed = EmbedTemplates.Join(guild, oMember);
             welcomeChannel.send({ embed: embed });
-            oMember.roles.add(Roles.AutoMemberId);
+            oMember.roles.add([Roles.AutoMemberId, Roles.AutoSeparator]);
         } else if(reaction.emoji.name == "🟥") {
             if(reaction.message.deletable) reaction.message.delete();
             if(oMember.kickable) oMember.kick("Nem volt meggyőzö az üzeneted ahhoz, hogy csatlakozz e-közösségbe!");
