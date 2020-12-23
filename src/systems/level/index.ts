@@ -44,27 +44,19 @@ class LevelSystem {
             }
 
             const { level } = this.GetLevel(exp);
-            if(level > userLevel) {
-                userLevel = level;
-                const attach = new MessageAttachment(await this.GetImageBuffer(message.member), "exp.png");
-                message.channel.send(`Gratulálok ${message.member}, szintet léptél!`, attach);
-            } else if(level < userLevel) {
-                userLevel = level;
-                const attach = new MessageAttachment(await this.GetImageBuffer(message.member), "exp.png");
-                message.channel.send(`Jaj nee ${message.member}, szintet veszítettél!`, attach);
-            }
 
             return Database.SetData("Users", {
                 id: message.author.id,
                 tag: message.author.tag,
                 messages: messages,
                 commandUses: commandUses,
-                level: userLevel,
+                level: level,
                 exp: exp
-            }).then((results) => {
+            }).then(async (results) => {
                 cooldowns.set(message.author.id, {
                     timeout: setTimeout(() => cooldowns.delete(message.author.id), cooldownTime)
                 });
+                this.CheckLevel(level, userLevel, message.member, <TextChannel>message.channel);
                 return results;
             });
         } catch (error) {
@@ -78,28 +70,18 @@ class LevelSystem {
             userData = await Database.GetData("Users", member.id);
             let userLevel = 1;
             let exp = Math.round(randomExp() * (pastTime / 3_600_000)); // 3_600_000 millis (One Hour)
-            console.log(`Given ${exp} Exp to ${userData?.tag}`);
             if(userData.exp) exp += userData.exp;
             if(userData.level) userLevel = userData.level;
 
             const { level } = this.GetLevel(exp);
 
-            const defaultChannel = <TextChannel>member.client.channels.resolve(Channels.defaultChatId);
-
-            if(level > userLevel) {
-                userLevel = level;
-                const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
-                defaultChannel.send(`Gratulálok ${member}, szintet léptél!`, attach);
-            } else if(level < userLevel) {
-                userLevel = level;
-                const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
-                defaultChannel.send(`Jaj nee ${member}, szintet veszítettél!`, attach);
-            }
-
             return Database.SetData("Users", {
                 id: member.id,
-                level: userLevel,
+                level: level,
                 exp: exp
+            }).then((results) => {
+                this.CheckLevel(level, userLevel, member, <TextChannel>member.client.channels.resolve(Channels.defaultChatId));
+                return results;
             });
         } catch (error) {
             return Promise.reject(error);
@@ -221,6 +203,16 @@ class LevelSystem {
             return Promise.resolve(canvas.toBuffer("image/png"));
         } catch (error) {
             return Promise.reject(error);
+        }
+    }
+
+    public static async CheckLevel(level: number, userLevel: number, member: GuildMember, channel: TextChannel) {
+        if(level > userLevel) {
+            const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
+            channel.send(`Gratulálok ${member}, szintet léptél!`, attach);
+        } else if(level < userLevel) {
+            const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
+            channel.send(`Jaj nee ${member}, szintet veszítettél!`, attach);
         }
     }
 
