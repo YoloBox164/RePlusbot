@@ -26,7 +26,7 @@ export default {
         return embed;
     },
 
-    MsgDelete: (message: Message, reason: string): MessageEmbed => {
+    MsgDelete: (message: Message, reason: string, foundTexts?: string[]): MessageEmbed => {
         const embed = new MessageEmbed()
             .setColor("ORANGE")
             .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
@@ -35,6 +35,11 @@ export default {
             .addField("Törlés Oka:", reason)
             .setFooter(`USER_ID: ${message.author.id}`)
             .setTimestamp(Date.now());
+
+        if(foundTexts && foundTexts[0]) {
+            embed.addField("Talált szavak/linkek", foundTexts.join(", "));
+        }
+        
         return embed;
     },
 

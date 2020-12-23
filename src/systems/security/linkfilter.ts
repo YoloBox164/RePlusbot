@@ -13,6 +13,7 @@ const BannedPages: Array<string> = BL_PWebpages.concat(BL_Webpages);
  */
 export async function Check(message: Message) {
     const matches = message.content.match(RegexpPatterns.LinkFinder);
+    const foundMatches = [];
     let found = false;
     let isDiscordLink = false;
     if(matches != null && matches.length > 0) {
@@ -23,6 +24,7 @@ export async function Check(message: Message) {
             if(groups && groups.Domain && groups.TLD) {
                 found = BannedPages.some(l => l == `${groups.Domain}.${groups.TLD}`);
                 if(groups.FullDomain == "discord.gg") isDiscordLink = true;
+                if(found || isDiscordLink) foundMatches.push(link);
             }
         }
     }
@@ -68,7 +70,7 @@ export async function Check(message: Message) {
             }).catch(console.error);
         }).catch(console.error);
 
-        const logEmbed = EmbedTemplates.MsgDelete(message, reason);
+        const logEmbed = EmbedTemplates.MsgDelete(message, reason, [...new Set(foundMatches)]);
         message.client.automodLogChannel.send({ embed: logEmbed });
 
         message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert ${respReason}.**`);
