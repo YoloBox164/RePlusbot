@@ -77,7 +77,7 @@ class LevelSystem {
             //Trying to complete userData
             userData = await Database.GetData("Users", userId);
 
-            let exp = randomExp() * (userData.allTime % pastTime);
+            let exp = Math.round(randomExp() * (pastTime / 3_600_000)); // One Hour
             if(userData.exp) exp += userData.exp;
 
             const { level } = this.GetLevel(exp);
