@@ -1,4 +1,4 @@
-import { Client, Collection, GuildMember, VoiceChannel, VoiceState } from "discord.js";
+import { Client, Collection, GuildMember, User, VoiceChannel, VoiceState } from "discord.js";
 import Database, { Users } from "../database";
 import LevelSystem from "../level";
 import CounterHandler from "./counters";
@@ -45,8 +45,9 @@ class AnalyticSystem {
         this.counterHandler = new CounterHandler();
         //Only runs if one or more were inside the save json
         for(const userId in this.counterHandler.counters) {
-            const user = client.users.resolve(userId);
-            this.CalcVoiceTime(userId, user?.tag).catch(console.error);
+            const member = client.mainGuild.members.resolve(userId);
+            if(!member) continue;
+            this.CalcVoiceTime(member).catch(console.error);
             this.counterHandler.ResetSaveJSON();
         }
 
@@ -77,16 +78,15 @@ class AnalyticSystem {
     public static Logic(oldState: VoiceState, newState: VoiceState) {
         const now = Date.now();
         const userAction = this.GetUserAction(oldState, newState);
-        const userId = newState.id;
-        const userTag = newState.member.user.tag;
+        const member = newState.member;
 
         if(userAction === UserAction.LEAVE) {
             const oldGroups = this.GroupUsers(oldState.channel);
             this.CheckGroups(oldGroups, now);
 
-            if(this.counterHandler.Has(userId)) {
-                this.counterHandler.Stop(userId, now);
-                this.CalcVoiceTime(userId, userTag).catch(console.error);
+            if(this.counterHandler.Has(member.id)) {
+                this.counterHandler.Stop(member.id, now);
+                this.CalcVoiceTime(member).catch(console.error);
             }
         } else if(userAction === UserAction.CHANGE) {
             const oldGroups = this.GroupUsers(oldState.channel);
@@ -113,7 +113,7 @@ class AnalyticSystem {
             for(const [ id, member ] of groups["ON"]) {
                 if(this.counterHandler.Has(id)) {
                     this.counterHandler.Stop(id, timestampt);
-                    this.CalcVoiceTime(id, member.user.tag).catch(console.error);
+                    this.CalcVoiceTime(member).catch(console.error);
                 }
             }
         }
@@ -122,7 +122,7 @@ class AnalyticSystem {
         for(const [ id, member ] of groups["OFF"]) {
             if(this.counterHandler.Has(id)) {
                 this.counterHandler.Stop(id, timestampt);
-                this.CalcVoiceTime(id, member.user.tag).catch(console.error);
+                this.CalcVoiceTime(member).catch(console.error);
             }
         }
     }
@@ -155,25 +155,25 @@ class AnalyticSystem {
         return null;
     }
 
-    private static async CalcVoiceTime(userId: string, userTag: string) {
+    private static async CalcVoiceTime(member: GuildMember) {
         try {
-            const userData = await Database.GetData("Users", userId);
-            if(!this.counterHandler.Has(userId)) return Promise.reject(new Error("User not found in counters!"));
-            const counter = this.counterHandler.counters[userId];
+            const userData = await Database.GetData("Users", member.id);
+            if(!this.counterHandler.Has(member.id)) return Promise.reject(new Error("User not found in counters!"));
+            const counter = this.counterHandler.counters[member.id];
             const pastTime = counter.end - counter.start;
 
             let allTime = pastTime;
             if(userData) allTime += userData.allTime;
             if(allTime < 0) allTime = 0;
 
-            this.counterHandler.Remove(userId);
+            this.counterHandler.Remove(member.id);
 
             return Database.SetData("Users", {
-                id: userId,
-                tag: userTag,
+                id: member.id,
+                tag: member.user.tag,
                 allTime: allTime
             }).then((results) => {
-                LevelSystem.GiveExpVoice(userId, <Users>{id: userId, tag: userTag, allTime: allTime}, pastTime);
+                LevelSystem.GiveExpVoice(member, <Users>{id: member.id, tag: member.user.tag, allTime: allTime}, pastTime);
                 return results;
             });
         } catch (error) {
