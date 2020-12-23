@@ -42,6 +42,7 @@ class Shop implements BaseCommand {
     constructor() {
         const files = fs.readdirSync(`${module.path}/items`).filter(f => f.split(".").pop() === "js");
         for (const file of files) {
+            delete require.cache[require.resolve(`${module.path}/items/${file}`)];
             const shopItem = <ShopItem>require(`${module.path}/items/${file}`).default;
             console.log("SHOP".red + ` - ${shopItem.name} loaded!`);
             if(shopItem instanceof ShopItem) this.items.push(shopItem);
