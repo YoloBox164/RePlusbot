@@ -1,6 +1,7 @@
 import Database, { Users } from "../database";
-import { MessageAttachment, Collection, Message, GuildMember } from "discord.js";
+import { MessageAttachment, Collection, Message, GuildMember, TextChannel } from "discord.js";
 import { createCanvas, loadImage } from "canvas";
+import { Channels } from "../../settings.json";
 
 const maxExpPerMsg = 10;
 const minExpPerMsg = 1;
@@ -11,7 +12,6 @@ const cooldownTime = 120000;
 const cooldowns = new Collection<string, { timeout: NodeJS.Timeout; }>();
 
 const randomExp = () => { return Math.floor(Math.random() * maxExpPerMsg) + minExpPerMsg; };
-
 
 class LevelSystem {
     public static async GiveExp(message: Message, isCommandTrue: boolean): Promise<"ON_COOLDOWN"|any> {
@@ -72,19 +72,33 @@ class LevelSystem {
         }
     }
 
-    public static async GiveExpVoice(userId: string, userData: Users, pastTime: number) {
+    public static async GiveExpVoice(member: GuildMember, userData: Users, pastTime: number) {
         try {
             //Trying to complete userData
-            userData = await Database.GetData("Users", userId);
-
-            let exp = Math.round(randomExp() * (pastTime / 3_600_000)); // One Hour
+            userData = await Database.GetData("Users", member.id);
+            let userLevel = 1;
+            let exp = Math.round(randomExp() * (pastTime / 3_600_000)); // 3_600_000 millis (One Hour)
+            console.log(`Given ${exp} Exp to ${userData?.tag}`);
             if(userData.exp) exp += userData.exp;
+            if(userData.level) userLevel = userData.level;
 
             const { level } = this.GetLevel(exp);
 
+            const defaultChannel = <TextChannel>member.client.channels.resolve(Channels.defaultChatId);
+
+            if(level > userLevel) {
+                userLevel = level;
+                const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
+                defaultChannel.send(`Gratulálok ${member}, szintet léptél!`, attach);
+            } else if(level < userLevel) {
+                userLevel = level;
+                const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
+                defaultChannel.send(`Jaj nee ${member}, szintet veszítettél!`, attach);
+            }
+
             return Database.SetData("Users", {
-                id: userId,
-                level: level,
+                id: member.id,
+                level: userLevel,
                 exp: exp
             });
         } catch (error) {
