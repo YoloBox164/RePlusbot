@@ -20,7 +20,7 @@ export default async (message: Message) => {
         message.author.send(reason);
     }
 
-    if(Config.mode === "development" || !MemberHasOneOfTheRoles(message.member, StaffIds)) {
+    if(Config.mode === "development" || !MemberHasOneOfTheRoles(message.member, [...StaffIds, "475963545247547392"])) {
         if(await SecuritySys.Automod.LinkFilter.Check(message).catch(console.error)) return;
         if(SecuritySys.Automod.WordFilter.Check(message)) return;
         if(SecuritySys.Automod.SpamProtection.CheckTime(message)) return;
