@@ -1,8 +1,7 @@
-import { GuildMember, MessageEmbed, User } from "discord.js";
+import { GuildMember, MessageEmbed } from "discord.js";
 import Tools from "../../utils/tools";
 import Database from "../database";
 import { Roles } from "../../settings.json";
-import { isNull } from "util";
 
 export enum ResponseTypes {
     "NONE",
