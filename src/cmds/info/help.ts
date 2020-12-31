@@ -23,7 +23,7 @@ class Help implements BaseCommand {
     isDev = false;
 
     name = "help";
-    aliases: ["segitseg", "segítség"];
+    aliases = ["segitseg", "segítség"];
     desc = "Leírások a parancsokról";
     usage = `${Prefix}help <oldal / parancs>`;
 
