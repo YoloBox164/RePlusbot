@@ -207,12 +207,16 @@ class LevelSystem {
     }
 
     public static async CheckLevel(level: number, userLevel: number, member: GuildMember, channel: TextChannel) {
-        if(level > userLevel) {
-            const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
-            channel.send(`Gratulálok ${member}, szintet léptél!`, attach);
-        } else if(level < userLevel) {
-            const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
-            channel.send(`Jaj nee ${member}, szintet veszítettél!`, attach);
+        try {
+            if(level > userLevel) {
+                const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
+                return channel.send(`Gratulálok ${member}, szintet léptél!`, attach);
+            } else if(level < userLevel) {
+                const attach = new MessageAttachment(await this.GetImageBuffer(member), "exp.png");
+                return channel.send(`Jaj nee ${member}, szintet veszítettél!`, attach);
+            }
+        } catch (error) {
+            Promise.reject(error);
         }
     }
 
