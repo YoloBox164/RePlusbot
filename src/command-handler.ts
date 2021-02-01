@@ -68,7 +68,6 @@ function loadCmd(path: string): BaseCommand {
     const file = path.split("/").pop();
 
     const cmd: BaseCommand = require(path).default;
-    cmd.pathToCmd = path;
 
     console.log(colors.white(`${file} loaded!`));
 
