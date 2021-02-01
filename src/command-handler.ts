@@ -46,7 +46,7 @@ class CommandHandler {
     public reloadCmd(cmdName: string): Promise<string> {
         if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
         if(commands.has(cmdName)) {
-            loadCmd(commands.get(cmdName).pathToCmd);
+            loadCmd(commands.get(cmdName).pathToCmd).catch(console.error);
         }
         return Promise.resolve("DONE");
     }
