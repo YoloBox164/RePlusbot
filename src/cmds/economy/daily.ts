@@ -4,7 +4,7 @@ import Economy from "../../systems/economy";
 import { Prefix } from "../../settings.json";
 
 class Daily implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

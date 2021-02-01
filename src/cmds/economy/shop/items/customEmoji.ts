@@ -20,7 +20,23 @@ shopItem.runMethod = async (message: Message, args: string[]) => {
         const currencyData = await Economy.GetInfo(message.member);
 
         if(!wumpusData || !wumpusData.hasRole ) return message.channel.send("Ehhez az engedélyhez szükséges a Wumpus+ rang.");
-        if(wumpusData && wumpusData.hasCustomEmoji) return message.channel.send("Már van ilyen engedélyed.");
+        if(wumpusData && wumpusData.hasCustomEmoji) {
+            return message.channel.send(`Már van ilyen engedélyed. Biztos le szeretnéd mondani? Ha igen írd:\`\`\`${"Igen"}\`\`\` (Ezzel a müvelettel minden hozzá tartozó engedélyt is elveszítesz.)`).then(msg => {
+                const filter = (m: Message) => m.content.toLowerCase() === "igen" && m.author.id === message.author.id;
+                const collector = msg.channel.createMessageCollector(filter, {max: 1, time: 30000});
+                collector.on("collect", (m: Message) => {
+                    console.log(m.author.username, m.content);
+                    wumpusData.hasCustomEmoji = false;
+                    Database.SetData("Wumpus", wumpusData).then(() => {
+                        message.channel.send("Sikeresene lemontad a saját emojidat.");
+                    });
+                });
+
+                collector.on("end", (colllected, reason) => {
+                    console.log(colllected, reason);
+                });
+            });
+        }
         if(currencyData.bits >= Economy.CUSTOM_EMOJI_COST) {
             wumpusData.hasCustomEmoji = true;
             Economy.Remove(message.member, Economy.CUSTOM_EMOJI_COST, "Saját emoji slot vásárlás.")

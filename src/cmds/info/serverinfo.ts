@@ -3,7 +3,7 @@ import { Message, MessageEmbed } from "discord.js";
 import { Prefix } from "../../settings.json";
 
 class ServerInfo implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

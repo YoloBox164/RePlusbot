@@ -4,7 +4,7 @@ import Tools from "../../utils/tools";
 import { Prefix, StaffIds } from "../../settings.json";
 
 class Ban implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = false;

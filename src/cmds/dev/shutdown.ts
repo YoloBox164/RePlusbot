@@ -16,7 +16,7 @@ enum RemoveHandlers {
 }
 
 class Shutdown implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = true;

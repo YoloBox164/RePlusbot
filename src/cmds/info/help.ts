@@ -17,7 +17,7 @@ enum CategoryTranslation {
 }
 
 class Help implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

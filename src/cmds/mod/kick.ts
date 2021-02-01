@@ -4,7 +4,7 @@ import Settings from "../../settings.json";
 import BaseCommand from "../../structures/base-command";
 
 class Kick implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = false;

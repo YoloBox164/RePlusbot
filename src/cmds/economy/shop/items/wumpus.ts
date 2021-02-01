@@ -19,11 +19,15 @@ shopItem.runMethod = async (message: Message, args: string[]) => {
 
         const wumpusData = await Database.GetData("Wumpus", message.member.id);
         if(wumpusData && wumpusData.hasRole) {
-            return message.channel.send(`Már van ilyen rangod. Biztos le szeretnéd mondani? Ha igen írd:\`\`\`${"Igen"}\`\`\``).then(msg => {
+            return message.channel.send(`Már van ilyen rangod. Biztos le szeretnéd mondani? Ha igen írd:\`\`\`${"Igen"}\`\`\` (Ezzel a müvelettel minden hozzá tartozó engedélyt is elveszítesz.)`).then(msg => {
                 const filter = (m: Message) => m.content.toLowerCase() === "igen" && m.author.id === message.author.id;
                 const collector = msg.channel.createMessageCollector(filter, {max: 1, time: 30000});
                 collector.on("collect", (m: Message) => {
                     console.log(m.author.username, m.content);
+                    wumpusData.isPaying = false;
+                    Database.SetData("Wumpus", wumpusData).then(() => {
+                        message.channel.send("Sikeresene lemontad a Wumpus+. A következő hónapban már nem lesz felszámolva az összeg.");
+                    });
                 });
 
                 collector.on("end", (colllected, reason) => {

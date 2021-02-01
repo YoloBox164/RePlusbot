@@ -27,7 +27,7 @@ export class ShopItem {
 }
 
 class Shop implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

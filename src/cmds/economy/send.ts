@@ -6,7 +6,7 @@ import embedTemplates from "../../utils/embed-templates";
 import Economy, { ResponseTypes } from "../../systems/economy";
 
 class Send implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = false;

@@ -6,7 +6,7 @@ import { Prefix } from "../../settings.json";
 const api = "06b26c42ff1b069252795e80";
 
 class Exchange implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

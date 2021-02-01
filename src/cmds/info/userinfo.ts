@@ -6,7 +6,7 @@ import LevelSystem from "../../systems/level"
 import { Prefix } from "../../settings.json";
 
 class UserInfo implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

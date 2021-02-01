@@ -4,7 +4,7 @@ import { Prefix } from "../../settings.json";
 import { evaluate } from "mathjs";
 
 class Calc implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs: true;
     isDev: false;

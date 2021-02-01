@@ -6,7 +6,7 @@ import BaseCommand from "../../structures/base-command";
 import { Message } from "discord.js";
 
 class Warn implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = false;

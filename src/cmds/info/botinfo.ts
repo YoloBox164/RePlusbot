@@ -4,7 +4,7 @@ import Tools from "../../utils/tools";
 import { Prefix } from "../../settings.json";
 
 class BotInfo implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

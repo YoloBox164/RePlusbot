@@ -6,7 +6,7 @@ import { Prefix } from "../../settings.json";
 import tools from "../../utils/tools";
 
 class Eval implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = true;

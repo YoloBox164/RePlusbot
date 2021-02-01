@@ -5,7 +5,7 @@ import { MuteHandler } from "../../systems/security";
 import BaseCommand from "../../structures/base-command";
 
 class Mute implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = false;

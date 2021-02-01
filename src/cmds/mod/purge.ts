@@ -4,7 +4,7 @@ import BaseCommand from "../../structures/base-command";
 import { Prefix } from "../../settings.json";
 
 class Purge implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = true;
     isDev = false;

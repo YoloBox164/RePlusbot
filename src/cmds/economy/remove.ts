@@ -7,7 +7,7 @@ import embedTemplates from "../../utils/embed-templates";
 import Economy from "../../systems/economy";
 
 class Remove implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

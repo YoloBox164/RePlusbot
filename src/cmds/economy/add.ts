@@ -6,7 +6,7 @@ import Economy from "../../systems/economy";
 import embedTemplates from "../../utils/embed-templates";
 
 class Add implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;

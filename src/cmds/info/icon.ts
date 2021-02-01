@@ -3,7 +3,7 @@ import BaseCommand from "../../structures/base-command";
 import { Prefix } from "../../settings.json";
 
 class Icon implements BaseCommand {
-    pathToCmd: string;
+    pathToCmd = module.filename;
 
     mustHaveArgs = false;
     isDev = false;
