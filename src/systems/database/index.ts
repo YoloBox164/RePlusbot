@@ -143,6 +143,7 @@ export interface Wumpus {
     hasRole?: boolean;
     roleTime?: number;
     hasCustomEmoji?: boolean;
+    isPaying?: boolean;
 }
 
 export interface Warnings {
