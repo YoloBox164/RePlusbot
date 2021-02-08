@@ -99,7 +99,7 @@ async function errorHandling(err: Error | any, msg: string, toShutdown = false) 
         if(toShutdown) {
             await Database.Connection.end().then(() => console.log("Database shutdown"));
             await AnalyticSys.Shut().then(() => console.log("Analytic Sys Shut"));
-            client.setTimeout(() => { client.destroy(); }, 2000);
+            client.setTimeout(() => { client.destroy(); process.exit(1); }, 2000);
         }
     } catch (error) {
         console.error(error);
