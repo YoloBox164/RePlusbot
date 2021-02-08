@@ -29,6 +29,7 @@ process.env.mode = Config.mode;
 import Settings from "./settings.json";
 import CommandHandler from "./command-handler";
 import EventHandler from "./event-handler";
+import ErrorHandler from "./error-handler";
 import Database from "./systems/database";
 import AnalyticSys from "./systems/analytic";
 import SecSys from "./systems/security";
@@ -46,7 +47,6 @@ client.CommandHandler = new CommandHandler();
 client.EventHandler = new EventHandler(client);
 
 import dateFormat from "dateformat";
-import { Clean } from "./utils/tools";
 client.logDate = (timestamp: number) => {
     if(!timestamp) timestamp = Date.now();
     return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
@@ -55,6 +55,8 @@ client.logDate = (timestamp: number) => {
 const statuses = [`${Settings.Prefix}help`, "Made By CsiPA0723#0423"];
 
 client.on("ready", async () => {
+    ErrorHandler.Init(client);
+
     client.logChannel = <TextChannel>client.channels.resolve(Settings.Channels.modLogId);
     client.automodLogChannel = <TextChannel>client.channels.resolve(Settings.Channels.automodLogId);
     client.economyLogChannel = <TextChannel>client.channels.resolve(Settings.Channels.economyLogId);
@@ -70,9 +72,6 @@ client.on("ready", async () => {
     const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
     registChannel.messages.fetch({}, true).catch(console.error);
 
-    console.log("Ready!");
-
-    client.logChannel.send(EmbedTemplates.Online(`**Mode:**\`\`\`${Config.mode}\`\`\``));
     if(Config.mode === "development") {
         client.user.setPresence({ activity: { name: "in development", type: "PLAYING" }, status: "dnd" });
     } else {
@@ -81,27 +80,9 @@ client.on("ready", async () => {
             client.user.setPresence({ activity: { name: `${status}`, type: "WATCHING" }, status: "online" });
         }, 30000); // Half a minute
     }
+
+    client.logChannel.send(EmbedTemplates.Online(`**Mode:**\`\`\`${Config.mode}\`\`\``));
+    console.log("Ready!");
 });
 
 client.login(Config.TOKEN).catch(console.error);
-
-process.on("uncaughtException", err => { errorHandling(err, "Uncaught Exception", true); });
-
-process.on("unhandledRejection", err => { errorHandling(err, "Unhandled Rejection", false); });
-
-async function errorHandling(err: Error | any, msg: string, toShutdown = false) {
-    try {
-        console.error(err);
-        let logMsg = `\`${msg}\`\n\`\`\`xl\n${Clean(err)}\n\`\`\``;
-        if(toShutdown) logMsg += `\n\`SHUTTING DOWN\` | \`${client.logDate()}\``;
-        const embed = EmbedTemplates.Error(logMsg);
-        if(client.logChannel) await client.logChannel.send({ embed: embed }).catch(console.error);
-        if(toShutdown) {
-            await Database.Connection.end().then(() => console.log("Database shutdown"));
-            await AnalyticSys.Shut().then(() => console.log("Analytic Sys Shut"));
-            client.setTimeout(() => { client.destroy(); process.exit(1); }, 2000);
-        }
-    } catch (error) {
-        console.error(error);
-    }
-}
