@@ -12,8 +12,8 @@ export default function inviteLogHandler(invite: Invite, text: string) {
     if(text === "Created") {
         embed.addFields([
             { name: "Inviter", value: `${inviterMember}`, inline: false },
-            { name: "Inviter Tag", value: `\`\`\`${inviterMember.user.tag}\`\`\``, inline: true },
-            { name: "Inviter ID", value: `\`\`\`xl\n${inviterMember ? inviterMember.id : null}\`\`\``, inline: true },
+            { name: "Inviter Tag", value: `\`\`\`${inviterMember?.user.tag}\`\`\``, inline: true },
+            { name: "Inviter ID", value: `\`\`\`xl\n${inviterMember?.id}\`\`\``, inline: true },
             { name: "Code", value: `\`\`\`${invite.code}\`\`\``, inline: false },
             { name: "URL", value: `${invite.url}`, inline: false },
             { name: "Channel", value: `${invite.channel}`, inline: false },
