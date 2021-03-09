@@ -46,14 +46,14 @@ class Top implements BaseCommand {
                 message.channel.send(MsgEmbed);
             });
 
-            await BitsChart(message.client, message, options).then(async chart => {
-                const BitsEmbbed = new Discord.MessageEmbed()
-                    .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
-                    .setColor("#78b159")
-                    .attachFiles([{attachment: await chart.toBinary(), name: "chart.png"}])
-                    .setImage("attachment://chart.png");
-                message.channel.send(BitsEmbbed);
-            });
+            // await BitsChart(message.client, message, options).then(async chart => {
+            //     const BitsEmbbed = new Discord.MessageEmbed()
+            //         .setTitle("Top 10 legtöbb bit birtokában lévő felhasználó")
+            //         .setColor("#78b159")
+            //         .attachFiles([{attachment: await chart.toBinary(), name: "chart.png"}])
+            //         .setImage("attachment://chart.png");
+            //     message.channel.send(BitsEmbbed);
+            // });
 
             await XpLevelChart(message.client, message, options).then(async chart => {
                 const BitsEmbbed = new Discord.MessageEmbed()

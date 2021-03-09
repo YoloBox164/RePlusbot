@@ -69,8 +69,8 @@ client.on("ready", async () => {
     SecSys.MuteHandler.Restart(client.mainGuild);
 
     // Caching msg in the regist channel
-    const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
-    registChannel.messages.fetch({}, true).catch(console.error);
+    // const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
+    // registChannel.messages.fetch({}, true).catch(console.error);
 
     if(Config.mode === "development") {
         client.user.setPresence({ activity: { name: "in development", type: "PLAYING" }, status: "dnd" });
