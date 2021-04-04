@@ -2,6 +2,7 @@ import { GuildMember, Message } from "discord.js";
 import Database from "../../systems/database";
 import AnalyticSys from "../../systems/analytic";
 import moment from "moment";
+import Radio from "../../systems/radio";
 
 export function Clean(text: any): string {
     if (typeof (text) === "string") return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
@@ -169,6 +170,7 @@ export async function ShutdownSequence(message: Message, text: string) {
         await message.channel.send(`\`${text}\``);
         await Database.Connection.end().then(() => console.log("Database shutdown"));
         await AnalyticSys.Shut().then(() => console.log("Analytic Sys Shut"));
+        Radio.disconnect();
     } catch (error) {
         console.error(error);
     }

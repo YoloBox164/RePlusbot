@@ -3,6 +3,7 @@ import Database from "./systems/database";
 import AnalyticSys from "./systems/analytic";
 import EmbedTemplates from "./utils/embed-templates";
 import { Clean } from "./utils/tools";
+import Radio from "./systems/radio";
 
 class ErrorHandler {
     private static client: Client;
@@ -27,6 +28,7 @@ class ErrorHandler {
             if(toShutdown) {
                 await Database.Connection.end().then(() => console.log("Database shutdown"));
                 await AnalyticSys.Shut().then(() => console.log("Analytic Sys Shut"));
+                Radio.disconnect();
                 this.client.setTimeout(() => { this.client.destroy(); process.exit(1); }, 2000);
             }
         } catch (error) {

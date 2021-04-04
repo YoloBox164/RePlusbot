@@ -22,10 +22,12 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/CsiPA0723/revolt-bot-v2.0#readme",
   "dependencies": {
+    "@discordjs/opus": "^0.5.0",
     "canvas": "^2.7.0",
     "colors": "^1.4.0",
     "dateformat": "^3.0.3",
     "discord.js": "^12.5.3",
+    "ffmpeg-static": "^4.3.0",
     "got": "^11.8.2",
     "mariadb": "^2.5.3",
     "mathjs": "^8.1.1",

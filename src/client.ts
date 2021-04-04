@@ -68,6 +68,7 @@ client.CommandHandler = new CommandHandler();
 client.EventHandler = new EventHandler(client);
 
 import dateFormat from "dateformat";
+import Radio from "./systems/radio";
 client.logDate = (timestamp: number) => {
     if(!timestamp) timestamp = Date.now();
     return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
@@ -88,7 +89,10 @@ client.on("ready", async () => {
 
     AnalyticSys.Init(client);
     SecSys.MuteHandler.Restart(client.mainGuild);
-
+    await Radio.init(client);
+    await Radio.join();
+    Radio.streamUrl = "http://radioe.net:8080/sarlo11";
+    Radio.play();
     // Caching msg in the regist channel
     // const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
     // registChannel.messages.fetch({}, true).catch(console.error);
