@@ -132,7 +132,7 @@ class AnalyticSystem {
             "OFF": new Collection<string, GuildMember>(),
             "ON": new Collection<string, GuildMember>(),
         }
-
+        if(!channel || channel.type !== "voice") return groups;
         channel.members.forEach((member, id) => {
             if(!member.user.bot) {
                 if(member.voice.mute || member.presence.status === "idle") {

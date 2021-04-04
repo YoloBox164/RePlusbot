@@ -20,6 +20,27 @@ const client = new Client({
     ]}
 });
 
+declare module 'discord.js' {
+    interface Client {
+        prefix: string;
+        devPrefix: string;
+        devId: string;
+
+        mainGuild: Guild;
+        logChannel: TextChannel;
+        automodLogChannel: TextChannel;
+        economyLogChannel: TextChannel;
+        devLogChannel: TextChannel;
+
+        CommandHandler: import("./command-handler").default;
+        EventHandler: import("./event-handler").default;
+
+        logDate: (timestampt?: number) => string;
+        //---------------------------------------------------//
+
+    }
+}
+
 import path from "path";
 process.env.APP_ROOT = path.resolve(__dirname).split("\\").slice(0, -1).join("/");
 
