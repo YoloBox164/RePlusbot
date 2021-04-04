@@ -20,6 +20,27 @@ const client = new Client({
     ]}
 });
 
+declare module 'discord.js' {
+    interface Client {
+        prefix: string;
+        devPrefix: string;
+        devId: string;
+
+        mainGuild: Guild;
+        logChannel: TextChannel;
+        automodLogChannel: TextChannel;
+        economyLogChannel: TextChannel;
+        devLogChannel: TextChannel;
+
+        CommandHandler: import("./command-handler").default;
+        EventHandler: import("./event-handler").default;
+
+        logDate: (timestampt?: number) => string;
+        //---------------------------------------------------//
+
+    }
+}
+
 import path from "path";
 process.env.APP_ROOT = path.resolve(__dirname).split("\\").slice(0, -1).join("/");
 
@@ -69,8 +90,8 @@ client.on("ready", async () => {
     SecSys.MuteHandler.Restart(client.mainGuild);
 
     // Caching msg in the regist channel
-    const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
-    registChannel.messages.fetch({}, true).catch(console.error);
+    // const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
+    // registChannel.messages.fetch({}, true).catch(console.error);
 
     if(Config.mode === "development") {
         client.user.setPresence({ activity: { name: "in development", type: "PLAYING" }, status: "dnd" });

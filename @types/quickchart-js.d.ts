@@ -71,6 +71,6 @@ declare module "quickchart-js" {
          * Creates a file containing your chart image.
          * @param pathOrDescriptor 
          */
-        public toFile(pathOrDescriptor: string): Promise<File>;
+        public toFile(pathOrDescriptor: string | number | Buffer | URL): Promise<void>;
     }
 }
