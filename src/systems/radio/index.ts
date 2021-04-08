@@ -11,6 +11,8 @@ export default class  Radio {
     private static voiceConnection: VoiceConnection = null;
     private static dispatcher: StreamDispatcher = null;
 
+    public static isPlaying = false;
+
     public static streamUrl: string = null;
 
     public static async init(client: Client) {
@@ -54,7 +56,18 @@ export default class  Radio {
             if(!this.streamUrl === null) throw new Error("Stream URL is null!");
             this.dispatcher = this.voiceConnection.play(this.streamUrl);
             this.dispatcher.on("error", ErrorHandler.Log);
-            console.log("Playing");
+            this.isPlaying = true;
+        } catch (error) {
+            ErrorHandler.Log(error);
+        }
+    }
+
+    public static stop() {
+        if(!this.isInitalized) throw new Error("Radio is not intialited!");
+        try {
+            if(!this.voiceConnection) throw new Error("Not joined any voice channel!");
+            this.dispatcher.destroy();
+            this.isPlaying = false;
         } catch (error) {
             ErrorHandler.Log(error);
         }
@@ -75,13 +88,17 @@ export default class  Radio {
             oldState.channelID !== this.radioChannel.id &&
             newState.channelID !== this.radioChannel.id
         ) return;
-        
-        if(!oldState.channelID && newState.channelID) { // Join
-            if(newState.channel.members.size === 2) this.play();
+
+        if(newState.channelID && oldState.channelID !== newState.channelID) { // Join or Change
+            if(!this.isPlaying && this.voiceConnection) {
+                this.play();
+            }
         };
 
-        if(oldState.channelID && !newState.channelID) { // Leave
-            if(oldState.channel.members.size === 1) this.dispatcher.end();
+        if(oldState.channelID && oldState.channelID !== newState.channelID) { // Leave or Change
+            if(oldState.channel.members.size === 1) {
+                this.stop();
+            }
         }
     }
 }
