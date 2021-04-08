@@ -1,6 +1,7 @@
-import { Client, VoiceChannel, VoiceConnection, StreamDispatcher } from "discord.js";
+import { Client, VoiceChannel, VoiceConnection, StreamDispatcher, VoiceState } from "discord.js";
 import { Channels } from "../../settings.json";
 import ErrorHandler from "../../error-handler";
+import AnalyticSystem from "../analytic";
 
 export default class  Radio {
     private static client: Client
@@ -9,8 +10,6 @@ export default class  Radio {
     private static radioChannel: VoiceChannel = null;
     private static voiceConnection: VoiceConnection = null;
     private static dispatcher: StreamDispatcher = null;
-
-    private static isPlaying = false;
 
     public static streamUrl: string = null;
 
@@ -26,35 +25,13 @@ export default class  Radio {
         }
     }
 
-    private static async handleDisconenct(error: Error) {
-        if(error) ErrorHandler.Log(error);
-        if(!Radio.isPlaying) return;
-        Radio.disconnect();
-        try {
-            await Radio.initVoiceConnection();
-            Radio.play();
-        } catch (error) {
-            ErrorHandler.Log(error);
-        }
-    }
-
-    private static async initVoiceConnection() {
-        try {
-            console.log("Joining");
-            this.voiceConnection = await this.radioChannel.join();
-            this.voiceConnection.on("error", ErrorHandler.Log);
-            this.voiceConnection.on("disconnect", this.handleDisconenct);
-            this.voiceConnection.on("failed", ErrorHandler.Log);
-            this.voiceConnection.on("closing", () => console.log("Closing"));
-        } catch (error) {
-            ErrorHandler.Log(error);
-        }
-    }
-
     public static async join() {
         if(!this.isInitalized) throw new Error("Radio is not intialited!");
         try {
-            await this.initVoiceConnection();
+            this.voiceConnection = await this.radioChannel.join();
+            this.voiceConnection.on("error", ErrorHandler.Log);
+            this.voiceConnection.on("disconnect", Radio.join);
+            this.voiceConnection.on("failed", ErrorHandler.Log);
         } catch (error) {
             ErrorHandler.Log(error);
         }
@@ -63,8 +40,6 @@ export default class  Radio {
     public static disconnect() {
         if(!this.isInitalized) throw new Error("Radio is not intialited!");
         try {
-            console.log("Disconnected");
-            this.isPlaying = false;
             this.voiceConnection.disconnect();
             this.voiceConnection = null;
         } catch (error) {
@@ -79,7 +54,6 @@ export default class  Radio {
             if(!this.streamUrl === null) throw new Error("Stream URL is null!");
             this.dispatcher = this.voiceConnection.play(this.streamUrl);
             this.dispatcher.on("error", ErrorHandler.Log);
-            this.isPlaying = true;
             console.log("Playing");
         } catch (error) {
             ErrorHandler.Log(error);
@@ -93,6 +67,21 @@ export default class  Radio {
             this.dispatcher.setVolume(volume);
         } catch (error) {
             ErrorHandler.Log(error);
+        }
+    }
+
+    public static onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
+        if (
+            oldState.channelID !== this.radioChannel.id &&
+            newState.channelID !== this.radioChannel.id
+        ) return;
+        
+        if(!oldState.channelID && newState.channelID) { // Join
+            if(newState.channel.members.size === 2) this.play();
+        };
+
+        if(oldState.channelID && !newState.channelID) { // Leave
+            if(oldState.channel.members.size === 1) this.dispatcher.end();
         }
     }
 }
