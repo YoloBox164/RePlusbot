@@ -1,7 +1,15 @@
 import { Client, VoiceChannel, VoiceConnection, StreamDispatcher, VoiceState } from "discord.js";
 import { Channels } from "../../settings.json";
 import ErrorHandler from "../../error-handler";
-import AnalyticSystem from "../analytic";
+import ytdl from "ytdl-core-discord";
+import regexpPatterns from "../../utils/regexp-patterns";
+
+export enum FMs {
+    "BestFM" = "https://stream1.bestfmbudapest.hu/bestfm_szekesfehervar.mp3",
+    "ElectroSwing" = "https://www.youtube.com/watch?v=0i6IISoW17A",
+    "CoffeeJazz" = "https://www.youtube.com/watch?v=fEvM-OUbaKs",
+    "SmoothJazz" = "https://www.youtube.com/watch?v=kpkfyNjmBAM"
+};
 
 export default class  Radio {
     private static client: Client
@@ -14,6 +22,7 @@ export default class  Radio {
     public static isPlaying = false;
 
     public static streamUrl: string = null;
+    private static defaultStreamUrl = FMs.ElectroSwing;
 
     public static async init(client: Client) {
         try {
@@ -21,6 +30,7 @@ export default class  Radio {
             const radioChannel = await this.client.channels.fetch(Channels.radioId);
             if(radioChannel.type !== "voice") throw new Error("The radio channel is not a voice channel!");
             this.radioChannel = <VoiceChannel>radioChannel;
+            this.streamUrl = this.defaultStreamUrl;
             this.isInitalized = true;
         } catch (error) {
             ErrorHandler.Log(error);
@@ -39,6 +49,16 @@ export default class  Radio {
         }
     }
 
+    public static switchTo(fm: FMs) {
+        if(!this.isInitalized) throw new Error("Radio is not intialited!");
+        try {
+            this.streamUrl = fm;
+            this.play();
+        } catch (error) {
+            ErrorHandler.Log(error);
+        }
+    }
+
     public static disconnect() {
         if(!this.isInitalized) throw new Error("Radio is not intialited!");
         try {
@@ -49,12 +69,22 @@ export default class  Radio {
         }
     }
 
-    public static play() {
+    public static async play() {
         if(!this.isInitalized) throw new Error("Radio is not intialited!");
         try {
             if(!this.voiceConnection) throw new Error("Not joined any voice channel!");
             if(!this.streamUrl === null) throw new Error("Stream URL is null!");
-            this.dispatcher = this.voiceConnection.play(this.streamUrl);
+            console.log(this.streamUrl);
+            const match = regexpPatterns.Youtube.exec(this.streamUrl);
+
+            if(match && match[1]) {
+                const stream = await ytdl(this.streamUrl, { filter: "audioonly" });
+                stream.on("error", ErrorHandler.Log);
+                this.dispatcher = this.voiceConnection.play(stream, { type: "opus" });
+            } else {
+                this.dispatcher = this.voiceConnection.play(this.streamUrl);
+            }
+
             this.dispatcher.on("error", ErrorHandler.Log);
             this.isPlaying = true;
         } catch (error) {
@@ -66,7 +96,7 @@ export default class  Radio {
         if(!this.isInitalized) throw new Error("Radio is not intialited!");
         try {
             if(!this.voiceConnection) throw new Error("Not joined any voice channel!");
-            this.dispatcher.destroy();
+            this.dispatcher.end();
             this.isPlaying = false;
         } catch (error) {
             ErrorHandler.Log(error);
