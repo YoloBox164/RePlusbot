@@ -11,6 +11,7 @@ enum CategoryTranslation {
     info = "Infó",
     misc = "Melékleges",
     mod = "Moderátor",
+    radio = "Rádió",
     staff = "Staff",
     test = "Teszt",
     utility = "Hasznos"
