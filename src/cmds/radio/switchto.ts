@@ -3,6 +3,14 @@ import BaseCommand from "../../structures/base-command";
 import { Prefix } from "../../settings.json";
 import Radio, { FMs } from "../../systems/radio";
 
+function getDesc() {
+    let string = "FMs:\n\n"
+    for (const fmName in FMs) {
+        string += `-- ${fmName}\n`
+    }
+    return string.trim();;
+}
+
 class SwitchTo implements BaseCommand {
     pathToCmd = module.filename;
 
@@ -11,7 +19,7 @@ class SwitchTo implements BaseCommand {
 
     name = "switchto";
     aliases = ["swt"];
-    desc = "";
+    desc = `${getDesc()}`;
     usage = `${Prefix}switchto [fm channel]`;
 
     public async execute(message: Message, args: string[]) {
