@@ -9,7 +9,7 @@ class Join implements BaseCommand {
     isDev = true;
 
     name = "join";
-    aliases = [];
+    aliases = ["j"];
     desc = "";
     usage = `${Prefix}join`;
 

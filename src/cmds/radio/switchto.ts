@@ -10,7 +10,7 @@ class SwitchTo implements BaseCommand {
     isDev = true;
 
     name = "switchto";
-    aliases = [];
+    aliases = ["swt"];
     desc = "";
     usage = `${Prefix}switchto [fm channel]`;
 

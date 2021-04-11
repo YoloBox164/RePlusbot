@@ -9,7 +9,7 @@ class Disconnect implements BaseCommand {
     isDev = true;
 
     name = "disconnect";
-    aliases = [];
+    aliases = ["dc"];
     desc = "";
     usage = `${Prefix}disconnect`;
 

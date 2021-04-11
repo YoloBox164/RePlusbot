@@ -9,7 +9,7 @@ class Play implements BaseCommand {
     isDev = true;
 
     name = "play";
-    aliases = [];
+    aliases = ["p"];
     desc = "";
     usage = `${Prefix}play`;
 
