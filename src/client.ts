@@ -91,7 +91,6 @@ client.on("ready", async () => {
     SecSys.MuteHandler.Restart(client.mainGuild);
     await Radio.init(client);
     await Radio.join();
-    Radio.streamUrl = "https://stream1.bestfmbudapest.hu/bestfm_szekesfehervar.mp3";
     Radio.play();
     // Caching msg in the regist channel
     // const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
