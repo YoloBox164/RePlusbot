@@ -8,7 +8,11 @@ export enum FMs {
     "BestFM" = "https://stream1.bestfmbudapest.hu/bestfm_szekesfehervar.mp3",
     "ElectroSwing" = "https://www.youtube.com/watch?v=0i6IISoW17A",
     "CoffeeJazz" = "https://www.youtube.com/watch?v=fEvM-OUbaKs",
-    "SmoothJazz" = "https://www.youtube.com/watch?v=kpkfyNjmBAM"
+    "SmoothJazz" = "https://www.youtube.com/watch?v=kpkfyNjmBAM",
+    "FunkyPanda" = "https://www.youtube.com/watch?v=cegtqfZFDaU",
+    "Spinnin" = "https://www.youtube.com/watch?v=I83XWCSBgSc",
+    "TrappNation" = "https://www.youtube.com/watch?v=v3jpVUOi9XU",
+    "Pulse" = "https://www.youtube.com/watch?v=QuATjlZJyWg"
 };
 
 export default class  Radio {
