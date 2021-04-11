@@ -8,7 +8,7 @@ function getDesc() {
     for (const fmName in FMs) {
         string += `-- ${fmName}\n`
     }
-    return string.trim();;
+    return string.trim();
 }
 
 class SwitchTo implements BaseCommand {
