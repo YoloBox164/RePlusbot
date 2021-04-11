@@ -53,11 +53,13 @@ export default class  Radio {
         }
     }
 
-    public static switchTo(fm: FMs) {
+    public static async switchTo(fm: FMs) {
         if(!this.isInitalized) throw new Error("Radio is not intialited!");
         try {
             this.streamUrl = fm;
-            this.play();
+            this.stop();
+            await this.play();
+            await this.play();
         } catch (error) {
             ErrorHandler.Log(error);
         }
@@ -84,7 +86,7 @@ export default class  Radio {
             if(match && match[1]) {
                 const stream = await ytdl(this.streamUrl, { filter: "audioonly" });
                 stream.on("error", ErrorHandler.Log);
-                this.dispatcher = this.voiceConnection.play(stream, { type: "opus" });
+                this.dispatcher = this.voiceConnection.play(stream, { type: "opus",  fec: true });
             } else {
                 this.dispatcher = this.voiceConnection.play(this.streamUrl);
             }
