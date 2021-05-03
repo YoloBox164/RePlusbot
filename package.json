@@ -1,6 +1,6 @@
 {
   "name": "revolt-bot-v2.0",
-  "version": "0.0.1",
+  "version": "2.0.3",
   "description": "A custom discord bot",
   "main": "dist/client.js",
   "scripts": {
