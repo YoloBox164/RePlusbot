@@ -4,7 +4,7 @@
         "AutoMemberId": "818610216647524393",
         "AutoBotId": "null",
         "AutoSeparator": "null",
-        "MuteId": "null",
+        "MuteId": "818624862549180436",
         "TicketId": "null",
         "WumpusId": "null"
     },
@@ -38,7 +38,8 @@
         "ten": "🔟"
     },
     "StaffIds": [
-        "818607823910338652",
-        "818624852868464651"
+        "827993127394476072", // Tulajdonos
+        "818624852868464651", // Fejelesztő
+        "818607823910338652" // Moderátor
     ]
 }
