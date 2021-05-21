@@ -4,5 +4,5 @@ import Radio from "../systems/radio";
 
 export default async (oldState: VoiceState, newState: VoiceState) => {
     AnalyticSystem.Logic(oldState, newState);
-    Radio.onVoiceStateUpdate(oldState, newState);
-}
+    //Radio.onVoiceStateUpdate(oldState, newState);
+};
