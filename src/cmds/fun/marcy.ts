@@ -20,8 +20,8 @@ class Marcy implements BaseCommand {
       const dispatcher = connection.play(path.join(process.env.APP_ROOT, "assets/cmds/fun/Marcy.mp3"));
       dispatcher.on("finish", () => {
         connection.disconnect();
-        if(message.deletable) message.delete();
       });
+      if(message.deletable) message.delete();
     } catch(error) {
       return Promise.reject(error);
     }
