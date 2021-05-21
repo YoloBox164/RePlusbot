@@ -1,23 +1,25 @@
 import { Client, TextChannel } from "discord.js";
 const client = new Client({
     partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"],
-    ws: { intents: [
-        "DIRECT_MESSAGES",
-        "DIRECT_MESSAGE_REACTIONS",
-        "DIRECT_MESSAGE_TYPING",
-        "GUILDS",
-        "GUILD_BANS",
-        "GUILD_EMOJIS",
-        "GUILD_INTEGRATIONS",
-        "GUILD_INVITES",
-        "GUILD_MEMBERS",
-        "GUILD_MESSAGES",
-        "GUILD_MESSAGE_REACTIONS",
-        "GUILD_MESSAGE_TYPING",
-        "GUILD_PRESENCES",
-        "GUILD_VOICE_STATES",
-        "GUILD_WEBHOOKS"
-    ]}
+    ws: {
+        intents: [
+            "DIRECT_MESSAGES",
+            "DIRECT_MESSAGE_REACTIONS",
+            "DIRECT_MESSAGE_TYPING",
+            "GUILDS",
+            "GUILD_BANS",
+            "GUILD_EMOJIS",
+            "GUILD_INTEGRATIONS",
+            "GUILD_INVITES",
+            "GUILD_MEMBERS",
+            "GUILD_MESSAGES",
+            "GUILD_MESSAGE_REACTIONS",
+            "GUILD_MESSAGE_TYPING",
+            "GUILD_PRESENCES",
+            "GUILD_VOICE_STATES",
+            "GUILD_WEBHOOKS"
+        ]
+    }
 });
 
 declare module 'discord.js' {
@@ -84,14 +86,15 @@ client.on("ready", async () => {
     client.economyLogChannel = <TextChannel>client.channels.resolve(Settings.Channels.economyLogId);
     client.devLogChannel = <TextChannel>client.channels.resolve("647420812722307082");
     client.mainGuild = client.logChannel.guild;
-    
+
     await Database.Connect().catch(console.error);
 
     AnalyticSys.Init(client);
     SecSys.MuteHandler.Restart(client.mainGuild);
-    await Radio.init(client);
-    await Radio.join();
-    Radio.play();
+    // TODO fix radio
+    //await Radio.init(client);
+    //await Radio.join();
+    //Radio.play();
     // Caching msg in the regist channel
     // const registChannel = <TextChannel>client.channels.resolve(Settings.Channels.registId);
     // registChannel.messages.fetch({}, true).catch(console.error);
