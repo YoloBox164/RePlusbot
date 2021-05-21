@@ -17,13 +17,14 @@ export default async (member: GuildMember) => {
             { name: `${identifyer} Id`, value: `\`\`\`xl\n${member.id}\`\`\``, inline: true }
         ]);
 
-    if(member.guild.id === member.client.mainGuild.id) {
+    if(!member.user.bot) {
         const welcomeEmbed = EmbedTemplates.Join(member.guild, member);
         const welcomeChannel = <TextChannel>member.client.mainGuild.channels.resolve(Channels.welcomeMsgId);
         welcomeChannel.send({ embed: welcomeEmbed });
         member.roles.add(Roles.AutoMemberId);
-        member.client.logChannel.send(embed);
-    } else member.client.devLogChannel.send(embed);
+    }
+    if(member.guild.id === member.client.mainGuild.id) member.client.logChannel.send(embed);
+    else member.client.devLogChannel.send(embed);
 
     console.log(colors.green(
         `${identifyer}: ${member.displayName} (ID: ${member.id}) joined the server at \`${member.client.logDate(member.joinedTimestamp)}\``
