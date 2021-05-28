@@ -1,5 +1,5 @@
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import Radio from "../../systems/radio";
 
 class Join implements BaseCommand {
@@ -16,7 +16,7 @@ class Join implements BaseCommand {
     public async execute() {
         Radio.join();
     }
-    
+
 }
 
 export default new Join();

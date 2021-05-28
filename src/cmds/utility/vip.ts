@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import BaseCommand from "../../structures/base-command";
 import Tools from "../../utils/tools";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class Vip implements BaseCommand {
     pathToCmd = module.filename;
@@ -15,7 +15,7 @@ class Vip implements BaseCommand {
     usage = `${Prefix}vip`;
 
     public async execute(message: Message, args: Array<string>) {
-        
+
     }
 }
 

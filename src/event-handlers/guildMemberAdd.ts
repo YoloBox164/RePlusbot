@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed, TextChannel } from "discord.js";
 import colors from "colors";
 import EmbedTemplates from "../utils/embed-templates";
-import { Channels, Roles } from "../settings.json";
+import { Channels, Roles } from "../settings";
 
 export default async (member: GuildMember) => {
     if(member.partial) await member.fetch();

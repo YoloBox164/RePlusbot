@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import got from "got";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class Cat implements BaseCommand {
     pathToCmd = module.filename;
@@ -17,7 +17,7 @@ class Cat implements BaseCommand {
     public async execute(message: Message) {
         try {
             const msg = await message.channel.send("Lekérés...");
-    
+
             const data = await got("https://api.thecatapi.com/v1/images/search?mime_types=gif").json();
 
             const embed = new MessageEmbed()
@@ -26,13 +26,13 @@ class Cat implements BaseCommand {
                 .setFooter("thecatapi.com")
                 .setColor(message.guild.member(message.client.user).displayHexColor)
                 .setImage(data[0].url);
-    
+
             return message.channel.send({ embed: embed }).then(() => msg.delete());
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
-    
+
 }
 
 export default new Cat();

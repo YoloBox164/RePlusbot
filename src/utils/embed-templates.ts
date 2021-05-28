@@ -1,6 +1,6 @@
 import { Message, Guild, GuildMember, MessageEmbed, Client } from "discord.js";
 import BaseCommand from "../structures/base-command";
-import Settings from "../settings.json";
+import Settings from "../settings";
 
 export default {
     Warning: (targetMember: GuildMember, issuer: GuildMember, reason: string): MessageEmbed => {
@@ -39,7 +39,7 @@ export default {
         if(foundTexts && foundTexts[0]) {
             embed.addField("Talált szavak/linkek", foundTexts.join(", "));
         }
-        
+
         return embed;
     },
 

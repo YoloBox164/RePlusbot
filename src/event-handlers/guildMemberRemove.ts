@@ -1,7 +1,7 @@
 import { GuildAuditLogsEntry, GuildMember, MessageEmbed, User } from "discord.js";
 import tools from "../utils/tools";
 
-export default async (member: GuildMember) => {
+export default async (member: GuildMember): Promise<void> => {
     if(member.partial) await member.fetch();
     const identifyer = member.user.bot ? "Bot" : "User";
 
@@ -10,28 +10,28 @@ export default async (member: GuildMember) => {
     const pruneEntry = await member.guild.fetchAuditLogs({ type: "MEMBER_PRUNE" }).then(audit => audit.entries.first());
 
     let type = Types.LEFT;
-    let entry = null
+    let entry = null;
 
     if(banEntry && banEntry.targetType === "USER" && (<User>banEntry.target).id === member.id) {
         type = Types.BANNED;
         entry = banEntry;
     } else if(kickEntry && kickEntry.targetType === "USER" && (<User>kickEntry.target).id === member.id) {
-        type = Types.KICKED; 
+        type = Types.KICKED;
         entry = kickEntry;
-    } else if (pruneEntry && pruneEntry.targetType === "USER" && (<User>pruneEntry.target).id === member.id) {
+    } else if(pruneEntry && pruneEntry.targetType === "USER" && (<User>pruneEntry.target).id === member.id) {
         type = Types.PRUNED;
         entry = pruneEntry;
     }
-    
-    let { embed, text, reason } = createEmbed(member, entry, type);
+
+    const { embed, text, reason } = createEmbed(member, entry, type);
 
     if(member.guild.id === member.client.mainGuild.id) member.client.logChannel.send(embed);
     else member.client.devLogChannel.send(embed);
 
     console.log(`${identifyer}: ${member.displayName} (Id: ${member.id}) ${text} at ${member.client.logDate()} | Reason: ${reason}`.red);
-}
+};
 
-function createEmbed(member: GuildMember, entry: GuildAuditLogsEntry|null, type: Types) {
+function createEmbed(member: GuildMember, entry: GuildAuditLogsEntry | null, type: Types) {
     const identifyer = member.user.bot ? "Bot" : "User";
 
     const embed = new MessageEmbed()
@@ -57,7 +57,7 @@ function createEmbed(member: GuildMember, entry: GuildAuditLogsEntry|null, type:
         text = `was ${Types[type].toLowerCase()} by ${issuer.displayName}`;
         if(entry.reason) reason = entry.reason;
     }
-    
+
     return { embed, text, reason };
 }
 

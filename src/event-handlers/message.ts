@@ -3,24 +3,23 @@ import colors from "colors";
 import embedTemplates from "../utils/embed-templates";
 import { Clean, MemberHasOneOfTheRoles } from "../utils/tools";
 import LevelSystem from "../systems/level";
-import { Channels, Emojis, StaffIds } from "../settings.json";
+import { Channels, Emojis, StaffIds } from "../settings";
 import RegexpPatterns from "../utils/regexp-patterns";
 import SecuritySys from "../systems/security";
-import Config from "../config.json";
 
-export default async (message: Message) => {
+export default async (message: Message): Promise<void> => {
     if(message.partial) await message.fetch().catch(console.error);
     if(message.author.bot) return;
     if(message.channel.type === "dm") return;
 
     if(message.author.id !== message.client.devId
-      && (message.channel.id == Channels.modLogId || message.channel.id == Channels.automodLogId)) {
+        && (message.channel.id == Channels.modLogId || message.channel.id == Channels.automodLogId)) {
         const reason = "A log csatornákba nem küldhetsz üzeneteket.";
         if(message.deletable) message.delete({ reason: reason }).catch(console.error);
         message.author.send(reason);
     }
 
-    if(Config.mode === "development" || !MemberHasOneOfTheRoles(message.member, [...StaffIds, "475963545247547392"])) {
+    if(!process.env.PRODUCTION || !MemberHasOneOfTheRoles(message.member, [...StaffIds, "475963545247547392"])) {
         if(await SecuritySys.Automod.LinkFilter.Check(message).catch(console.error)) return;
         if(SecuritySys.Automod.WordFilter.Check(message)) return;
         if(SecuritySys.Automod.SpamProtection.CheckTime(message)) return;
@@ -61,7 +60,7 @@ export default async (message: Message) => {
         message.channel.send(embedTemplates.Cmd.Help(message.client));
         LevelSystem.GiveExp(message, false).catch(console.error);
     } else LevelSystem.GiveExp(message, false).catch(console.error);
-}
+};
 
 function checkPrefix(text: string, prefix: string): boolean {
     let safePrefix = "";
@@ -70,7 +69,7 @@ function checkPrefix(text: string, prefix: string): boolean {
 }
 
 function makeArgs(message: Message, prefix: string): { command: string; args: string[]; } {
-    const [ command, ...args ] = message.content.trim().slice(prefix.length).split(/\s+/g);
+    const [command, ...args] = message.content.trim().slice(prefix.length).split(/\s+/g);
     return { command: command.toLowerCase(), args: args };
 }
 

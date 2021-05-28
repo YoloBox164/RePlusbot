@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import Config from "../../config.json";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import { exec } from "child_process";
 import { ShutdownSequence } from "../../utils/tools";
 
@@ -47,7 +47,7 @@ class Shutdown implements BaseCommand {
             if(cmd) {
                 message.client.logChannel.send(`\`Reloading ${cmd.name}\``);
                 console.log(`Reloading ${cmd.name}`);
-                exec(RemoveCmds[process.platform], {cwd: `${process.env.APP_ROOT}`}, (error, stdout, stderr) => {
+                exec(RemoveCmds[process.platform], { cwd: `${process.env.APP_ROOT}` }, (error, stdout, stderr) => {
                     if(error || stderr) {
                         if(error) console.error("Error", error);
                         if(stderr) console.error("Stderr", stderr);
@@ -61,7 +61,7 @@ class Shutdown implements BaseCommand {
             } else {
                 message.client.logChannel.send("`Reloading commands`");
                 console.log("Reloading commands");
-                exec(RemoveCmds[process.platform], {cwd: `${process.env.APP_ROOT}`}, (error, stdout, stderr) => {
+                exec(RemoveCmds[process.platform], { cwd: `${process.env.APP_ROOT}` }, (error, stdout, stderr) => {
                     if(error || stderr) {
                         if(error) console.error("Error", error);
                         if(stderr) console.error("Stderr", stderr);
@@ -75,7 +75,7 @@ class Shutdown implements BaseCommand {
             }
         } else if(eventHandlers.includes(command)) {
             console.log("Reloading Event handlers");
-            exec(RemoveHandlers[process.platform], {cwd: `${process.env.APP_ROOT}`}, (error, stdout, stderr) => {
+            exec(RemoveHandlers[process.platform], { cwd: `${process.env.APP_ROOT}` }, (error, stdout, stderr) => {
                 if(error || stderr) {
                     if(error) console.error("Error", error);
                     if(stderr) console.error("Stderr", stderr);

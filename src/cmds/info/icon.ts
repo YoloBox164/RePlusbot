@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class Icon implements BaseCommand {
     pathToCmd = module.filename;
@@ -24,7 +24,7 @@ class Icon implements BaseCommand {
 
         return message.channel.send({ embed: embed }).then(() => msg.delete());
     }
-    
+
 }
 
 export default new Icon();

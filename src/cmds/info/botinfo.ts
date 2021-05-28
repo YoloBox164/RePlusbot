@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import BaseCommand from "../../structures/base-command";
 import Tools from "../../utils/tools";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class BotInfo implements BaseCommand {
     pathToCmd = module.filename;

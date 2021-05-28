@@ -2,7 +2,7 @@ import colors from "colors";
 import { Message } from "discord.js";
 import util from "util";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import tools from "../../utils/tools";
 
 class Eval implements BaseCommand {
@@ -22,11 +22,11 @@ class Eval implements BaseCommand {
             const code = args.join(" ");
             let evaled = eval(code);
 
-            if (typeof evaled !== "string") evaled = util.inspect(evaled);
-            return message.channel.send(tools.Clean(evaled), { code:"xl", split: { char: "\n" } }).catch(error => {
+            if(typeof evaled !== "string") evaled = util.inspect(evaled);
+            return message.channel.send(tools.Clean(evaled), { code: "xl", split: { char: "\n" } }).catch(error => {
                 console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
             });
-        } catch (err) {
+        } catch(err) {
             return message.channel.send(`\`ERROR\` \`\`\`xl\n${tools.Clean(err)}\n\`\`\``).catch(error => {
                 console.error(`${error.name}: ${error.message}\nStack: ${error.stack}`);
             });

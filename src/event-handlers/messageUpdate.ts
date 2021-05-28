@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import SecuritySys from "../systems/security";
 import Config from "../config.json";
 import { MemberHasOneOfTheRoles } from "../utils/tools";
-import { StaffIds } from "../settings.json";
+import { StaffIds } from "../settings";
 
 
 export default async (oldMessage: Message, newMessage: Message) => {
@@ -16,4 +16,4 @@ export default async (oldMessage: Message, newMessage: Message) => {
         if(SecuritySys.Automod.LinkFilter.Check(newMessage)) return;
         if(SecuritySys.Automod.WordFilter.Check(newMessage)) return;
     }
-}
+};

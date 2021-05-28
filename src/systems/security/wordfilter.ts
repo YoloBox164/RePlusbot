@@ -1,6 +1,6 @@
 import fs from "fs";
 import colors from "colors/safe";
-import Settings from "../../settings.json";
+import Settings from "../../settings";
 import EmbedTemplates from "../../utils/embed-templates";
 import { Message, TextChannel } from "discord.js";
 
@@ -31,15 +31,15 @@ const regexpTemplates = {
 export function Check(message: Message): boolean {
     const foundMatches = [];
     let found = false;
-    for (const regExp of RegExpWords) {
+    for(const regExp of RegExpWords) {
         const matches = message.content.match(regExp);
-        if (matches != null && matches.length > 0) {
+        if(matches != null && matches.length > 0) {
             found = true;
             foundMatches.push(...matches);
             console.log(matches);
         }
     }
-    if (found) {
+    if(found) {
         const logChannel = <TextChannel>(message.client.channels.resolve(Settings.Channels.automodLogId));
 
         const reason = "Fekete listán levő szavak használata.";
@@ -48,7 +48,7 @@ export function Check(message: Message): boolean {
 
         message.channel.send(`**${message.member}, üzeneted törölve lett az automod által, mert fekete listán levő szavakat használtál.**`);
 
-        if (message.deletable) message.delete({ reason: reason });
+        if(message.deletable) message.delete({ reason: reason });
         return true;
     }
     return false;
@@ -63,10 +63,10 @@ function GetRegExpWords() {
     const dir = "blacklisted/words";
 
     fs.readdir(`./dist/systems/security/${dir}/`, (err, files) => {
-        if (err) console.error(`ERROR: ${err}`);
+        if(err) console.error(`ERROR: ${err}`);
 
         const wordFiles = files.filter((f) => f.split(".").pop() === "js");
-        if (wordFiles.length <= 0) {
+        if(wordFiles.length <= 0) {
             console.log(colors.red("ERROR: No word files to load!"));
             return;
         }
@@ -78,11 +78,11 @@ function GetRegExpWords() {
         wordFiles.forEach((f) => {
             delete require.cache[require.resolve(`./${dir}/${f}`)];
             const words: string[] = require(`./${dir}/${f}`).default;
-            for (const word of words) {
+            for(const word of words) {
                 let pattern = "\\b";
-                for (let index = 0; index < word.length; index++) {
+                for(let index = 0; index < word.length; index++) {
                     const char = word[index];
-                    if (index == word.length - 1)
+                    if(index == word.length - 1)
                         pattern += regexpTemplates.End.replace("#", char);
                     else pattern += regexpTemplates.StartAndMindle.replace("#", char);
                 }

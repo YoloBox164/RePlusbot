@@ -1,7 +1,7 @@
 import Discord, { Message } from "discord.js";
 import got from "got";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 const api = "06b26c42ff1b069252795e80";
 
@@ -27,7 +27,7 @@ class Exchange implements BaseCommand {
 
             const val = isNaN(Number(args[0])) ? 1 : Number(args[0]);
             let fr: string, to: string;
-    
+
             if(isNaN(Number(args[0]))) {
                 if(args[0]) fr = args[0].toUpperCase();
                 if(args[1]) to = args[1].toUpperCase();
@@ -35,12 +35,12 @@ class Exchange implements BaseCommand {
                 if(args[1]) fr = args[1].toUpperCase();
                 if(args[2]) to = args[2].toUpperCase();
             }
-    
+
             if(!fr) fr = "EUR";
             if(!to) to = "HUF";
-    
+
             const symbol = isoCurrMap[to].symbol_native;
-    
+
             const res: any = await got(`https://v3.exchangerate-api.com/pair/${api}/${fr}/${to}`).json();
             if(res["result"] == "failed") {
                 return message.channel.send(res["error"]);
@@ -51,12 +51,12 @@ class Exchange implements BaseCommand {
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
                 .setColor(message.guild.member(message.client.user).displayHexColor)
                 .addField("Eredmény", `${res["rate"] * val} ${symbol}`);
-    
+
             return message.channel.send({ embed: embed }).then(() => msg.delete());
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
-        
+
     }
 }
 

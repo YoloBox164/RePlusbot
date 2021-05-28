@@ -1,6 +1,6 @@
 import Discord, { Message } from "discord.js";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import { evaluate } from "mathjs";
 
 class Calc implements BaseCommand {
@@ -8,7 +8,7 @@ class Calc implements BaseCommand {
 
     mustHaveArgs: true;
     isDev: false;
-    
+
     name = "calc";
     aliases = ["calculate"];
     desc = "Egy számológép.";
@@ -29,7 +29,7 @@ class Calc implements BaseCommand {
                 .addField("Kimenet", `\`\`\`js\n${res}\`\`\``);
 
             return message.channel.send({ embed: embed });
-        } catch (error) {
+        } catch(error) {
             message.channel.send("Valami nem úgy ment mint kellett volna.");
             return Promise.reject(error);
         }

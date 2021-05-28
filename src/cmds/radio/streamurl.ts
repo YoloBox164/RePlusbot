@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import Radio from "../../systems/radio";
 
 class StreamUrl implements BaseCommand {
@@ -17,7 +17,7 @@ class StreamUrl implements BaseCommand {
     public async execute(message: Message, args: string[]) {
         Radio.streamUrl = args[0];
     }
-    
+
 }
 
 export default new StreamUrl();

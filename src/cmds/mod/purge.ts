@@ -1,7 +1,7 @@
 import colors from "colors/safe";
 import { Message, TextChannel } from "discord.js";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class Purge implements BaseCommand {
     pathToCmd = module.filename;
@@ -24,7 +24,7 @@ class Purge implements BaseCommand {
             return (<TextChannel>message.channel).bulkDelete(deleteCount + 1).then(() => {
                 const logMsg = `${message.member.displayName} deleted ${deleteCount} messages in ${message.channel}`;
                 console.log(colors.yellow(`LOG: Deleted messages: ${deleteCount}`));
-    
+
                 if(message.guild == message.client.mainGuild) return message.client.logChannel.send(logMsg);
                 else return message.client.devLogChannel.send(logMsg);
             }).catch(error => {

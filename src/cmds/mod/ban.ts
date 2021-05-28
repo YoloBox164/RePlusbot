@@ -1,7 +1,7 @@
 import BaseCommand from "../../structures/base-command";
 import { Message, MessageMentions } from "discord.js";
 import Tools from "../../utils/tools";
-import { Prefix, StaffIds } from "../../settings.json";
+import { Prefix, StaffIds } from "../../settings";
 
 class Ban implements BaseCommand {
     pathToCmd = module.filename;

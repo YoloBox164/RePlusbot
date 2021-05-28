@@ -1,5 +1,5 @@
 import { Client, VoiceChannel, VoiceConnection, StreamDispatcher, VoiceState } from "discord.js";
-import { Channels } from "../../settings.json";
+import { Channels } from "../../settings";
 import ErrorHandler from "../../error-handler";
 import ytdl from "ytdl-core-discord";
 import regexpPatterns from "../../utils/regexp-patterns";
@@ -14,8 +14,8 @@ export enum FMs {
     "Pulse" = "https://www.youtube.com/watch?v=QuATjlZJyWg"
 };
 
-export default class  Radio {
-    private static client: Client
+export default class Radio {
+    private static client: Client;
     private static isInitalized = false;
 
     private static radioChannel: VoiceChannel = null;
@@ -35,7 +35,7 @@ export default class  Radio {
             this.radioChannel = <VoiceChannel>radioChannel;
             this.streamUrl = this.defaultStreamUrl;
             this.isInitalized = true;
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
@@ -47,7 +47,7 @@ export default class  Radio {
             this.voiceConnection.on("error", ErrorHandler.Log);
             this.voiceConnection.on("disconnect", Radio.join);
             this.voiceConnection.on("failed", ErrorHandler.Log);
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
@@ -59,7 +59,7 @@ export default class  Radio {
             this.stop();
             await this.play();
             await this.play();
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
@@ -69,7 +69,7 @@ export default class  Radio {
         try {
             this.voiceConnection.disconnect();
             this.voiceConnection = null;
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
@@ -85,14 +85,14 @@ export default class  Radio {
             if(match && match[1]) {
                 const stream = await ytdl(this.streamUrl, { filter: "audioonly" });
                 stream.on("error", ErrorHandler.Log);
-                this.dispatcher = this.voiceConnection.play(stream, { type: "opus",  fec: true });
+                this.dispatcher = this.voiceConnection.play(stream, { type: "opus", fec: true });
             } else {
                 this.dispatcher = this.voiceConnection.play(this.streamUrl);
             }
 
             this.dispatcher.on("error", ErrorHandler.Log);
             this.isPlaying = true;
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
@@ -103,7 +103,7 @@ export default class  Radio {
             if(!this.voiceConnection) throw new Error("Not joined any voice channel!");
             this.dispatcher.end();
             this.isPlaying = false;
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
@@ -113,13 +113,13 @@ export default class  Radio {
         try {
             if(!this.dispatcher) throw new Error("Dispatcher is not defined!");
             this.dispatcher.setVolume(volume);
-        } catch (error) {
+        } catch(error) {
             ErrorHandler.Log(error);
         }
     }
 
     public static onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
-        if (
+        if(
             oldState.channelID !== this.radioChannel.id &&
             newState.channelID !== this.radioChannel.id
         ) return;

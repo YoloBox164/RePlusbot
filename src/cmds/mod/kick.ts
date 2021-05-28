@@ -1,6 +1,6 @@
 import Discord, { Message } from "discord.js";
 import Tools from "../../utils/tools";
-import Settings from "../../settings.json";
+import Settings from "../../settings";
 import BaseCommand from "../../structures/base-command";
 
 class Kick implements BaseCommand {

@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
-import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
-import path from "path";
+import BaseCommand from "../../../structures/base-command";
+import { Prefix } from "../../../settings";
+import Marcy_MP3 from "./Marcy.mp3";
 
 class Marcy implements BaseCommand {
   pathToCmd = module.filename;
@@ -17,7 +17,7 @@ class Marcy implements BaseCommand {
   public async execute(message: Message) {
     try {
       const connection = await message.member.voice.channel?.join();
-      const dispatcher = connection.play(path.join(process.env.APP_ROOT, "assets/cmds/fun/Marcy.mp3"));
+      const dispatcher = connection.play(Marcy_MP3);
       dispatcher.on("finish", () => {
         connection.disconnect();
       });

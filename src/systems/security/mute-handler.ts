@@ -1,5 +1,5 @@
 import fs from "fs";
-import Settings from "../../settings.json";
+import Settings from "../../settings";
 import MutedUsers from "./muted-users.json";
 import EmbedTemplates from "../../utils/embed-templates";
 import { Guild, GuildMember, TextChannel } from "discord.js";
@@ -9,7 +9,7 @@ class MuteHandler {
     /** Relative to bot.js */
     private static MuteJsonPath = `${module.path}\\muted-users.json`;
 
-    public static MutedUsers: { [id: string]: number } = MutedUsers;
+    public static MutedUsers: { [id: string]: number; } = MutedUsers;
 
     public static Restart(guild: Guild) {
         for(const userId in this.MutedUsers) {

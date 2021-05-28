@@ -2,8 +2,8 @@ import { Message, MessageAttachment, MessageEmbed } from "discord.js";
 import Database, { Warnings } from "../../systems/database";
 import BaseCommand from "../../structures/base-command";
 import Tools from "../../utils/tools";
-import LevelSystem from "../../systems/level"
-import { Prefix } from "../../settings.json";
+import LevelSystem from "../../systems/level";
+import { Prefix } from "../../settings";
 
 class UserInfo implements BaseCommand {
     pathToCmd = module.filename;
@@ -57,12 +57,12 @@ class UserInfo implements BaseCommand {
             ).addField("Statok",
                 `Összes elküldött üzenet: ${userData?.messages | 0}
                 Parancs használatok száma: ${userData?.commandUses | 0}
-                
+
                 Hangszobákban töltött idő: ${Tools.RedableTime(userData?.allTime | 0)}`
             );
         msg.channel.send({ embed: embed }).then(() => msg.delete({ reason: "Done waiting." }));
     };
-    
+
 }
 
 export default new UserInfo();

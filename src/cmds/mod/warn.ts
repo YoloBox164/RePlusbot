@@ -1,5 +1,5 @@
 import Database, { Warnings } from "../../systems/database";
-import Settings from "../../settings.json";
+import Settings from "../../settings";
 import Tools from "../../utils/tools";
 import EmbedTemplates from "../../utils/embed-templates";
 import BaseCommand from "../../structures/base-command";

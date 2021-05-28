@@ -1,12 +1,12 @@
 import { Message } from "discord.js";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import Radio, { FMs } from "../../systems/radio";
 
 function getDesc() {
-    let string = "FMs:\n\n"
-    for (const fmName in FMs) {
-        string += `-- ${fmName}\n`
+    let string = "FMs:\n\n";
+    for(const fmName in FMs) {
+        string += `-- ${fmName}\n`;
     }
     return string.trim();
 }
@@ -28,7 +28,7 @@ class SwitchTo implements BaseCommand {
             Radio.switchTo(FMs[args[0]]);
         } else message.channel.send(`Not found this FM`);
     }
-    
+
 }
 
 export default new SwitchTo();

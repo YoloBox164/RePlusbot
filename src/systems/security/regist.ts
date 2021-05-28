@@ -1,5 +1,5 @@
 import { Message, MessageReaction, TextChannel, User } from "discord.js";
-import { Channels, StaffIds, Roles } from "../../settings.json";
+import { Channels, StaffIds, Roles } from "../../settings";
 import EmbedTemplates from "../../utils/embed-templates";
 import { MemberHasOneOfTheRoles } from "../../utils/tools";
 
@@ -33,7 +33,7 @@ export function CheckReaction(reaction: MessageReaction, user: User) {
 
     const welcomeChannel = <TextChannel>guild.channels.resolve(Channels.welcomeMsgId);
 
-    if(MemberHasOneOfTheRoles(member, StaffIds) && !MemberHasOneOfTheRoles(oMember, [ Roles.AutoMemberId ])) {
+    if(MemberHasOneOfTheRoles(member, StaffIds) && !MemberHasOneOfTheRoles(oMember, [Roles.AutoMemberId])) {
         if(reaction.emoji.name == "🟩") {
             if(reaction.message.deletable) reaction.message.delete();
             const embed = EmbedTemplates.Join(guild, oMember);
@@ -49,4 +49,4 @@ export function CheckReaction(reaction: MessageReaction, user: User) {
 export default {
     CheckMsg,
     CheckReaction
-}
+};

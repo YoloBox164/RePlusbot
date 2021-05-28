@@ -1,45 +1,39 @@
 {
-  "name": "revolt-bot-v2.0",
+  "name": "revoltbot",
   "version": "2.0.3",
-  "description": "A custom discord bot",
-  "main": "dist/client.js",
+  "description": "A custom discord bot.",
+  "main": "dist/main.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "node --enable-source-maps --trace-warnings dist/client.js ",
-    "start": "node --enable-source-maps dist/client.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node main.js",
+    "build": "webpack",
+    "dev": "node dist/main.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://CsiPA0723@bitbucket.org/CsiPA0723/revolt-bot-v2.0.git"
-  },
-  "keywords": [
-    "discord",
-    "bot",
-    "typescript"
-  ],
-  "author": "Péter András 'CsiPA' Csizmadia",
-  "license": "ISC",
-  "homepage": "https://bitbucket.org/CsiPA0723/revolt-bot-v2.0#readme",
-  "dependencies": {
-    "@discordjs/opus": "^0.5.0",
-    "canvas": "^2.7.0",
-    "colors": "^1.4.0",
-    "dateformat": "^3.0.3",
-    "discord.js": "^12.5.3",
-    "ffmpeg-static": "^4.3.0",
-    "got": "^11.8.2",
-    "mariadb": "^2.5.3",
-    "mathjs": "^8.1.1",
-    "moment": "^2.29.1",
-    "quickchart-js": "^1.0.7",
-    "ytdl-core": "^4.5.0",
-    "ytdl-core-discord": "^1.3.0"
-  },
+  "repository": "https://github.com/CsiPA0723/revoltbot",
+  "author": "Péter Csizmadia <csizipeti0723@gmail.com>",
+  "license": "MIT",
   "devDependencies": {
-    "@types/chart.js": "^2.9.31",
-    "@types/mathjs": "^6.0.11",
-    "@types/node": "^14.14.37",
-    "typescript": "^4.2.3"
+    "@types/dateformat": "^3.0.1",
+    "@types/node": "^15.6.1",
+    "@types/ts-nameof": "^4.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "copy-webpack-plugin": "^9.0.0",
+    "dotenv-webpack": "^7.0.2",
+    "eslint": "^7.27.0",
+    "fork-ts-checker-webpack-plugin": "^6.2.10",
+    "ts-loader": "^9.2.2",
+    "ts-nameof": "^5.0.0",
+    "typescript": "^4.3.2",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "dependencies": {
+    "chart.js": "^3.3.0",
+    "colors": "^1.4.0",
+    "dateformat": "^4.5.1",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0"
   }
 }

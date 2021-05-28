@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import got from "got";
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class Dog implements BaseCommand {
     pathToCmd = module.filename;
@@ -26,13 +26,13 @@ class Dog implements BaseCommand {
                 .setFooter("thedogapi.com")
                 .setColor(message.guild.member(message.client.user).displayHexColor)
                 .setImage(data[0].url);
-    
+
             return message.channel.send({ embed: embed }).then(() => msg.delete());
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
-    
+
 }
 
 export default new Dog();

@@ -1,6 +1,6 @@
 import BaseCommand from "../../structures/base-command";
 import { Message, MessageEmbed } from "discord.js";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class ServerInfo implements BaseCommand {
     pathToCmd = module.filename;
@@ -12,7 +12,7 @@ class ServerInfo implements BaseCommand {
     aliases = ["server", "guild", "guildinfo"];
     desc = "Kiírja a szerverről való információkat.";
     usage = `${Prefix}serverinfo`;
-    
+
     public async execute(message: Message) {
         const msg = await message.channel.send("Generálás...");
         const guild = message.guild;

@@ -1,5 +1,5 @@
 import BaseCommand from "../../structures/base-command";
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 import Radio from "../../systems/radio";
 
 class Play implements BaseCommand {
@@ -16,7 +16,7 @@ class Play implements BaseCommand {
     public async execute() {
         Radio.play();
     }
-    
+
 }
 
 export default new Play();

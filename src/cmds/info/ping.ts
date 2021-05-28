@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import BaseCommand from "../../structures/base-command";
 
-import { Prefix } from "../../settings.json";
+import { Prefix } from "../../settings";
 
 class Ping implements BaseCommand {
     pathToCmd = module.filename;
@@ -15,7 +15,7 @@ class Ping implements BaseCommand {
     usage = `${Prefix}ping`;
 
     public execute(message: Message) {
-        return message.channel.send("Pong!"); 
+        return message.channel.send("Pong!");
     }
 }
 

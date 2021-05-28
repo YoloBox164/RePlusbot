@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import Tools from "../../utils/tools";
 import Database from "../database";
-import { Roles } from "../../settings.json";
+import { Roles } from "../../settings";
 
 export enum ResponseTypes {
     "NONE",
@@ -29,19 +29,19 @@ class Economy {
     public static async GetInfo(member: GuildMember) {
         try {
             let userData = await Database.GetData("Currency", member.id);
-            
+
             if(!userData) {
                 userData = {
                     id: member.id,
                     bits: 0,
                     claimTime: 0,
                     streak: 0
-                }
+                };
                 await Database.SetData("Currency", userData);
             }
 
             return Promise.resolve(userData);
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
@@ -59,7 +59,7 @@ class Economy {
                     bits: this.DAILY_AMOUNT,
                     claimTime: timeNow,
                     streak: 1
-                }
+                };
 
                 await Database.SetData("Currency", userData);
 
@@ -85,7 +85,7 @@ class Economy {
                     userData.bits += this.DAILY_STREAK_BONUS;
                     streakDone = true;
                 }
-            
+
                 await Database.SetData("Currency", userData);
 
                 this.Log("ADD", {
@@ -98,7 +98,7 @@ class Economy {
             }
 
             return Promise.resolve<null>(null);
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
@@ -113,12 +113,12 @@ class Economy {
                     bits: 0,
                     claimTime: 0,
                     streak: 0
-                }
+                };
             }
-    
+
             if(amount > this.MAX_MONEY) userData.bits = this.MAX_MONEY;
             else userData.bits += amount;
-    
+
             await Database.SetData("Currency", userData);
 
             this.Log("ADD", {
@@ -128,9 +128,9 @@ class Economy {
             }, reason);
 
             return Promise.resolve(userData);
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
-        }   
+        }
     }
 
     public static async Remove(member: GuildMember, amount: number, reason?: string) {
@@ -142,12 +142,12 @@ class Economy {
                     bits: 0,
                     claimTime: 0,
                     streak: 0
-                }
+                };
             }
-    
+
             if(amount < this.MIN_MONEY) userData.bits = this.MIN_MONEY;
             else userData.bits -= amount;
-    
+
             await Database.SetData("Currency", userData);
 
             this.Log("REMOVE", {
@@ -155,16 +155,16 @@ class Economy {
                 amount: amount,
                 bits: userData.bits
             }, reason);
-            
+
             return Promise.resolve(userData);
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
 
     public static async Transfer(fromMember: GuildMember, toMember: GuildMember, amount: number, reason?: string) {
         try {
-            let fromUserData =  await Database.GetData("Currency", fromMember.id);
+            let fromUserData = await Database.GetData("Currency", fromMember.id);
             let toUserData = await Database.GetData("Currency", toMember.id);
 
             let response = ResponseTypes.NONE;
@@ -208,7 +208,7 @@ class Economy {
             }
 
             return Promise.resolve({ fromUserData, toUserData, response });
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
@@ -276,7 +276,7 @@ class Economy {
             }
 
             return Promise.resolve<null>(null);
-        } catch (error) {
+        } catch(error) {
             return Promise.reject(error);
         }
     }
@@ -284,21 +284,21 @@ class Economy {
     private static Log(type: "ADD", options: {
         member: GuildMember,
         amount: number,
-        bits: number
+        bits: number;
     }, reason?: string): any;
     private static Log(type: "REMOVE", options: {
         member: GuildMember,
         amount: number,
-        bits: number
+        bits: number;
     }, reason?: string): any;
     private static Log(type: "TRANSFER", options: {
         member: GuildMember,
         amount: number,
         bits: number,
         toMember: GuildMember,
-        toBits: number
+        toBits: number;
     }, reason?: string): any;
-    private static Log(type: "ADD"|"REMOVE"|"TRANSFER", options: any, reason = "Nincs megadva.") {
+    private static Log(type: "ADD" | "REMOVE" | "TRANSFER", options: any, reason = "Nincs megadva.") {
         const { member, amount, bits } = options;
         const embed = new MessageEmbed()
             .setTimestamp(Date.now())
@@ -318,12 +318,12 @@ class Economy {
                 inline: false
             };
             embed.fields[1].inline = false;
-            embed.fields[2].name = `${member.displayName} egyenlege`
+            embed.fields[2].name = `${member.displayName} egyenlege`;
             embed.fields[2].inline = false;
             embed.addField(`${toMember.displayName} egyenlege`, `\`\`\`${toBits} bits\`\`\``, false);
         }
 
-        embed.addField("Ok",`\`\`\`${reason}\`\`\``, false);
+        embed.addField("Ok", `\`\`\`${reason}\`\`\``, false);
 
         return member.client.economyLogChannel.send({ embed: embed });
     }

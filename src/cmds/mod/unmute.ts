@@ -1,6 +1,6 @@
 import { Message, MessageMentions } from "discord.js";
 import Tools from "../../utils/tools";
-import { Prefix, StaffIds } from "../../settings.json";
+import { Prefix, StaffIds } from "../../settings";
 import { MuteHandler } from "../../systems/security";
 import BaseCommand from "../../structures/base-command";
 
