@@ -7,6 +7,7 @@ declare global {
       DB_USER: string;
       DB_PASS: string;
       DB_NAME: string;
+      EXCHANGE_API: string;
     }
   }
 }

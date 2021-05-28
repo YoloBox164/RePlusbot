@@ -3,8 +3,6 @@ import got from "got";
 import BaseCommand from "../../structures/base-command";
 import { Prefix } from "../../settings";
 
-const api = "06b26c42ff1b069252795e80";
-
 class Exchange implements BaseCommand {
     pathToCmd = module.filename;
 
@@ -41,7 +39,7 @@ class Exchange implements BaseCommand {
 
             const symbol = isoCurrMap[to].symbol_native;
 
-            const res: any = await got(`https://v3.exchangerate-api.com/pair/${api}/${fr}/${to}`).json();
+            const res: any = await got(`https://v3.exchangerate-api.com/pair/${process.env.EXCHANGE_API}/${fr}/${to}`).json();
             if(res["result"] == "failed") {
                 return message.channel.send(res["error"]);
             }
