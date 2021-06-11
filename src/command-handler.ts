@@ -1,84 +1,32 @@
-import { Collection } from "discord.js";
-
-import fs from "fs";
+import { Collection, Message } from "discord.js";
+import { Prefix } from "./settings";
 import colors from "colors";
-import BaseCommand from "./structures/base-command";
 
-const PathToCmds = `${module.path}/cmds`; // Relative to client.ts
+export default class CommandHandler {
+  public static commands = new Collection<string, Command>();
 
-const commands = new Collection<string, BaseCommand>();
-const categories = new Collection<string, string[]>();
+  public static get(message: Message): { command: Command; args: string[]; } {
+    const { commandName, args } = this.makeArgs(message, Prefix);
+    const command = this.commands.get(commandName) || this.commands.find(c => c.aliases && c.aliases.includes(commandName));
+    return { command, args };
+  }
 
-class CommandHandler {
-    public isCommandsLoaded: boolean;
-
-    constructor() {
-        this.isCommandsLoaded = false;
-        this.loadCmds();
-    }
-
-    public async loadCmds() {
-        try {
-            let counter = 0;
-            for(const category of fs.readdirSync(PathToCmds)) {
-                console.log(colors.cyan(`Loading ${category} commands!`));
-                const files = fs.readdirSync(`${PathToCmds}/${category}/`).filter(f => f.split(".").pop() == "js" || f.split(".").length < 2);
-                counter += files.length;
-    
-                const cmdNames: string[] = [];
-    
-                files.forEach((v, i, a) => a[i] = v.split(".").shift());
-                
-                for(const file of files) {
-                    loadCmd(`${PathToCmds}/${category}/${file}`).then((cmd) => { cmdNames.push(cmd.name); }).catch(console.error);
-                }
-                categories.set(category, cmdNames);
-                console.log(colors.cyan(`Successfully loaded ${category} commands!\n`));
-            }
-            console.log(colors.green.bold(`Successfully loaded all the ${counter} commands!\n`));
-            this.isCommandsLoaded = true;
-            return Promise.resolve(this.isCommandsLoaded);
-        } catch (error) {
-            return Promise.reject(error);
-        }
-    }
-
-    public reloadCmd(cmdName: string): Promise<string> {
-        if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
-        if(commands.has(cmdName)) {
-            loadCmd(commands.get(cmdName).pathToCmd).catch(console.error);
-        }
-        return Promise.resolve("DONE");
-    }
-
-    public get categories(): Promise<typeof categories> {
-        if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
-        return Promise.resolve(categories);
-    }
-
-    public get commands(): Promise<typeof commands> {
-        if(!this.isCommandsLoaded) return Promise.reject(new Error("Commands must be loaded to be able to use this function!"));
-        return Promise.resolve(commands);
-    }
+  private static makeArgs(message: Message, prefix: string): { commandName: string; args: string[]; } {
+    const [commandName, ...args] = message.content.trim().slice(prefix.length).split(/\s+/g);
+    return { commandName: commandName.toLowerCase(), args: args };
+  }
 }
 
-export default CommandHandler;
+export abstract class Command {
+  public abstract name: string;
+  public abstract aliases: string[];
+  public abstract category: string;
+  public abstract hasArgs: boolean;
+  public abstract isDev: boolean;
+  public abstract run(message: Message, args: string[]): Promise<void>;
 
-async function loadCmd(path: string): Promise<BaseCommand> {
-    try {
-        delete require.cache[require.resolve(path)];
-
-        //        [0]/ [1]/[2]/[3]
-        // example ./cmds/dev/eval.ts
-        const file = path.split("/").pop();
-    
-        const cmd: BaseCommand = require(path).default;
-    
-        console.log(colors.white(`${file} loaded!`));
-    
-        commands.set(cmd.name, cmd);
-        return Promise.resolve(cmd);
-    } catch (error) {
-        return Promise.reject(error);
-    }
+  protected init(): void {
+    CommandHandler.commands.set(this.name.toLowerCase(), this);
+    console.log(colors.cyan(`${this.name} command init finished!`));
+  }
 }

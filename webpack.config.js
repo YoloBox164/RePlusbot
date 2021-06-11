@@ -5,7 +5,6 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const DotenvWebpackPlugin = require("dotenv-webpack");
 
 /** @type {import("webpack").Configuration} */
 const Default = {
@@ -13,7 +12,7 @@ const Default = {
   entry: "./src/client.ts",
   target: "node",
   resolve: {
-    extensions: [".ts", ".json"],
+    extensions: [".js", ".ts", ".json"],
   },
   externals: [nodeExternals()],
   devtool: "source-map",
@@ -24,6 +23,12 @@ const Default = {
     assetModuleFilename: "resources/[name][ext]",
   },
   mode: "production",
+  devServer: {
+    contentBase: path.join(__dirname, "dist"),
+    port: 9000,
+    writeToDisk: true,
+    hot: true,
+  },
   module: {
     rules: [
       {
@@ -46,14 +51,13 @@ const Default = {
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       eslint: {
-        files: "./src/**/*.{ts,js}",
+        files: "./src/**/*.ts",
       },
     }),
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: ["package.json"],
     }),
-    new DotenvWebpackPlugin(),
   ],
 };
 

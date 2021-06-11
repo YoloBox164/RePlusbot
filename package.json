@@ -4,37 +4,41 @@
   "description": "A custom discord bot.",
   "main": "dist/main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node --trace-warnings --enable-source-maps main.js",
     "build": "webpack",
-    "dev": "node dist/main.js"
+    "hot": "webpack serve",
+    "dev": "nodemon --require dotenv/config --trace-warnings --enable-source-maps -w ./dist ./dist/main.js"
   },
   "repository": "https://github.com/CsiPA0723/revoltbot",
   "author": "Péter Csizmadia <csizipeti0723@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/dateformat": "^3.0.1",
+    "@types/luxon": "^1.27.0",
     "@types/node": "^15.6.1",
     "@types/ts-nameof": "^4.2.1",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
     "copy-webpack-plugin": "^9.0.0",
-    "dotenv-webpack": "^7.0.2",
     "eslint": "^7.27.0",
     "fork-ts-checker-webpack-plugin": "^6.2.10",
+    "nodemon": "^2.0.7",
     "ts-loader": "^9.2.2",
     "ts-nameof": "^5.0.0",
     "typescript": "^4.3.2",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2",
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "chart.js": "^3.3.0",
     "colors": "^1.4.0",
-    "dateformat": "^4.5.1",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
-    "got": "^11.8.2"
+    "got": "^11.8.2",
+    "luxon": "^1.27.0",
+    "mariadb": "^2.5.3",
+    "mathjs": "^9.4.1"
   }
 }

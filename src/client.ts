@@ -1,6 +1,10 @@
+
 import { Client } from "discord.js";
-import dateFormat from "dateformat";
-import Settings from "./settings";
+import { DateTime } from "luxon";
+
+import "./command-handler";
+import "./commands";
+import EventHandler from "./event-handler";
 
 const client = new Client({
   partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"],
@@ -27,33 +31,23 @@ const client = new Client({
 
 declare module 'discord.js' {
   interface Client {
-    prefix: string;
-    devPrefix: string;
-    devId: string;
-
     mainGuild: Guild;
     logChannel: TextChannel;
     automodLogChannel: TextChannel;
     economyLogChannel: TextChannel;
     devLogChannel: TextChannel;
 
-    CommandHandler: import("./command-handler").default;
-    EventHandler: import("./event-handler").default;
-
     logDate: (timestampt?: number) => string;
-    //---------------------------------------------------//
-
   }
 }
 
 client.logDate = (timestamp: number) => {
   if(!timestamp) timestamp = Date.now();
-  return dateFormat(timestamp, "yyyy-mm-dd | HH:MM:ss 'GMT'o");
+  return DateTime.fromMillis(timestamp).toFormat("yyyy-MM-dd | TT 'GMT'ZZZ");
 };
 
-client.prefix = Settings.Prefix;
-
 client.on("ready", () => {
+  EventHandler(client);
   console.log("Ready!");
 });
 
