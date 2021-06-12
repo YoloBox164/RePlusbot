@@ -4,6 +4,7 @@ import colors from "colors";
 
 export default class CommandHandler {
   public static commands = new Collection<string, Command>();
+  public static categories = new Collection<string, string[]>();
 
   public static get(message: Message): { command: Command; args: string[]; } {
     const { commandName, args } = this.makeArgs(message, Prefix);
@@ -27,6 +28,8 @@ export abstract class Command {
 
   protected init(): void {
     CommandHandler.commands.set(this.name.toLowerCase(), this);
+    const prev = CommandHandler.categories.get(this.category);
+    CommandHandler.categories.set(this.category, prev && Array.isArray(prev) ? [...prev, this.name] : [this.name]);
     console.log(colors.cyan(`${this.name} command init finished!`));
   }
 }
