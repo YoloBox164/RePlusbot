@@ -5,12 +5,11 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const { WebpackPluginServe } = require("webpack-plugin-serve");
 
 /** @type {import("webpack").Configuration} */
 const Default = {
   context: __dirname,
-  entry: ["./src/client.ts", "webpack-plugin-serve/client"],
+  entry: "./src/client.ts",
   target: "node",
   resolve: {
     extensions: [".js", ".ts", ".json"],
@@ -44,10 +43,6 @@ const Default = {
     ],
   },
   plugins: [
-    new WebpackPluginServe({
-      hmr: true,
-      port: 9000,
-    }),
     new ForkTsCheckerWebpackPlugin({
       eslint: {
         files: "./src/**/*.ts",
