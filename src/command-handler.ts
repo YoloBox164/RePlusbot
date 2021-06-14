@@ -22,9 +22,11 @@ export abstract class Command {
   public abstract name: string;
   public abstract aliases: string[];
   public abstract category: string;
-  public abstract hasArgs: boolean;
+  public abstract desc: string;
+  public abstract args: Array<unknown>;
   public abstract isDev: boolean;
   public abstract run(message: Message, args: string[]): Promise<void>;
+  public abstract run(...args: Array<unknown>): Promise<unknown>;
 
   protected init(): void {
     CommandHandler.commands.set(this.name.toLowerCase(), this);
