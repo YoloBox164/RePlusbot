@@ -5,7 +5,8 @@ class Ping extends Command {
   public name = "Ping";
   public aliases = [];
   public category = "Info";
-  public hasArgs = false;
+  public desc = "Ping - Pong!";
+  public args = [];
   public isDev = false;
 
   constructor() {
