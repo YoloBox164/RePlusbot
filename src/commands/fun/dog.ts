@@ -3,7 +3,7 @@ import got from "got";
 import { Command } from "../../command-handler";
 
 class Dog extends Command {
-    public name = "dog";
+    public name = "Dog";
     public aliases = ["dogy", "kutyi"];
     public desc = "Véletlenszerű kutyi gifek.";
     public category = "Fun";
