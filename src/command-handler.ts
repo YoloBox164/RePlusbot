@@ -6,7 +6,7 @@ export default class CommandHandler {
   public static commands = new Collection<string, Command>();
   public static categories = new Collection<string, string[]>();
 
-  public static get(message: Message): { command: Command; args: string[]; } {
+  public static getCommand(message: Message): { command: Command; args: string[]; } {
     const { commandName, args } = this.makeArgs(message, Prefix);
     const command = this.commands.get(commandName) || this.commands.find(c => c.aliases && c.aliases.includes(commandName));
     return { command, args };
