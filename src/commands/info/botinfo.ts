@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Duration } from "luxon";
 import { Command } from "../../command-handler";
+import { stripIndents } from "common-tags";
 
 class BotInfo extends Command {
   public category = "Info";
@@ -23,17 +24,18 @@ class BotInfo extends Command {
       .setAuthor(bot.user.username)
       .setTitle("Bot information:")
       .setDescription(
-        `**Tejles név:** *${bot.user.username}#${bot.user.discriminator}*
-        **ID:** *${bot.user.id}*\n
-        **Státusz:** *${bot.user.presence.status}*
-        **Létrehozva:** *${bot.user.createdAt}*\n
-        **Készítő:** *${message.guild.member("333324517730680842") || "CsiPA0723#0423"}*
-        **Guildek száma:** *${bot.guilds.cache.size}*
-        **Szobák száma:** *${bot.channels.cache.size}*
-        **Felhasználók száma:** *${bot.users.cache.size}*\n
-        **Futási idő:** *${Duration.fromMillis(bot.uptime).toFormat("d nap | hh:mm:ss")}*`
-      )
-      .setThumbnail(bot.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
+        stripIndents`
+          **Tejles név:** *${bot.user.username}#${bot.user.discriminator}*
+          **ID:** *${bot.user.id}*\n
+          **Státusz:** *${bot.user.presence.status}*
+          **Létrehozva:** *${bot.user.createdAt}*\n
+          **Készítő:** *${message.guild.member("333324517730680842") || "CsiPA0723#0423"}*
+          **Guildek száma:** *${bot.guilds.cache.size}*
+          **Szobák száma:** *${bot.channels.cache.size}*
+          **Felhasználók száma:** *${bot.users.cache.size}*\n
+          **Futási idő:** *${Duration.fromMillis(bot.uptime).toFormat("d nap | hh:mm:ss")}*
+        `
+      ).setThumbnail(bot.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
       .setColor(message.guild.member(bot.user).displayHexColor);
 
     message.channel.send({ embed: embed }).then(() => msg.delete());
