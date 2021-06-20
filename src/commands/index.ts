@@ -1,8 +1,10 @@
-export * from "./info/avatar";
-export * from "./info/botinfo";
-export * from "./info/icon";
-export * from "./info/ping";
-export * from "./info/serverinfo";
+import "./info/avatar";
+import "./info/botinfo";
+import "./info/icon";
+import "./info/ping";
+import "./info/serverinfo";
 
-export * from "./fun/cat";
-export * from "./fun/dog";
+import "./fun/cat";
+import "./fun/dog";
+
+import "./utility/exchange";
