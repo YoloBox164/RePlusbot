@@ -1,10 +1,11 @@
-
 import { Client } from "discord.js";
-import { DateTime } from "luxon";
 
+import "./structures";
 import "./command-handler";
 import "./commands";
+
 import EventHandler from "./event-handler";
+import ClientTools from "./utils/client-tools";
 
 const client = new Client({
   partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"],
@@ -29,7 +30,7 @@ const client = new Client({
   },
 });
 
-declare module 'discord.js' {
+declare module "discord.js" {
   interface Client {
     mainGuild: Guild;
     logChannel: TextChannel;
@@ -37,14 +38,9 @@ declare module 'discord.js' {
     economyLogChannel: TextChannel;
     devLogChannel: TextChannel;
 
-    logDate: (timestampt?: number) => string;
+    tools: typeof ClientTools;
   }
 }
-
-client.logDate = (timestamp: number) => {
-  if(!timestamp) timestamp = Date.now();
-  return DateTime.fromMillis(timestamp).toFormat("yyyy-MM-dd | TT 'GMT'ZZZ");
-};
 
 client.on("ready", () => {
   EventHandler(client);
