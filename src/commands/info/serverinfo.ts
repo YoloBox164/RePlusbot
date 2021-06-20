@@ -45,7 +45,7 @@ class ServerInfo extends Command {
         { name: "Tulajdonos Tag-je", value: `\`\`\`${guild.owner.user.tag}\`\`\``, inline: true },
         { name: "Tulajdonos ID-ja", value: `\`\`\`xl\n${guild.ownerID}\`\`\``, inline: true },
         { name: "\u200b", value: "\u200b", inline: false },
-        { name: "Létrehozva", value: message.client.logDate(guild.createdTimestamp), inline: false },
+        { name: "Létrehozva", value: message.client.tools.logDate(guild.createdTimestamp), inline: false },
         { name: "Tagok Száma", value: guild.members.cache.filter(m => !m.user.bot).size, inline: true },
         { name: "Botok Száma", value: guild.members.cache.filter(m => m.user.bot).size, inline: true },
         { name: "Szobák száma", value: guild.channels.cache.size, inline: true }
