@@ -6,9 +6,14 @@ export default async function (message: Message): Promise<void> {
     if(message.partial) await message.fetch();
     if(message.author.bot) return;
     if(message.channel.type === "dm") return;
+    if(!message.startsWithPrefix) return;
 
-    const { command, args } = CommandHandler.get(message);
-    if(command) command.run(message, args);
+    const { command, args } = CommandHandler.getCommand(message);
+
+    if(!command) return;
+
+    if(!command.isDev) command.run(message, args);
+    else if(message.author.isDev) command.run(message, args);
   } catch(error) {
     return Promise.reject(error);
   }
