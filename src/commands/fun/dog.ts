@@ -19,7 +19,10 @@ class Dog extends Command {
     try {
       const msg = await message.channel.send("Lekérés...");
 
-      const response = await axios.get("https://api.thedogapi.com/v1/images/search?mime_types=gif", { responseType: "json" });
+      const response = await axios.get<DogAPIResponse[]>(
+        "https://api.thedogapi.com/v1/images/search?mime_types=gif",
+        { responseType: "json" }
+      );
 
       const embed = new MessageEmbed()
         .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))

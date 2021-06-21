@@ -39,3 +39,63 @@ interface ISOCurrencyMapResponse {
     rounding: number;
   };
 }
+
+interface CatAPIResponse {
+  id: string;
+  url: string;
+  categories: {
+    id: number;
+    name: string;
+  }[];
+  breeds: {
+    id: string;
+    name: string;
+    temperament: string;
+    life_span: string;
+    alt_names: string;
+    wikipedia_url: string;
+    origin: string;
+    weight_imperial: string;
+    experimental: boolean;
+    hairless: boolean;
+    natural: boolean;
+    rare: boolean;
+    rex: boolean;
+    suppress_tail: boolean;
+    short_legs: boolean;
+    hypoallergenic: boolean;
+    adaptaboility: 1 | 2 | 3 | 4 | 5;
+    affection_level: 1 | 2 | 3 | 4 | 5;
+    country_code: string;
+    child_friendly: 1 | 2 | 3 | 4 | 5;
+    dog_friendly: 1 | 2 | 3 | 4 | 5;
+    grooming: 1 | 2 | 3 | 4 | 5;
+    health_issues: 1 | 2 | 3 | 4 | 5;
+    intelligence: 1 | 2 | 3 | 4 | 5;
+    shedding_level: 1 | 2 | 3 | 4 | 5;
+    social_needs: 1 | 2 | 3 | 4 | 5;
+    stranger_friendly: 1 | 2 | 3 | 4 | 5;
+    vocalisation: 1 | 2 | 3 | 4 | 5;
+  }[];
+}
+
+interface DogAPIResponse {
+  id: string;
+  url: string;
+  categories: {
+    id: number;
+    name: string;
+  }[];
+  breeds: {
+    id: string;
+    name: string;
+    temperament: string;
+    life_span: string;
+    alt_names: string;
+    wikipedia_url: string;
+    origin: string;
+    weight: Record<string, unknown>;
+    country_code: string;
+    height: Record<string, unknown>;
+  }[];
+}
