@@ -22,7 +22,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,ts}": "eslint --cache --fix"
+    "*.{js,ts}": "eslint --fix"
   },
   "devDependencies": {
     "@types/common-tags": "^1.8.0",
