@@ -7,11 +7,23 @@
     "start": "node --trace-warnings --enable-source-maps main.js",
     "build": "wp",
     "serve": "wp --config webpack.config.dev.js",
-    "dev": "nodemon --require dotenv/config --trace-warnings --enable-source-maps -w ./dist ./dist/main.js"
+    "dev": "nodemon --require dotenv/config --trace-warnings --enable-source-maps -w ./dist ./dist/main.js",
+    "prepare": "husky install"
   },
   "repository": "https://github.com/CsiPA0723/revoltbot",
-  "author": "Péter Csizmadia <csizipeti0723@gmail.com>",
-  "license": "MIT",
+  "author": {
+    "name": "Péter Csizmadia",
+    "email": "csizipeti0723@gmail.com"
+  },
+  "license": "GPL-3.0-or-later",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --cache --fix"
+  },
   "devDependencies": {
     "@types/common-tags": "^1.8.0",
     "@types/luxon": "^1.27.0",
@@ -23,8 +35,13 @@
     "clean-webpack-plugin": "^4.0.0-alpha.0",
     "copy-webpack-plugin": "^9.0.0",
     "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
     "fork-ts-checker-webpack-plugin": "^6.2.10",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.1.0",
     "nodemon": "^2.0.7",
+    "prettier": "^2.3.2",
     "ts-loader": "^9.2.2",
     "ts-nameof": "^5.0.0",
     "typescript": "^4.3.2",

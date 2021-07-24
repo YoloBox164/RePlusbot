@@ -7,7 +7,7 @@ declare module "discord.js" {
   }
 }
 
-Structures.extend("User", User => {
+Structures.extend("User", (User) => {
   class CustomUser extends User {
     public isDev = this.id === DevID;
 

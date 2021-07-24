@@ -2,7 +2,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       TOKEN: string;
-      PRODUCTION: boolean;
+      NODE_ENV: "developer" | "production";
       DB_HOST: string;
       DB_USER: string;
       DB_PASS: string;
@@ -12,4 +12,4 @@ declare global {
   }
 }
 
-export { };
+export {};

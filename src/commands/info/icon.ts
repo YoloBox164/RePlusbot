@@ -16,7 +16,10 @@ class Icon extends Command {
   }
 
   public async run(message: Message) {
-    if(!message.guild.iconURL()) { message.channel.send("Ennek a szervernek nincsen ikonja."); return; }
+    if (!message.guild.iconURL()) {
+      message.channel.send("Ennek a szervernek nincsen ikonja.");
+      return;
+    }
     const msg = await message.channel.send("Szerver ikon lehívása...");
     const embed = new MessageEmbed()
       .setTitle("Szerver Ikon")
@@ -26,7 +29,6 @@ class Icon extends Command {
 
     message.channel.send({ embed: embed }).then(() => msg.delete());
   }
-
 }
 
 export default new Icon();

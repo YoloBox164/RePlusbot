@@ -13,9 +13,8 @@ function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
-Structures.extend("Message", Message => {
+Structures.extend("Message", (Message) => {
   class CustomMessage extends Message {
-
     public startsWithPrefix = prefixRegex.test(this.content);
 
     constructor(client: Client, data: Record<string, unknown>, channel: DMChannel | TextChannel | NewsChannel) {

@@ -18,16 +18,16 @@ class Shutdown extends Command {
     const switchmodes = ["switchmode", "switch", "sw"];
 
     const command = args[0];
-    if(!command) return;
+    if (!command) return;
 
-    if(shutdowns.includes(command)) {
+    if (shutdowns.includes(command)) {
       await ShutdownSequence(message, "Shutting down");
-    } else if(updates.includes(command)) {
+    } else if (updates.includes(command)) {
       await ShutdownSequence(message, "Updating");
-    } else if(restarts.includes(command)) {
+    } else if (restarts.includes(command)) {
       await ShutdownSequence(message, "Restarting");
-    } else if(switchmodes.includes(command)) {
-      await ShutdownSequence(message, "Switching to mode: " + (process.env.PRODUCTION ? "production." : "development."));
+    } else if (switchmodes.includes(command)) {
+      await ShutdownSequence(message, `Switching to mode: ${process.env.NODE_ENV}`);
     }
   }
 }

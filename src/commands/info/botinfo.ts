@@ -35,7 +35,8 @@ class BotInfo extends Command {
           **Felhasználók száma:** *${bot.users.cache.size}*\n
           **Futási idő:** *${Duration.fromMillis(bot.uptime).toFormat("d nap | hh:mm:ss")}*
         `
-      ).setThumbnail(bot.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
+      )
+      .setThumbnail(bot.user.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
       .setColor(message.guild.member(bot.user).displayHexColor);
 
     message.channel.send({ embed: embed }).then(() => msg.delete());

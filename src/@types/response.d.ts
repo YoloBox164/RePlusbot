@@ -1,7 +1,7 @@
 interface ExchangeRateAPIResponse {
   result: "success" | "error";
   /** https://www.exchangerate-api.com/docs */
-  documentation?: string,
+  documentation?: string;
   /** https://www.exchangerate-api.com/terms */
   terms_of_use?: string;
   /** Milliseconds */

@@ -6,6 +6,7 @@ import "./commands";
 
 import EventHandler from "./event-handler";
 import ClientTools from "./utils/client-tools";
+import logger from "./logger";
 
 const client = new Client({
   partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"],
@@ -25,8 +26,8 @@ const client = new Client({
       "GUILD_MESSAGE_TYPING",
       "GUILD_PRESENCES",
       "GUILD_VOICE_STATES",
-      "GUILD_WEBHOOKS"
-    ]
+      "GUILD_WEBHOOKS",
+    ],
   },
 });
 
@@ -44,7 +45,7 @@ declare module "discord.js" {
 
 client.on("ready", () => {
   EventHandler(client);
-  console.log("Ready!");
+  logger.info("Ready!");
 });
 
-client.login(process.env.TOKEN).catch(console.error);
+client.login(process.env.TOKEN).catch(logger.error);

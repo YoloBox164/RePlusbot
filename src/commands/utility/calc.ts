@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import { evaluate } from "mathjs";
 import { Command } from "../../command-handler";
+import logger from "../../logger";
 
 class Calc extends Command {
   public category = "Utility";
@@ -12,7 +13,10 @@ class Calc extends Command {
   public desc = "Egy számológép.";
 
   public async run(message: Message, args: Array<string>) {
-    if(!args[0]) { message.channel.send("Kérem adjon meg egy helyes matematikai számítást."); return; }
+    if (!args[0]) {
+      message.channel.send("Kérem adjon meg egy helyes matematikai számítást.");
+      return;
+    }
     try {
       const res = evaluate(args.join(" "));
       const embed = new MessageEmbed()
@@ -22,8 +26,8 @@ class Calc extends Command {
         .addField("Kimenet", `\`\`\`js\n${res}\`\`\``);
 
       message.channel.send({ embed: embed });
-    } catch(error) {
-      message.channel.send("Valami nem úgy ment mint kellett volna.").catch(console.error);
+    } catch (error) {
+      message.channel.send("Valami nem úgy ment mint kellett volna.").catch(logger.error);
       return Promise.reject(error);
     }
   }
