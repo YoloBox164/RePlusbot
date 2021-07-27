@@ -7,6 +7,7 @@ import "./commands";
 import EventHandler from "./event-handler";
 import ClientTools from "./utils/client-tools";
 import logger from "./logger";
+import { Connect } from "./systems/database";
 
 const client = new Client({
   partials: ["GUILD_MEMBER", "CHANNEL", "MESSAGE", "REACTION", "USER"],
@@ -45,6 +46,7 @@ declare module "discord.js" {
 
 client.on("ready", () => {
   EventHandler(client);
+  Connect();
   logger.info("Ready!");
 });
 
