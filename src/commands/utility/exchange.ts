@@ -19,14 +19,17 @@ class Exchange extends Command {
   public async run(message: Message, args: Array<string>) {
     try {
       const msg = await message.channel.send("Átváltás...");
-      const isoCurrMap = await axios.get<ISOCurrencyMapResponse>("http://www.localeplanet.com/api/auto/currencymap.json", { responseType: "json" });
+      const isoCurrMap = await axios.get<ISOCurrencyMapResponse>(
+        "http://www.localeplanet.com/api/auto/currencymap.json",
+        { responseType: "json" }
+      );
 
       const valueIsNaN = Number(args[0]) !== Number(args[0]);
 
       const val = valueIsNaN ? 1 : Number(args[0]);
       let fr: string, to: string;
 
-      if(valueIsNaN) {
+      if (valueIsNaN) {
         fr = args[0]?.toUpperCase();
         to = args[1]?.toUpperCase();
       } else {
@@ -42,8 +45,9 @@ class Exchange extends Command {
         { responseType: "json" }
       );
 
-      if(response.data.result === "error") {
-        message.channel.send(response.data["error-type"]); return;
+      if (response.data.result === "error") {
+        message.channel.send(response.data["error-type"]);
+        return;
       }
 
       const embed = new MessageEmbed()
@@ -51,10 +55,13 @@ class Exchange extends Command {
         .setTitle(`${fr} => ${to}`)
         .setAuthor(message.author.tag, message.author.displayAvatarURL({ size: 4096, format: "png", dynamic: true }))
         .setColor(message.guild.member(message.client.user).displayHexColor)
-        .addField("Eredmény", `\`\`\`${response.data.conversion_rate * val} ${isoCurrMap.data[to].symbol_native}\`\`\``);
+        .addField(
+          "Eredmény",
+          `\`\`\`${response.data.conversion_rate * val} ${isoCurrMap.data[to].symbol_native}\`\`\``
+        );
 
       message.channel.send({ embed: embed }).then(() => msg.delete());
-    } catch(error) {
+    } catch (error) {
       return Promise.reject(error);
     }
   }
