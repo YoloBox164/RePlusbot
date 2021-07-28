@@ -82,5 +82,3 @@ class UserModel extends Model<UserAttributes, PrimaryKey> {
 }
 
 export const UserFactory = new UserModel();
-
-UserFactory.findByPK({ id: "asd" });

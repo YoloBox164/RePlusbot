@@ -4,7 +4,7 @@ export default function buildColumnsFrom<T>(columns: ModelColumns<T>): string[] 
   const tableArrString: string[] = [];
   const foreignReferences: string[] = [];
   for (const name in columns) {
-    if (Object.prototype.hasOwnProperty.call(columns, name)) {
+    if (columns.hasOwnProperty(name)) {
       const { type, allowNull, defaultValue, primaryKey, autoIncrement, unique, references } = columns[name];
       let string = `${name} ${type}`;
       if (primaryKey) string += " PRIMARY KEY";
