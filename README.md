@@ -2,8 +2,6 @@
 
 A custom made discord bot for the [RetroBitz](https://discord.gg/556EbwNJJ2) communtity.
 
----
-
 ## Functionalities
 
 - Moderation
@@ -15,8 +13,6 @@ A custom made discord bot for the [RetroBitz](https://discord.gg/556EbwNJJ2) com
 - Registry system
 - Warnings
 - Keeps track of invites
-
----
 
 ## How to Build
 
