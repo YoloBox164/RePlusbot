@@ -51,7 +51,7 @@
     "webpack-plugin-serve": "^1.4.1"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "chart.js": "^3.3.0",
     "colors": "^1.4.0",
     "common-tags": "^1.8.0",
