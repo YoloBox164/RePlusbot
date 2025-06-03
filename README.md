@@ -2,7 +2,7 @@
 
 An all-around bot for discord servers
 
-Forked from [Revoltbot]{https://github.com/CsiPA0723/Revoltbot}
+Forked from {Revoltbot}[https://github.com/CsiPA0723/Revoltbot]
 
 ## Functionalities
 
